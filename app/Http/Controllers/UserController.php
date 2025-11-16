@@ -6,20 +6,28 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function dashboard(){
+    public function Dashboard()
+    {
         return view('User_Folder.Dashboard');
     }
 
-    public function quiz(){
+    public function QuizPage()
+    {
         return view('User_Folder.QuizPage');
     }
 
-    public function profile(){
+    public function ProfilePage()
+    {
         return view('User_Folder.ProfilePage');
     }
-    public function record(){
+    public function RecordPage()
+    {
         return view('User_Folder.RecordPage');
     }
 
-    
+    public function TakingQuiz()
+    {
+        return view('User_Folder.TakeQuizPage');
+    }
+
 }

@@ -5,7 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dash Quiz - Learn and test yourself!</title>
-    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <!-- Inline styles (optional) -->
     <style>
         .error {
             color: red;
@@ -13,7 +17,7 @@
         }
     </style>
 </head>
-    
+
 <body>
     <!-- Top Header -->
     <header class="top-bar">
@@ -33,21 +37,27 @@
         <div class="right-section">
             <form class="login-box" method="POST" action="{{ route('login_request') }}">
                 @csrf
-                <input type="email" id="email" name="email" placeholder="Email Address" />
-                @error('email')
-                <div class="error"> Email Error</div>
-                @enderror
-                <!-- Displays the error-->
-                <input type="password" id="pass" name="password" placeholder="Enter Password" autocomplete="false" />
-                @error('password')
-                <div class="error">Password Error</div>
-                @enderror
-                <!-- Displays the error-->  
 
+                <!-- Email Input -->
+                <input type="email" id="email" name="email" placeholder="Email Address" value="{{ old('email') }}" />
+                @error('email')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+
+                <!-- Password Input -->
+                <input type="password" id="pass" name="password" placeholder="Enter Password"
+                    autocomplete="false" />
+                @error('password')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+
+                <!-- Submit Button -->
                 <button type="submit" class="login-btn">Log In</button>
 
-                <a href="forgot.html" class="forgot">forgot password?</a>
-                <button class="register-btn" onclick="window.location.href='register.html'">
+                <!-- Links -->
+                <a href="" class="forgot">Forgot password?</a>
+                <button type="button" class="register-btn"
+                    onclick="window.location.href='{{ route('register_page') }}'">
                     Register Now!
                 </button>
             </form>
@@ -58,3 +68,6 @@
     <footer>
         <p>© 2025 Dash Quiz All Rights Reserved.</p>
     </footer>
+</body>
+
+</html>

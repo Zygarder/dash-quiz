@@ -10,21 +10,13 @@
 
 <body>
     <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar">
-        <h2>DASH QUIZ</h2>
-        <ul>
-            <li><a href="{{ route('user-board') }}">Dashboard</a></li>
-            <li><a href="#" class="active">Take a Quiz</a></li>
-            <li><a href="{{ route('record-page') }}">Check Records</a></li>
-            <li> <a href="{{ route('profile-page') }}">My Profile</a></li>
-        </ul>
-    </nav>
+    @include('User_Folder.Sidebar')
 
     <!-- Top Bar -->
     <header class="top-bar">
         <div class="menu-btn" id="menuBtn">&#9776;</div>
         <p>CHOOSE YOUR PREFERRED CHALLENGE</p>
-        <a href="index.html" class="logout-btn">Log Out</a>
+        <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
     </header>
 
     <!-- Main Content -->
@@ -32,15 +24,20 @@
         <section class="challenge-container">
             <h2>Computer Systems Servicing</h2>
             <div class="competency-buttons">
-                <button class="competency-btn">Certificate Of Competency 1</button>
-                <button class="competency-btn">Certificate Of Competency 2</button>
-                <button class="competency-btn">Certificate Of Competency 3</button>
+                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 1</button>
+                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 2</button>
+                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 3</button>
             </div>
         </section>
     </main>
 
     <!-- Sidebar Toggle Script -->
-    <script src="{{ asset('js/script.js') }}"></script>
+    <script src="{{ asset('js/sidebar_function.js') }}"></script>
+    <script>
+        function takeQuiz() {
+            window.location.href = "/quiz-show";
+        }
+    </script>
 </body>
 
 </html>
