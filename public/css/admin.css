@@ -1,0 +1,222 @@
+body {
+    font-family: "Poppins", sans-serif;
+    margin: 0;
+    background-color: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  /* === Header === */
+  .admin-header {
+    background: #3f2ea3;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logout-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    background: #5b4bf2;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+  
+  .logout-btn:hover {
+    background: #6c5bf7;
+  }
+  
+  /* === Layout === */
+  .admin-container {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+  
+  /* === Sidebar === */
+  .admin-sidebar {
+    width: 240px;
+    background: #4b3cd1;
+    color: white;
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 70px);
+  }
+  
+  .sidebar-title {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  .admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .admin-sidebar ul li {
+    margin: 10px 0;
+  }
+  
+  .admin-sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 12px 20px;
+    transition: background 0.3s;
+    border-radius: 6px;
+  }
+  
+  .admin-sidebar ul li.active a,
+  .admin-sidebar ul li a:hover {
+    background: white;
+    color: #3f2ea3;
+  }
+  
+  /* === Main Content === */
+  .admin-main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .admin-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .admin-card {
+    background: #eaeaea;
+    padding: 30px;
+    border-radius: 10px;
+    flex: 1 1 200px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-card.wide {
+    flex: 1 1 100%;
+  }
+  
+  /* === Footer === */
+  .admin-footer {
+    text-align: center;
+    background: #3f2ea3;
+    color: white;
+    padding: 10px 0;
+    font-size: 14px;
+  }
+  
+  /* === Users Table === */
+  .admin-section {
+    margin: 20px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .admin-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-table .table-header,
+  .admin-table .table-row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 2fr 1fr 1.5fr;
+    padding: 14px 16px;
+    align-items: center;
+  }
+  
+  .admin-table .table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+  }
+  
+  .admin-table .table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+  }
+  
+  .admin-table .table-row:nth-child(even) {
+    background: #f0f0f0;
+  }
+  
+  .admin-table .table-row:hover {
+    background: #eaeaea;
+  }
+  
+  .settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .settings-card {
+    background: #f1f1f1;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .settings-card h4 {
+    margin-bottom: 1rem;
+    color: #2d2d2d;
+  }
+  
+  .settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .settings-form label {
+    font-weight: 600;
+  }
+  
+  .settings-form input[type="text"],
+  .settings-form input[type="email"],
+  .settings-form input[type="password"] {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .setting-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .save-btn {
+    background: #4b32a8;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background 0.3s;
+  }
+  
+  .save-btn:hover {
+    background: #3c2890;
+  }
+  
