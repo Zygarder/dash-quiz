@@ -19,14 +19,10 @@ use App\Http\Controllers\UserController;
 Route::get('/', [AdminController::class, 'LoginPage'])->name('login_page');
 Route::get('/register_account', [AdminController::class, 'RegisterPage'])->name('register_page');
 
-
 //REQUEST ROUTES
 Route::post('login-request', [AdminController::class, 'LoginRequest'])->name('login_request');
 Route::post('/register-request', [AdminController::class, 'RegisterRequest'])->name('register_request');
 Route::get('/logout', [AdminController::class, 'LogoutRequest'])->name('logout');
-
-
-
 
 // USERS ROUTES
 Route::prefix('user')->controller(UserController::class)->group(function () {
@@ -35,9 +31,7 @@ Route::prefix('user')->controller(UserController::class)->group(function () {
     Route::get('/record', 'RecordPage')->name('record-page');
     Route::get('/profile', 'ProfilePage')->name('profile-page');
     Route::get('/take-quiz', 'TakingQuiz')->name('take-quiz-page');
-
 });
 
-Route::get('/quiz-show', [QuizController::class, 'show'])->name('quiz.show');
+Route::post('/quiz-show', [QuizController::class, 'show'])->name('quiz.show');
 Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz.submit');
-

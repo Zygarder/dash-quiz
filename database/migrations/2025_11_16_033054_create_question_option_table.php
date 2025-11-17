@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('question_id');
             $table->string('option_text');
-            $table->timestamps();
 
             // Foreign key to questions table
             $table->foreign('question_id')

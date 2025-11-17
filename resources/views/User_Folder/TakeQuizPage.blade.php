@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Take Quiz</title>
+
+    {{-- CSS Styles --}}
+
     <style>
         * {
             margin: 0;
@@ -84,15 +87,16 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
-        label {
-            background: #f8f8f8;
+        .option {
+            background: #f5f5f5;
             padding: 12px;
             border-radius: 5px;
             cursor: pointer;
+            text-align: center;
+            margin: 8px 0;
             border: 2px solid transparent;
             transition: 0.2s;
             font-size: 1rem;
@@ -112,11 +116,12 @@
             display: none;
         }
 
-        button {
-            background: #4b32a8;
+        .submit-btn {
+            background: green;
             color: white;
             padding: 12px;
             border: none;
+            text-align: center;
             border-radius: 8px;
             cursor: pointer;
             transition: 0.2s;
@@ -124,7 +129,7 @@
             margin-top: 10px;
         }
 
-        button:hover {
+        .submit-btn:hover {
             background: #36248b;
         }
 
@@ -152,7 +157,7 @@
 <body>
 
     <header class="quiz-header">
-        {{ $quiz->title ?? '[ Quiz Topic ]' }}
+        {{ $quiz->description ?? '[ Quiz Topic ]' }}
     </header>
 
     <div class="container">
@@ -176,21 +181,19 @@
             <!-- Form -->
             <form method="POST" action="{{ route('quiz.submit') }}">
                 @csrf
-                <input type="hidden" name="question_id" value="{{ $question->id ?? '' }}">
 
-                @if(isset($options) && count($options))
-                    @foreach($options as $option)
-                        <label>
-                            <input type="radio" name="answer" value="{{ $option->id }}">
-                            {{ $option->option_text }}
-                        </label>
-                    @endforeach
-                @else
-                    <p>No options available.</p>
-                @endif
+                <input type="hidden" name="id" value="{{ $question->id }}">
 
-                <button type="submit">Next</button>
+                @foreach($options as $option)
+                    <label class="option">
+                        <input type="radio" name="answer" value="{{ $option->id }}" {{ old('answer') == $option->id ? 'checked' : '' }}>
+                        {{ $option->option_text }}
+                    </label>
+                @endforeach
+
+                <button type="submit" class="submit-btn">Next</button>
             </form>
+
 
 
 

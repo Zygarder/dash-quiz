@@ -9,12 +9,36 @@ use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
-    public function show()
+    /**
+     * Display quiz questions one at a time
+     */
+    public function show(Request $request)
     {
-        $quiz = Quiz::first();
+        // Validate quiz_id if included in request
+        if ($request->has('quiz_id')) {
+            $validated = $request->validate([
+                'quiz_id' => 'required|exists:quizzes,id'
+            ]);
 
+            $quiz = Quiz::findOrFail($validated['quiz_id']);
+
+            // Reset session if switching to a new quiz
+            if (!session()->has('quiz_id') || session('quiz_id') !== $quiz->id) {
+                session()->forget(['quiz_questions', 'quiz_index']);
+            }
+
+            session(['quiz_id' => $quiz->id]);
+        }
+
+        // Make sure quiz_id exists in session
+        if (!session()->has('quiz_id')) {
+            return redirect()->route('user-board')->with('error', 'No quiz selected.');
+        }
+
+        $quiz = Quiz::findOrFail(session('quiz_id'));
         $questionIds = $quiz->questions()->pluck('id')->toArray();
 
+        // Initialize quiz session if not already done
         if (!session()->has('quiz_questions')) {
             session([
                 'quiz_questions' => $questionIds,
@@ -25,19 +49,18 @@ class QuizController extends Controller
         $index = session('quiz_index');
         $currentQuestionId = session('quiz_questions')[$index] ?? null;
 
+        // If quiz finished
         if (!$currentQuestionId) {
-            return "Quiz finished!";
+            session()->forget(['quiz_questions', 'quiz_index', 'quiz_id']);
+            return redirect()->route('user-board')->with('success', 'Quiz Completed!');
         }
 
-        // Fetch question and options
-        $question = Question::find($currentQuestionId);
+        $question = Question::findOrFail($currentQuestionId);
         $options = $question->options;
         $currentQuestionNumber = $index + 1;
-
-        // PROGRESS BAR LOGIC
         $totalQuestions = count($questionIds);
-        $progress = ($currentQuestionNumber / $totalQuestions) * 100;
-        $progress = round($progress) . '%'; // Convert to "35%" format
+
+        $progress = round(($currentQuestionNumber / $totalQuestions) * 100) . '%';
 
         return view('User_Folder.TakeQuizPage', compact(
             'quiz',
@@ -50,34 +73,45 @@ class QuizController extends Controller
     }
 
 
-    #                       #
-    # SUBMIT ANSWER METHOD  #
-    #                       #
-
+    /**
+     * Store user answer and move to next question
+     */
     public function submitAnswer(Request $request)
     {
-
+        // Validate input
         $request->validate([
+            'id' => 'required|exists:questions,id',
             'answer' => 'required',
         ], [
             'answer.required' => 'Please select an answer before continuing.'
         ]);
 
-        $question = Question::find($request->question_id);
+        // Quiz session expired
+        if (!session()->has('quiz_questions')) {
+            return redirect()->route('user-board')->with('error', 'Quiz session expired.');
+        }
 
-        // Store user answer
-        $answer = Answer::create([
+        $question = Question::findOrFail($request->id);
+
+        // Prevent duplicate answers from refreshing
+        $alreadyAnswered = Answer::where([
             'question_id' => $question->id,
-            'answer_text' => $request->answer, // stores option ID
-            'is_correct' => $question->correct_option_id == $request->answer,
-        ]);
+            // Add user/quiz identifiers here if needed
+        ])->exists();
 
-        // Increment session index
-        $index = session('quiz_index');
-        session(['quiz_index' => $index + 1]);
+        if (!$alreadyAnswered) {
+            Answer::create([
+                'question_id' => $question->id,
+                'answer_text' => $request->answer, // stores option ID
+                'is_correct' => $question->correct_option_id == $request->answer,
+            ]);
+        }
+
+        // Move to next question
+        session(['quiz_index' => session('quiz_index') + 1]);
 
         return redirect()->route('quiz.show')->with([
-            'success' => $answer->is_correct ? 'Correct!' : 'Wrong!'
+            'success' => ($question->correct_option_id == $request->answer) ? 'Correct!' : 'Wrong!'
         ]);
     }
 }

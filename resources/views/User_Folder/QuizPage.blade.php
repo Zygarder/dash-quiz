@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Challenge</title>
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <style>
+        .quiz-choice {
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .quiz-container{
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -20,24 +31,35 @@
     </header>
 
     <!-- Main Content -->
-    <main class="dashboard">
+    <main class="container">
         <section class="challenge-container">
             <h2>Computer Systems Servicing</h2>
-            <div class="competency-buttons">
-                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 1</button>
-                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 2</button>
-                <button onclick="takeQuiz()" class="competency-btn">Certificate Of Competency 3</button>
+
+            <div class="quiz-container">
+                <form action="{{ route('quiz.show') }}" class="quiz-choice" method="POST">
+                    @csrf
+                    <input type="hidden" name="quiz_id" value="1">
+                    <button type="submit" class="competency-btn">Certificate Of Competency 1</button>
+                </form>
+
+                <form action="{{ route('quiz.show') }}" class="quiz-choice" method="POST">
+                    @csrf
+                    <input type="hidden" name="quiz_id" value="2">
+                    <button type="submit" class="competency-btn">Certificate Of Competency 2</button>
+                </form>
+
+                <form action="{{ route('quiz.show') }}" class="quiz-choice" method="POST">
+                    @csrf
+                    <input type="hidden" name="quiz_id" value="3">
+                    <button type="submit" class="competency-btn">Certificate Of Competency 3</button>
+                </form>
             </div>
         </section>
+
     </main>
 
     <!-- Sidebar Toggle Script -->
     <script src="{{ asset('js/sidebar_function.js') }}"></script>
-    <script>
-        function takeQuiz() {
-            window.location.href = "/quiz-show";
-        }
-    </script>
 </body>
 
 </html>

@@ -12,7 +12,7 @@ class QuestionOption extends Model
     public $table = 'question_options';
 
     protected $fillable = [
-        'question_id',
+        'question_id',  
         'option_text',
         'is_correct',
     ];

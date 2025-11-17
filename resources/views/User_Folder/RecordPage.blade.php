@@ -39,51 +39,6 @@
         <table id="recordsTable">
           <tbody>
             <tr>
-              <td>10/28/2025</td>
-              <td>Topic 1</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/27/2025</td>
-              <td>Topic 2</td>
-              <td>3/5</td>
-            </tr>
-            <tr>
-              <td>10/26/2025</td>
-              <td>Topic 3</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/25/2025</td>
-              <td>Topic 4</td>
-              <td>5/5</td>
-            </tr>
-            <tr>
-              <td>10/24/2025</td>
-              <td>Topic 5</td>
-              <td>2/5</td>
-            </tr>
-            <tr>
-              <td>10/23/2025</td>
-              <td>Topic 6</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/22/2025</td>
-              <td>Topic 7</td>
-              <td>5/5</td>
-            </tr>
-            <tr>
-              <td>10/21/2025</td>
-              <td>Topic 8</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/20/2025</td>
-              <td>Topic 9</td>
-              <td>3/5</td>
-            </tr>
-            <tr>
               <td>10/19/2025</td>
               <td>Topic 10</td>
               <td>5/5</td>
