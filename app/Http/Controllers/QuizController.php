@@ -48,7 +48,11 @@ class QuizController extends Controller
         // Initialize quiz session
         if (!session()->has('quiz_questions')) {
             session([
-                'quiz_questions' => $questionIds,
+                'quiz_questions' => $quiz->questions()  //10 questions are randomly chosen for the session
+                    ->inRandomOrder()   
+                    ->limit(10)       
+                    ->pluck('id')
+                    ->toArray(),
                 'quiz_index' => 0,
             ]);
         }
@@ -61,9 +65,8 @@ class QuizController extends Controller
             return redirect()->route('quiz.finish');
         }
 
-        $question = $quiz->questions->firstWhere('id', $currentQuestionId);
+        $question = Question::findOrFail($currentQuestionId);
         $options = $question->options;
-
         $currentQuestionNumber = $index + 1;
         $totalQuestions = count($questionIds);
         $progress = round(($currentQuestionNumber / $totalQuestions) * 100) . '%';
