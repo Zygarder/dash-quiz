@@ -41,7 +41,11 @@ class QuizController extends Controller
         // Initialize quiz session if not already done
         if (!session()->has('quiz_questions')) {
             session([
-                'quiz_questions' => $questionIds,
+                'quiz_questions' => $quiz->questions()  //10 questions are randomly chosen for the session
+                    ->inRandomOrder()   
+                    ->limit(10)       
+                    ->pluck('id')
+                    ->toArray(),
                 'quiz_index' => 0,
             ]);
         }
@@ -56,7 +60,7 @@ class QuizController extends Controller
         }
 
         $question = Question::findOrFail($currentQuestionId);
-        $options = $question->options;
+        $options = $question->options->shuffle(); //shuffle the choices
         $currentQuestionNumber = $index + 1;
         $totalQuestions = count($questionIds);
 

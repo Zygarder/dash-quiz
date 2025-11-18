@@ -33,5 +33,9 @@ Route::prefix('user')->controller(UserController::class)->group(function () {
     Route::get('/take-quiz', 'TakingQuiz')->name('take-quiz-page');
 });
 
-Route::post('/quiz-show', [QuizController::class, 'show'])->name('quiz.show');
+//fix GET issue after answering one question
+Route::get('/quiz-show', [QuizController::class, 'show'])->name('quiz.show');
 Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz.submit');
+
+//load the questions for a questionnaire category
+Route::post('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
