@@ -14,31 +14,38 @@ class QuizController extends Controller
      */
     public function show(Request $request)
     {
-        // Validate quiz_id if included in request
+        // Initialize quiz session and unsa na quiz ang gi pili base sa quiz_id
         if ($request->has('quiz_id')) {
             $validated = $request->validate([
                 'quiz_id' => 'required|exists:quizzes,id'
             ]);
 
-            $quiz = Quiz::findOrFail($validated['quiz_id']);
+            $quizId = $validated['quiz_id'];
 
-            // Reset session if switching to a new quiz
-            if (!session()->has('quiz_id') || session('quiz_id') !== $quiz->id) {
-                session()->forget(['quiz_questions', 'quiz_index']);
+            $quiz = Quiz::findOrFail($quizId);
+
+            // Reset session if mag change or back ng quizzes
+            if (session('quiz_id') !== $quizId) {
+                session()->forget(['quiz_questions', 'quiz_index', 'score']);// reset session 
             }
 
-            session(['quiz_id' => $quiz->id]);
+            session([
+                'quiz_id' => $quizId,
+                'score' => 0,
+            ]);
         }
 
-        // Make sure quiz_id exists in session
+        // No quiz selected
         if (!session()->has('quiz_id')) {
-            return redirect()->route('user-board')->with('error', 'No quiz selected.');
+            session()->forget(['quiz_questions', 'quiz_index', 'score']); // reset session 
+            return redirect()->route('take-quiz-page');
         }
 
-        $quiz = Quiz::findOrFail(session('quiz_id'));
-        $questionIds = $quiz->questions()->pluck('id')->toArray();
+        // Load quiz once
+        $quiz = Quiz::with('questions.options')->findOrFail(session('quiz_id'));
+        $questionIds = $quiz->questions->pluck('id')->toArray();
 
-        // Initialize quiz session if not already done
+        // Initialize quiz session
         if (!session()->has('quiz_questions')) {
             session([
                 'quiz_questions' => $questionIds,
@@ -49,17 +56,16 @@ class QuizController extends Controller
         $index = session('quiz_index');
         $currentQuestionId = session('quiz_questions')[$index] ?? null;
 
-        // If quiz finished
+        // Quiz finished
         if (!$currentQuestionId) {
-            session()->forget(['quiz_questions', 'quiz_index', 'quiz_id']);
-            return redirect()->route('user-board')->with('success', 'Quiz Completed!');
+            return redirect()->route('quiz.finish');
         }
 
-        $question = Question::findOrFail($currentQuestionId);
+        $question = $quiz->questions->firstWhere('id', $currentQuestionId);
         $options = $question->options;
+
         $currentQuestionNumber = $index + 1;
         $totalQuestions = count($questionIds);
-
         $progress = round(($currentQuestionNumber / $totalQuestions) * 100) . '%';
 
         return view('User_Folder.TakeQuizPage', compact(
@@ -87,12 +93,19 @@ class QuizController extends Controller
         ]);
 
         // Quiz session expired
-        if (!session()->has('quiz_questions')) {
-            return redirect()->route('user-board')->with('error', 'Quiz session expired.');
-        }
+
 
         $question = Question::findOrFail($request->id);
+        if (!session()->has('quiz_questions')) {
+            return redirect()->route('user-board')->with('error', 'Quiz session expired.');
+        } else {
+            $isCorrect = ($question->correct_option_id == $request->answer);
 
+            if ($isCorrect) {
+                $currentScore = session('score', 0);
+                session(['score' => $currentScore + 1]);
+            }
+        }
         // Prevent duplicate answers from refreshing
         $alreadyAnswered = Answer::where([
             'question_id' => $question->id,
@@ -109,6 +122,9 @@ class QuizController extends Controller
 
         // Move to next question
         session(['quiz_index' => session('quiz_index') + 1]);
+
+
+
 
         return redirect()->route('quiz.show')->with([
             'success' => ($question->correct_option_id == $request->answer) ? 'Correct!' : 'Wrong!'
