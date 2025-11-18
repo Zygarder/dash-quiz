@@ -40,6 +40,11 @@ class QuizSeeder extends Seeder
             ['id' => 23, 'quiz_id' => 3, 'question_text' => 'Which command repairs corrupted system files in Windows?', 'correct_option_id' => 89],
             ['id' => 24, 'quiz_id' => 3, 'question_text' => 'Which is a sign of a failing hard drive?', 'correct_option_id' => 93],
             ['id' => 25, 'quiz_id' => 3, 'question_text' => 'What is the safe way to remove malware?', 'correct_option_id' => 97],
+            ['id' => 26, 'quiz_id' => 3, 'question_text' => 'Which key combination is used to take a screenshot in Windows?', 'correct_option_id' => 104],
+            ['id' => 27, 'quiz_id' => 3, 'question_text' => 'What is the main function of the PSU (Power Supply Unit)?', 'correct_option_id' => 105],
+            ['id' => 28, 'quiz_id' => 3, 'question_text' => 'Which command displays the IP configuration on Windows?', 'correct_option_id' => 106],
+            ['id' => 29, 'quiz_id' => 3, 'question_text' => 'Which device connects multiple networks together?', 'correct_option_id' => 114],
+            ['id' => 30, 'quiz_id' => 3, 'question_text' => 'What is the safest way to handle a static-sensitive component?', 'correct_option_id' => 118]
         ];
 
         DB::table('questions')->insert($questions);
@@ -195,6 +200,38 @@ class QuizSeeder extends Seeder
             ['id'=>98,'question_id'=>25,'answer_text'=>'Delete system32','is_correct'=>0],
             ['id'=>99,'question_id'=>25,'answer_text'=>'Format hard drive without backup','is_correct'=>0],
             ['id'=>100,'question_id'=>25,'answer_text'=>'Ignore the malware','is_correct'=>0],
+
+            // Question 26
+            ['id'=>101,'question_id' => 26, 'answer_text' => 'Ctrl + C', 'is_correct' => 0],
+            ['id'=>102,'question_id' => 26, 'answer_text' => 'Alt + Tab', 'is_correct' => 0],
+            ['id'=>104,'question_id' => 26, 'answer_text' => 'PrtSc (Print Screen)', 'is_correct' => 1],
+            ['id'=>105,'question_id' => 26, 'answer_text' => 'Ctrl + Shift + Esc', 'is_correct' => 0],
+
+            // Question 27
+            ['id'=>106,'question_id' => 27, 'answer_text' => 'Converts AC to DC and powers components', 'is_correct' => 1],
+            ['id'=>107,'question_id' => 27, 'answer_text' => 'Stores data', 'is_correct' => 0],
+            ['id'=>108,'question_id' => 27, 'answer_text' => 'Controls the CPU', 'is_correct' => 0],
+            ['id'=>109,'question_id' => 27, 'answer_text' => 'Cools down the system', 'is_correct' => 0],
+
+            // Question 28
+            ['id'=>110,'question_id' => 28, 'answer_text' => 'ipconfig', 'is_correct' => 1],
+            ['id'=>111,'question_id' => 28, 'answer_text' => 'ping', 'is_correct' => 0],
+            ['id'=>112,'question_id' => 28, 'answer_text' => 'tracert', 'is_correct' => 0],
+            ['id'=>113,'question_id' => 28, 'answer_text' => 'netstat', 'is_correct' => 0],
+
+            // Question 29
+            ['id'=>114,'question_id' => 29, 'answer_text' => 'Router', 'is_correct' => 1],
+            ['id'=>115,'question_id' => 29, 'answer_text' => 'Switch', 'is_correct' => 0],
+            ['id'=>116,'question_id' => 29, 'answer_text' => 'Hub', 'is_correct' => 0],
+            ['id'=>117,'question_id' => 29, 'answer_text' => 'Firewall', 'is_correct' => 0],
+
+            // Question 30
+            ['id'=>118,'question_id' => 30, 'answer_text' => 'Use an anti-static wrist strap', 'is_correct' => 1],
+            ['id'=>119,'question_id' => 30, 'answer_text' => 'Handle components by the pins', 'is_correct' => 0],
+            ['id'=>120,'question_id' => 30, 'answer_text' => 'Place them on carpet', 'is_correct' => 0],
+            ['id'=>121,'question_id' => 30, 'answer_text' => 'Use a magnet', 'is_correct' => 0],
+
+            
         ];
 
         DB::table('answers')->insert($answers);
