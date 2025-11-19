@@ -36,19 +36,19 @@
             <h2>Computer Systems Servicing</h2>
 
             <div class="quiz-container">
-                <form action="{{ route('quiz.start') }}" class="quiz-choice" method="POST">
+                <form action="{{ route('quiz.start') }}" class="quiz-choice">
                     @csrf
                     <input type="hidden" name="quiz_id" value="1">
                     <button type="submit" class="competency-btn">Certificate Of Competency 1</button>
                 </form>
 
-                <form action="{{ route('quiz.start') }}" class="quiz-choice" method="POST">
+                <form action="{{ route('quiz.start') }}" class="quiz-choice">
                     @csrf
                     <input type="hidden" name="quiz_id" value="2">
                     <button type="submit" class="competency-btn">Certificate Of Competency 2</button>
                 </form>
 
-                <form action="{{ route('quiz.start') }}" class="quiz-choice" method="POST">
+                <form action="{{ route('quiz.start') }}" class="quiz-choice"
                     @csrf
                     <input type="hidden" name="quiz_id" value="3">
                     <button type="submit" class="competency-btn">Certificate Of Competency 3</button>

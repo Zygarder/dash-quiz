@@ -33,7 +33,17 @@ Route::prefix('user')->controller(UserController::class)->group(function () {
     Route::get('/take-quiz', 'TakingQuiz')->name('take-quiz-page');
 });
 
+//fix GET issue after answering one question
 Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz.submit');
 
 //load the questions for a questionnaire category
-Route::post('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
+Route::get('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
+
+
+// back to basics //
+use App\Http\Controllers\BasicController;
+Route::get('basic', function(){
+    return view('basic');
+});
+Route::get('login-request',[BasicController::class, 'login'])->name('basic-login');
+

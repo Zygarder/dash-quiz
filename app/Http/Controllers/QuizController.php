@@ -35,7 +35,7 @@ class QuizController extends Controller
             ]);
         }
 
-        // No quiz selected
+        // No quiz selected then return to quiz selection page
         if (!session()->has('quiz_id')) {
             session()->forget(['quiz_questions', 'quiz_index', 'score']); // reset session 
             return redirect()->route('take-quiz-page');
@@ -49,8 +49,8 @@ class QuizController extends Controller
         if (!session()->has('quiz_questions')) {
             session([
                 'quiz_questions' => $quiz->questions()  //10 questions are randomly chosen for the session
-                    ->inRandomOrder()   
-                    ->limit(10)       
+                    ->inRandomOrder()
+                    ->limit(10)
                     ->pluck('id')
                     ->toArray(),
                 'quiz_index' => 0,
@@ -58,18 +58,21 @@ class QuizController extends Controller
         }
 
         $index = session('quiz_index');
-        $currentQuestionId = session('quiz_questions')[$index] ?? null;
+        $currentQuestionId = session('quiz_questions')[$index] ?? [];
 
-        // Quiz finished
+        // finished quiz
         if (!$currentQuestionId) {
-            return redirect()->route('quiz.finish');
+            $score = session('score');
+            $quizTitle = session('quiz_title');
+
+            return view('User_Folder.QuizResult', compact('score', 'quizTitle'));
         }
 
         $question = Question::findOrFail($currentQuestionId);
         $options = $question->options;
         $currentQuestionNumber = $index + 1;
         $totalQuestions = count($questionIds);
-        $progress = round(($currentQuestionNumber / $totalQuestions) * 100) . '%';
+        $progress = round($currentQuestionNumber / $totalQuestions * 100) . '%';
 
         return view('User_Folder.TakeQuizPage', compact(
             'quiz',
@@ -96,13 +99,11 @@ class QuizController extends Controller
         ]);
 
         // Quiz session expired
-
-
         $question = Question::findOrFail($request->id);
         if (!session()->has('quiz_questions')) {
             return redirect()->route('user-board')->with('error', 'Quiz session expired.');
         } else {
-            $isCorrect = ($question->correct_option_id == $request->answer);
+            $isCorrect = $question->correct_option_id == $request->answer;
 
             if ($isCorrect) {
                 $currentScore = session('score', 0);
@@ -126,11 +127,10 @@ class QuizController extends Controller
         // Move to next question
         session(['quiz_index' => session('quiz_index') + 1]);
 
-
-
-
-        return redirect()->route('quiz.show')->with([
+        return redirect()->route('quiz.start')->with([
             'success' => ($question->correct_option_id == $request->answer) ? 'Correct!' : 'Wrong!'
         ]);
     }
 }
+
+

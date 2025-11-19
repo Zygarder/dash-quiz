@@ -25,7 +25,7 @@
 
         .result-box {
             background: white;
-            padding: 40px;
+            padding-bottom: 25px;
             width: 100%;
             max-width: 450px;
             border-radius: 12px;
@@ -55,7 +55,7 @@
             color: #4b32a8;
         }
 
-        .btn {
+        a {
             margin-top: 30px;
             display: inline-block;
             padding: 12px 18px;
@@ -84,10 +84,10 @@
         <h1>Quiz Completed! 🎉</h1>
 
         <div class="score">
-            Score: {{ $score }} / 10
+            Score: {{ $score }} / {{ 10 }}
         </div>
 
-        <a href="{{ route('take-quiz-page') }}" class="btn">Take Another Quiz</a>
+        <a href="{{ route('quiz-page') }}">Take Another Quiz</a>
     </div>
 
 </body>
