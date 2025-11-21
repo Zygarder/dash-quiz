@@ -126,9 +126,7 @@ class QuizController extends Controller
         // Move to next question
         session(['quiz_index' => session('quiz_index') + 1]);
 
-        return redirect()->route('quiz.start')->with([
-            'success' => ($question->correct_option_id == $request->answer) ? 'Correct!' : 'Wrong!'
-        ]);
+        return redirect()->back();
     }
 }
 

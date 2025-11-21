@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -13,7 +14,8 @@ class UserController extends Controller
 
     public function QuizPage()
     {
-        return view('User_Folder.QuizPage');
+    $quizzes = DB::table('quizzes')->get();
+        return view('User_Folder.QuizPage',compact('quizzes')); //added for optional scalability
     }
 
     public function ProfilePage()

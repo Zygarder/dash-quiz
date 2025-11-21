@@ -32,4 +32,6 @@ function addQuestion() {
 }
 
 // 10 default questions 
-for (let i = 0; i < 10; i++) addQuestion();
+for (let i = 0; i < 10; i++) {
+    addQuestion()
+};

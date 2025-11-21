@@ -39,21 +39,6 @@ Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz
 //load the questions for a questionnaire category
 Route::get('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
 
-Route::prefix('admin')->group(function () {
-    Route::get('', function () {
-        return view('Admin_Folder.Dashboard');
-    })->name('admin-dashboard');
-    Route::get('manage-quiz', function () {
-        return view('Admin_Folder.ManageQuiz');
-    })->name('manage-quiz');
-    Route::get('settings', function () {
-        return view('Admin_Folder.Settings');
-    })->name('settings');
-    Route::get('user-table', function () {
-        return view('Admin_Folder.UserTable');
-    })->name('user-table');
-
-});
 
 // back to basics //
 use App\Http\Controllers\BasicController;
@@ -66,6 +51,7 @@ Route::get('login-request', [BasicController::class, 'login'])->name('basic-logi
 Route::prefix('admin')->controller(AdminController::class)->group(function(){
     Route::get('/', 'Dashboard')->name('admin-board');
     Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
+    Route::get('/admin-logout', 'LogoutRequest')->name('admin-logout');
 
     // QUIZ MANAGEMENT
     Route::get('/quiz/create', 'addquiz')->name('quiz-add');

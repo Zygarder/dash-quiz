@@ -23,12 +23,6 @@
     <header class="top-bar">
         <p>Dash Quiz - Learn and test yourself!</p>
     </header>
-    <!--success key from registration-->
-    @if (session('success'))
-        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Main Section -->
     <main class="container">
@@ -63,7 +57,7 @@
                 <button type="submit" class="login-btn">Log In</button>
 
                 <!-- Links -->
-                <a href="{{ route('register_page') }}"  target="_blank" class="forgot">Forgot password?</a>
+                <a href=""  class="forgot">Forgot password?</a>
                 <button type="button" class="register-btn"
                     onclick="window.location.href='{{ route('register_page') }}'" target="_blank">
                     Register Now!
