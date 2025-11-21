@@ -20,7 +20,7 @@
           <li><a href="{{ route('admin-board') }}">Dashboard</a></li>
           <li><a href="{{ route('quiz-manage') }}">Manage Quizzes</a></li>
           <li class="active"><a href="{{ route('user-table') }}">Users Table</a></li>
-          <li><a href="{{ route('settings') }}">Settings</a></li>
+          <li><a href="{{ route('srecords') }}">Student Records</a></li>
         </ul>
       </nav>
     </aside>
@@ -44,7 +44,13 @@
             <span>{{ $user->name }}</span>
             <span>{{ $user->email }}</span>
             <span>{{ $user->created_at }}</span>
-            <span><a href="deleteuser{{ $user->id }}">Delete</a></span>
+            <span>
+              <button 
+                onclick="window.location='/del{{ $user->id }}'"
+                 class="action-btn delete">
+                Delete
+              </button>
+            </span>
           </div>
           @endforeach
         </div>

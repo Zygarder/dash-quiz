@@ -20,7 +20,7 @@
           <li><a href="{{ route('admin-board') }}">Dashboard</a></li>
           <li><a href="{{ route('quiz-manage') }}">Manage Quizzes</a></li>
           <li><a href="{{ route('user-table') }}">Users Table</a></li>
-          <li class="active"><a href="{{ route('settings') }}">Settings</a></li>
+          <li class="active"><a href="{{ route('srecords') }}">Student Records</a></li>
         </ul>
       </nav>
     </aside>

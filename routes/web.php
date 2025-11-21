@@ -51,7 +51,13 @@ Route::get('login-request',[BasicController::class, 'login'])->name('basic-login
 Route::prefix('admin')->controller(AdminController::class)->group(function(){
     Route::get('/', 'Dashboard')->name('admin-board');
     Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
+
+    // QUIZ MANAGEMENT
+    Route::get('/quiz/create', 'addquiz')->name('quiz-add');
+    Route::post('/quiz/store', 'savequiz')->name('quiz-save');
+    
+    //USER MANAGEMENT
     Route::get('/records', 'UserTable')->name('user-table');
     Route::get('/del{id}', 'dasherdelete')->name('deleteuser');
-    Route::get('/settings', 'Settings')->name('settings');
+    Route::get('/studentrecords', 'srecords')->name('srecords');
 });
