@@ -22,7 +22,7 @@ Route::get('/register_account', [AdminController::class, 'RegisterPage'])->name(
 //REQUEST ROUTES
 Route::post('login-request', [AdminController::class, 'LoginRequest'])->name('login_request');
 Route::post('/register-request', [AdminController::class, 'RegisterRequest'])->name('register_request');
-Route::get('/logout', [AdminController::class, 'LogoutRequest'])->name('logout');
+Route::get('/logout', [AdminController::class, 'Logout'])->name('logout');
 
 // USERS ROUTES
 Route::prefix('user')->controller(UserController::class)->group(function () {
@@ -62,3 +62,17 @@ Route::get('basic', function () {
 });
 Route::get('login-request', [BasicController::class, 'login'])->name('basic-login');
 
+//admin side routes
+Route::prefix('admin')->controller(AdminController::class)->group(function(){
+    Route::get('/', 'Dashboard')->name('admin-board');
+    Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
+
+    // QUIZ MANAGEMENT
+    Route::get('/quiz/create', 'addquiz')->name('quiz-add');
+    Route::post('/quiz/store', 'savequiz')->name('quiz-save');
+    
+    //USER MANAGEMENT
+    Route::get('/records', 'UserTable')->name('user-table');
+    Route::get('/del{id}', 'dasherdelete')->name('deleteuser');
+    Route::get('/studentrecords', 'srecords')->name('srecords');
+});

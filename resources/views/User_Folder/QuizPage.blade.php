@@ -27,7 +27,7 @@
     <!-- Top Bar -->
     <header class="top-bar">
         <div class="menu-btn" id="menuBtn">&#9776;</div>
-        <p>CHOOSE YOUR PREFERRED CHALLENGE</p>
+        <p>CHOOSE YOUR QUIZ</p>
         <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
     </header>
 
@@ -37,24 +37,15 @@
             <h2>Computer Systems Servicing</h2>
 
             <div class="quiz-container">
-                <form action="{{ route('quiz.start') }}" class="quiz-choice">
-                    @csrf
-                    <input type="hidden" name="quiz_id" value="1">
-                    <button type="submit" class="competency-btn">Certificate Of Competency 1</button>
-                </form>
-
-                <form action="{{ route('quiz.start') }}" class="quiz-choice">
-                    @csrf
-                    <input type="hidden" name="quiz_id" value="2">
-                    <button type="submit" class="competency-btn">Certificate Of Competency 2</button>
-                </form>
-
-                <form action="{{ route('quiz.start') }}" class="quiz-choice">
-                    @csrf
-                    <input type="hidden" name="quiz_id" value="3">
-                    <button type="submit" class="competency-btn">Certificate Of Competency 3</button>
-                </form>
+                @foreach($quizzes as $quiz)
+                    <form action="{{ route('quiz.start') }}" class="quiz-choice" method="GET">
+                        @csrf
+                        <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
+                        <button type="submit" class="competency-btn">{{ $quiz->title }}</button>
+                    </form>
+                @endforeach
             </div>
+            
         </section>
 
     </main>

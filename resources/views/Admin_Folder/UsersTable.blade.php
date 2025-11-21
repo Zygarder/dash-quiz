@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Users Table</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
-    <a href="index.html" class="logout-btn">Log Out</a>
+    <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
   </header>
 
   <div class="admin-container">
@@ -17,10 +17,10 @@
       <h3 class="sidebar-title">Admin Menu</h3>
       <nav>
         <ul>
-          <li><a href="admindashboard.html">Dashboard</a></li>
-          <li><a href="adminquizzes.html">Manage Quizzes</a></li>
-          <li class="active"><a href="adminusers.html">Users Table</a></li>
-          <li><a href="adminsettings.html">Settings</a></li>
+          <li><a href="{{ route('admin-board') }}">Dashboard</a></li>
+          <li><a href="{{ route('quiz-manage') }}">Manage Quizzes</a></li>
+          <li class="active"><a href="{{ route('user-table') }}">Users Table</a></li>
+          <li><a href="{{ route('srecords') }}">Student Records</a></li>
         </ul>
       </nav>
     </aside>
@@ -34,33 +34,25 @@
             <span>User ID</span>
             <span>Name</span>
             <span>Email</span>
-            <span>Role</span>
             <span>Date Registered</span>
+            <span>Action</span>
           </div>
 
+          @foreach ($dasher as $user)
           <div class="table-row">
-            <span>001</span>
-            <span>John Doe</span>
-            <span>johndoe@email.com</span>
-            <span>Student</span>
-            <span>10/28/2025</span>
+            <span>{{ $user->id }}</span>
+            <span>{{ $user->name }}</span>
+            <span>{{ $user->email }}</span>
+            <span>{{ $user->created_at }}</span>
+            <span>
+              <button 
+                onclick="window.location='/del{{ $user->id }}'"
+                 class="action-btn delete">
+                Delete
+              </button>
+            </span>
           </div>
-
-          <div class="table-row">
-            <span>002</span>
-            <span>Jane Smith</span>
-            <span>janesmith@email.com</span>
-            <span>Student</span>
-            <span>10/29/2025</span>
-          </div>
-
-          <div class="table-row">
-            <span>003</span>
-            <span>Michael Cruz</span>
-            <span>mcruz@email.com</span>
-            <span>Admin</span>
-            <span>10/30/2025</span>
-          </div>
+          @endforeach
         </div>
       </section>
     </main>
