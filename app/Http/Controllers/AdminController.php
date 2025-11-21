@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 use App\Models\Dasher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-
     ####### Below is ang mga code para ma view ang pages #########
 
-    //go to register page
     public function RegisterPage()
     {
         return view('RegisterPage');
@@ -20,42 +20,61 @@ class AdminController extends Controller
     }
 
     //dont forget to add session destroy after logging out
-    public function Logout()
+    public function LogoutRequest()
     {
-        return view('LoginPage');
+        Auth::guard('dasher')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login_page')->with('success', 'Logged out successfully');
     }
+
 
     ################## Below is code para sa mga requests ng user OK?!####################
 
     public function LoginRequest(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
+        $valid = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ], [
+            'email.required' => 'Email is required',
+            'email.email' => 'Invalid email address',
+            'password.required' => 'Password is required'
         ]);
 
-        return redirect()->route('user-board');
+        if (Auth::guard('dasher')->attempt($valid)) {
+            return redirect()->route('user-board')->with('success', 'Successfully logged in');
+        }
+
+        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
     }
+
 
     public function RegisterRequest(Request $request)
     {
         // Validate the incoming request
-        $request->validate([
+        $valid = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
+        ], [
+            'email.required' => 'Email required',
+            'email.unique' => 'Email already taken',
+            'password.required' => 'Password required',
+            'password.confirmed' => 'Password confirmation does not match',
         ]);
 
         // Create the user
-        Dasher::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
+        $dasher = Dasher::create([
+            'name' => $valid['name'],
+            'email' => $valid['email'],
+            'password' => Hash::make($valid['password']),
         ]);
+
+        Auth::guard('dasher')->loginUsingId($dasher->id);
 
         // Redirect to user dashboard after registration
         return redirect()->route('user-board')->with('success', 'Account created successfully!');
     }
-
-
 }

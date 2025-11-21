@@ -17,8 +17,8 @@
       <h3 class="sidebar-title">Admin Menu</h3>
       <nav>
         <ul>
-          <li class="active"><a href="admindashboard.html">Dashboard</a></li>
-          <li><a href="adminquizzes.html">Manage Quizzes</a></li>
+          <li class="active"><a href="{{route('admin-dashboard')}}">Dashboard</a></li>
+          <li><a href="{{route('')}}">Manage Quizzes</a></li>
           <li><a href="adminusers.html">Users Table</a></li>
           <li><a href="adminsettings.html">Settings</a></li>
         </ul>

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Challenge</title>
+
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
     <style>
@@ -48,7 +49,7 @@
                     <button type="submit" class="competency-btn">Certificate Of Competency 2</button>
                 </form>
 
-                <form action="{{ route('quiz.start') }}" class="quiz-choice"
+                <form action="{{ route('quiz.start') }}" class="quiz-choice">
                     @csrf
                     <input type="hidden" name="quiz_id" value="3">
                     <button type="submit" class="competency-btn">Certificate Of Competency 3</button>

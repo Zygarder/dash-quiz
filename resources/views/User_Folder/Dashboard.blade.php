@@ -16,7 +16,8 @@
   <header>
     <div class="top-bar">
       <button class="menu-btn" id="menuBtn">&#9776;</button>
-      <h2>Welcome User!</h2>
+      <h2>Welcome {{ auth()->guard('dasher')->user()->name }}!</h2>
+      
       <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
     </div>
   </header>
