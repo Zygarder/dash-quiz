@@ -9,6 +9,7 @@ class QuizSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         // Clear existing data
         DB::table('questions')->truncate();
         DB::table('answers')->truncate();
@@ -233,7 +234,7 @@ class QuizSeeder extends Seeder
 
 
         ];
-
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         DB::table('answers')->insert($answers);
     }
 }

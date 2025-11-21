@@ -9,7 +9,7 @@
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
-    <a href="index.html" class="logout-btn">Log Out</a>
+    <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
   </header>
 
   <div class="admin-container">
@@ -17,10 +17,10 @@
       <h3 class="sidebar-title">Admin Menu</h3>
       <nav>
         <ul>
-          <li class="active"><a href="admindashboard.html">Dashboard</a></li>
-          <li><a href="adminquizzes.html">Manage Quizzes</a></li>
-          <li><a href="adminusers.html">Users Table</a></li>
-          <li><a href="adminsettings.html">Settings</a></li>
+          <li class="active"><a href="{{ route('admin-board') }}">Dashboard</a></li>
+          <li><a href="{{ route('quiz-manage') }}">Manage Quizzes</a></li>
+          <li><a href="{{ route('user-table') }}">Users Table</a></li>
+          <li><a href="{{ route('settings') }}">Settings</a></li>
         </ul>
       </nav>
     </aside>
