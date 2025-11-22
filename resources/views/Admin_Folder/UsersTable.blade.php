@@ -27,6 +27,13 @@
 
     <main class="admin-main">
       <section class="admin-section">
+
+        @if (session('success'))
+        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
         <h3 class="section-title">Registered Users</h3>
 
         <div class="admin-table">
@@ -45,11 +52,10 @@
             <span>{{ $user->email }}</span>
             <span>{{ $user->created_at }}</span>
             <span>
-              <button 
-                onclick="window.location='/del{{ $user->id }}'"
-                 class="action-btn delete">
-                Delete
-              </button>
+              <form action="{{ route('deleteuser', $user->id) }}" method="POST">
+                @csrf
+                <button class="action-btn delete">Delete</button>
+            </form>
             </span>
           </div>
           @endforeach

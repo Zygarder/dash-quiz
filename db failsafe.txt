@@ -1,0 +1,16 @@
+ALTER TABLE questions
+ADD CONSTRAINT fk_quiz
+FOREIGN KEY (quiz_id) REFERENCES quizzes(id)
+ON DELETE CASCADE;
+
+ALTER TABLE question_options
+ADD CONSTRAINT fk_question
+FOREIGN KEY (question_id) REFERENCES questions(id)
+ON DELETE CASCADE;
+
+ALTER TABLE answers
+ADD CONSTRAINT fk_answer
+FOREIGN KEY (question_id) REFERENCES questions(id)
+ON DELETE CASCADE;
+
+//in case deleting a quiz wont work sa imo machine -_-

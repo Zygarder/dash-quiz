@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dash Quiz Admin | Settings</title>
+  <title>Dash Quiz Admin | Users Table</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body>
@@ -27,32 +27,29 @@
 
     <main class="admin-main">
       <section class="admin-section">
-        <h3 class="section-title">Settings</h3>
 
-        <div class="settings-container">
-          <!-- Profile Settings -->
-          <div class="settings-card">
-            <h4>Profile Settings</h4>
-            <form class="settings-form">
-              <label for="adminName">Admin Name</label>
-              <input type="text" id="adminName" placeholder="Enter admin name" value="Administrator">
+      <h3 class="section-title">Dasher Records</h3>
 
-              <label for="adminEmail">Email</label>
-              <input type="email" id="adminEmail" placeholder="Enter email" value="admin@dashquiz.com">
-
-              <label for="adminPassword">Change Password</label>
-              <input type="password" id="adminPassword" placeholder="Enter new password">
-            </form>
+        <div class="admin-table">
+          <div class="table-header">
+            <span>Record ID</span>
+            <span>User ID</span>
+            <span>Quiz ID</span>
+            <span>Score</span>
           </div>
 
-          <button class="save-btn">Save Changes</button>
+          <!--foreach ($dasher as $user)-->
+          <div class="table-row">
+            <span>placeholder</span>
+            <span>bc</span>
+            <span>idk how</span>
+            <span>to do it on this one</span>
+          </div>
+          <!--endforeach-->
         </div>
       </section>
     </main>
   </div>
 
-  <footer class="admin-footer">
-    © 2025 Dash Quiz | All Rights Reserved.
-  </footer>
 </body>
 </html>
