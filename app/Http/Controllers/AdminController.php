@@ -52,12 +52,13 @@ class AdminController extends Controller
     {
         // Validate the incoming request
         $valid = $request->validate([
-            'first' => 'required|string|max:255',
-            'last' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
         ], [
-            'first.required' => 'First required',
+            'first_name.required' => 'First required',
+            'last_name.required' => 'Last required',
             'email.required' => 'Email required',
             'email.unique' => 'Email already taken',
             'password.required' => 'Password required',
@@ -66,8 +67,8 @@ class AdminController extends Controller
 
         // Create the user
         $dasher = Dasher::create([
-            'fullname' => $valid['first'] . ' ' . $valid['last'],
-            'name' => $valid['name'],
+            'first_name' => $valid['first_name'],
+            'last_name' => $valid['last_name'],
             'email' => $valid['email'],
             'password' => Hash::make($valid['password']),
         ]);

@@ -25,14 +25,14 @@
 
         <div class="profile-header">
             <div class="avatar">😎</div>
-            <h2 id="username">{{$dasher->name}}</h2>
+            <h2 id="username">{{$dasher->first_name}}</h2>
             <small id="userEmail">{{$dasher->email}}</small>
         </div>
 
         <div class="profile-details">
             <div class="detail-row">
                 <span>Full Name:</span>
-                <b id="fullName">{{$dasher->name}}</b>
+                <b id="fullName">{{$fullname}}</b>
             </div>
 
             <div class="detail-row">

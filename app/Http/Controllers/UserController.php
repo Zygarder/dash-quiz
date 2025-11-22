@@ -25,11 +25,12 @@ class UserController extends Controller
     public function ProfilePage()
     {
         $dasher = Auth::guard('dasher')->user();
+        $fullname = $dasher->first_name . ' ' . $dasher->last_name;
         $countUsers = QuizRecord::where('quiz_id', $dasher->id)
             ->distinct('user_id')
             ->count('user_id');
 
-        return view('User_Folder.ProfilePage', compact('dasher', 'countUsers'));
+        return view('User_Folder.ProfilePage', compact('dasher', 'fullname', 'countUsers'));
     }
 
     public function LogoutUser()

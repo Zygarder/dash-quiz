@@ -140,13 +140,13 @@
       <form method="POST" action="{{ route('register_request') }}">
         @csrf
 
-        <input id="name" type="text" name="name" placeholder="First Name" value="{{ old('name') }}" />
-        @error('name')
+        <input id="first_name" type="text" name="first_name" placeholder="First Name" value="{{ old('first_name') }}" />
+        @error('first_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="last" type="text" name="last" placeholder="Last Name" value="{{ old('last') }}" />
-        @error('last')
+        <input id="last_name" type="text" name="last_name" placeholder="Last Name" value="{{ old('last_name') }}" />
+        @error('last_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
