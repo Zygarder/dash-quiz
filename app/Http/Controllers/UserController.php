@@ -12,7 +12,12 @@ class UserController extends Controller
 {
     public function Dashboard()
     {
-        return view('User_Folder.Dashboard');
+        $leaders = QuizRecord::with(['user', 'quiz']) // eager load user and quiz
+        ->orderByDesc('score')                     // sort by score descending
+        ->limit(10)                                // top 10 scores
+        ->get();
+
+    return view('User_Folder.Dashboard', compact('leaders'));
     }
 
     public function QuizPage()

@@ -21,8 +21,13 @@ class QuizRecord extends Model
     protected $dates = ['completed_at'];
 
     public function quiz()
-{
-    return $this->belongsTo(Quiz::class, 'quiz_id');
-}
+    {
+        return $this->belongsTo(Quiz::class, 'quiz_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(Dasher::class, 'user_id');
+    }
 
 }

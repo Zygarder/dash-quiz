@@ -23,42 +23,30 @@
   </header>
 
   <!-- Main Content -->
-  <main class="dashboard">
-    <h3>Recent Quizzes:</h3>
+<main class="dashboard">
+    <h3>Leaderboard (Top Scores)</h3>
+
     <table class="quiz-table">
-      <tr>
-        <th>Date</th>
-        <th>Topic</th>
-        <th>Score</th>
-      </tr>
-      <tr>
-        <td>MM/DD/YYYY</td>
-        <td>LATEST TOPIC</td>
-        <td>SCORE</td>
-      </tr>
-      <tr>
-        <td>MM/DD/YYYY</td>
-        <td>TOPIC</td>
-        <td>SCORE</td>
-      </tr>
-      <tr>
-        <td>MM/DD/YYYY</td>
-        <td>TOPIC</td>
-        <td>SCORE</td>
-      </tr>
-      <tr>
-        <td>MM/DD/YYYY</td>
-        <td>TOPIC</td>
-        <td>SCORE</td>
-      </tr>
-      <tr>
-        <td>MM/DD/YYYY</td>
-        <td>OLDEST TOPIC</td>
-        <td>SCORE</td>
-      </tr>
+        <tr>
+            <th>Rank</th>
+            <th>Dasher</th>
+            <th>Quiz Title</th>
+            <th>Best Score</th>
+        </tr>
+
+        @foreach ($leaders as $index => $leader)
+        <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
+            <td>{{ $leader->quiz->title }}</td>
+            <td>{{ $leader->score }}</td>
+        </tr>
+        @endforeach
     </table>
+
     <br>
-  </main>
+</main>
+
 
   <!-- Sidebar Toggle Script -->
   <script src="{{ asset('js/sidebar_function.js') }}"></script>
