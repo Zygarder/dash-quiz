@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dasher;
+use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,11 +12,11 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     ####### Below is ang mga code para ma view ang pages #########
-
     public function RegisterPage()
     {
         return view('RegisterPage');
     }
+
     public function LoginPage()
     {
         return view('LoginPage');
@@ -46,7 +47,6 @@ class AdminController extends Controller
 
         return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
     }
-
 
     public function RegisterRequest(Request $request)
     {
@@ -79,7 +79,6 @@ class AdminController extends Controller
         return redirect()->route('login_page')->with('success', 'Account created successfully!');
     }
 
-
     ############################### USER DB ##################################
 
     //Admin side nav controller
@@ -88,20 +87,17 @@ class AdminController extends Controller
         $dboard = DB::select("SELECT COUNT(*) as total FROM dasher")[0]->total;
         $totalQuizzes = DB::table('quizzes')->count();
 
-        return view('Admin_Folder.Dashboard', [
-            'dboard' => $dboard,
-            'totalQuizzes' => $totalQuizzes
-        ]);
+        return view('Admin_Folder.Dashboard', compact('dboard', 'totalQuizzes'));
     }
 
     public function Quizmgmt()
     {
-        $quizzes = DB::select("SELECT * FROM quizzes");
+        $quizzes = Quiz::all();
         return view('Admin_Folder.ManageQuestions', compact('quizzes'));
     }
     public function UserTable()
     {
-        $dasher = DB::select("SELECT * FROM dasher");
+        $dasher = Dasher::all();
         return view('Admin_Folder.UsersTable', compact('dasher'));
     }
     public function srecords()
@@ -109,10 +105,12 @@ class AdminController extends Controller
         return view('Admin_Folder.StudentRecords');
     }
 
-    //db manager for users (admin side)
+    //database manager for users (admin side)
     public function dasherdelete($id)
     {
-        DB::delete("DELETE from dasher where id=?", [$id]);
+        //find user then delete
+        $user = Dasher::where('id', $id)->firstOrFail();
+        $user::delete();
         return redirect()->route('user-table')->with('success', 'data deleted');
     }
 
@@ -133,17 +131,15 @@ class AdminController extends Controller
             'questions.*.correct_option' => 'required|integer|min:0|max:3',
         ]);
 
-        // Create Quiz
-        // 1. Insert Quiz
-        DB::insert(
-            "INSERT INTO quizzes (title, description) VALUES (?, ?)",
-            [$request->title, $request->description]
-        );
+        // prepare the query
+        $sql = "INSERT INTO quizzes (title, description) VALUES (?, ?)";
+        // Insert Quiz
+        DB::insert($sql, [$request->title, $request->description]);
 
         // Get quiz ID
         $quiz_id = DB::getPdo()->lastInsertId();
 
-        // 2. Loop through questions
+        // Loop through questions
         foreach ($request->questions as $q) {
 
             // Insert Question
@@ -154,21 +150,19 @@ class AdminController extends Controller
 
             $question_id = DB::getPdo()->lastInsertId();
 
+            // Initialize option IDs array to save it here later on
             $option_ids = [];
 
-            // 3. Insert options
+            // Insert options
             foreach ($q['options'] as $opt) {
-
-                DB::insert(
-                    "INSERT INTO question_options (question_id, option_text) VALUES (?, ?)",
-                    [$question_id, $opt]
-                );
+                $sql = "INSERT INTO question_options (question_id, option_text) VALUES (?, ?)";
+                DB::insert($sql, [$question_id, $opt]);
 
                 // Save option ID so we know which one is correct later
                 $option_ids[] = DB::getPdo()->lastInsertId();
             }
 
-            // 4. Mark correct answer in `answers` table
+            // Mark correct answer in `answers` table
             $correctIndex = $q['correct_option']; // 0,1,2,3
 
             DB::insert(
@@ -191,35 +185,37 @@ class AdminController extends Controller
             }
         }
 
-
         return redirect()->route('admin-board')->with('success', 'Quiz created successfully!');
     }
 
     public function editQuiz($id)
     {
-        // 1. Fetch the quiz
-        $quiz = DB::select("SELECT * FROM quizzes WHERE id = ?", [$id])[0];
+        // Fetch the quiz
+        $sql = "SELECT * FROM quizzes WHERE id = ?";
+        $quiz = DB::select($sql, [$id])[0];
 
-        // 2. Fetch questions for this quiz
-        $questions = DB::select("SELECT * FROM questions WHERE quiz_id = ?", [$id]);
+        // Fetch questions for this quiz
+        $sql = "SELECT * FROM questions WHERE quiz_id = ?";
+        $questions = DB::select($sql, [$id]);
 
-        // 3. For each question, fetch options and correct answer
+        // For each question, fetch options and correct answer
         foreach ($questions as &$q) {
-            $q->options = DB::select("SELECT option_text FROM question_options WHERE question_id = ?", [$q->id]);
-            $q->options = array_map(fn($o) => $o->option_text, $q->options); // extract text
+            $sql = "SELECT option_text FROM question_options WHERE question_id = ?";
+            $q->options = DB::select($sql, [$q->id]);
+            $q->options = array_map(fn($opt) => $opt->option_text, $q->options); // extract text
 
-            $correct = DB::select("SELECT answer_text FROM answers WHERE question_id = ? AND is_correct = 1", [$q->id]);
+            $sql = "SELECT answer_text FROM answers WHERE question_id = ? AND is_correct = 1";
+            $correct = DB::select($sql, [$q->id]);
             $q->correct_option = $correct ? $correct[0]->answer_text : null;
         }
 
         return view('/Admin_folder.quizedit', compact('quiz', 'questions'));
     }
 
-
     public function updateQuiz(Request $request, $id)
     {
-        // 1. Validate input
-        $request->validate([
+        // Validate input
+        $valid = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'questions' => 'required|array|min:1',
@@ -231,48 +227,37 @@ class AdminController extends Controller
             'questions.*.answer_id' => 'required|integer', // ← important
         ]);
 
-        // 2. Update quiz
-        DB::update(
-            "UPDATE quizzes SET title = ?, description = ? WHERE id = ?",
-            [$request->title, $request->description, $id]
-        );
+        $sql = "UPDATE quizzes SET title = ?, description = ? WHERE id = ?";
+        // Update quiz
+        DB::update($sql, [$valid['title'], $valid['description'], $id]);
 
-        // 3. Update each question
-        foreach ($request->questions as $q) {
-
+        // Update each question
+        foreach ($valid['questions'] as $q) {
+            //prepare the query
+            $sql = "UPDATE questions SET question_text = ? WHERE id = ?";
             $questionId = $q['id'];
 
             // Update question text
-            DB::update(
-                "UPDATE questions SET question_text = ? WHERE id = ?",
-                [$q['text'], $questionId]
-            );
+            DB::update($sql, [$q['text'], $questionId]);
 
             // Update options
             foreach ($q['options'] as $i => $optText) {
-
+                $sql = "UPDATE question_options SET option_text = ? WHERE id = ?";
                 $optionId = $q['option_ids'][$i];
 
-                DB::update(
-                    "UPDATE question_options SET option_text = ? WHERE id = ?",
-                    [$optText, $optionId]
-                );
+                DB::update($sql, [$optText, $optionId]);
             }
 
             // Reset all answers to incorrect
-            DB::update(
-                "UPDATE answers SET is_correct = 0 WHERE question_id = ?",
-                [$questionId]
-            );
+            $sql = "UPDATE answers SET is_correct = 0 WHERE question_id = ?";
+            DB::update($sql, [$questionId]);
 
             // Set correct answer
             $correctOptionIndex = $q['correct_option'];
             $correctText = $q['options'][$correctOptionIndex];
 
-            DB::update(
-                "UPDATE answers SET is_correct = 1 WHERE question_id = ? AND answer_text = ?",
-                [$questionId, $correctText]
-            );
+            $sql = "UPDATE answers SET is_correct = 1 WHERE question_id = ? AND answer_text = ?";
+            DB::update($sql, [$questionId, $correctText]);
         }
 
         return redirect()->route('quiz-manage')->with('success', 'Quiz updated successfully!');
@@ -280,7 +265,10 @@ class AdminController extends Controller
 
     public function deletequiz($id)
     {
-        DB::delete("DELETE from quizzes where id=?", [$id]);
+        //prepare the query
+        $sql = "DELETE from quizzes where id=?";
+
+        DB::delete($sql, [$id]);
         return redirect()->route('quiz-manage')->with('success', 'data deleted');
     }
 }

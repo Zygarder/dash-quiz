@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\QuizRecord;
-use App\Models\Dasher;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-
+use App\Models\QuizRecord;
+use App\Models\Quiz;
 class UserController extends Controller
 {
     public function Dashboard()
     {
-        $leaders = QuizRecord::with(['user', 'quiz']) // eager load user and quiz
-        ->orderByDesc('score')                     // sort by score descending
-        ->limit(10)                                // top 10 scores
-        ->get();
+        $leaders = QuizRecord::with(['user', 'quiz']) // get user and quiz table
+            ->orderByDesc('score')                     // sort by score descending
+            ->limit(10)                                // top 10 scores
+            ->get();
 
-    return view('User_Folder.Dashboard', compact('leaders'));
+        return view('User_Folder.Dashboard', compact('leaders'));
     }
 
     public function QuizPage()
     {
         session()->forget(['quiz_questions', 'quiz_index', 'score']); // reset session
-        $quizzes = DB::table('quizzes')->get();
+        $quizzes = Quiz::all();
         return view('User_Folder.QuizPage', compact('quizzes')); //added for optional scalability
     }
 
@@ -40,6 +37,9 @@ class UserController extends Controller
 
     public function LogoutUser()
     {
+        Auth::guard('dasher')->logout();
+        session()->flush();
+        session()->regenerate(true);
         return redirect()->route('login_page');
     }
 

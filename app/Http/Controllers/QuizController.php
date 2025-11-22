@@ -3,11 +3,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Quiz;
 use App\Models\Answer;
-use App\Models\QuizRecord;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Question;
-use Carbon\Carbon;
+use App\Models\QuizRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class QuizController extends Controller
 {
@@ -58,15 +58,13 @@ class QuizController extends Controller
         $index = session('quiz_index');
         $currentQuestionId = session('quiz_questions')[$index] ?? [];
 
-
-
         // Redirect to result page after finishing the quiz
         if (!$currentQuestionId) {
             $score = session('score');
             $quizTitle = session('quiz_title');
             $totalQuestions = count(session('quiz_questions'));
 
-            // Store quiz result in DB
+            // Store quiz result in database
             if (Auth::guard('dasher')->check()) {
                 QuizRecord::create([
                     'user_id' => auth()->guard('dasher')->id(),
@@ -78,8 +76,6 @@ class QuizController extends Controller
 
             return view('User_Folder.QuizResult', compact('score', 'quizTitle', 'totalQuestions'));
         }
-
-
 
         $question = Question::findOrFail($currentQuestionId);
         $options = $question->options;

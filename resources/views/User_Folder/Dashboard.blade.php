@@ -37,9 +37,11 @@
       @foreach ($leaders as $index => $leader)
         <tr>
           <td>{{ $index + 1 }}</td>
+          {{-- Checks if its you --}}
           @if($leader->user->id == auth()->guard('dasher')->user()->id)
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}(You)</td>
           @else
+          {{-- add other on board --}}
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
           @endif
           <td>{{ $leader->quiz->title }}</td>
