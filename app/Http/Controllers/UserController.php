@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\QuizRecord;
+use App\Models\Dasher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,12 @@ class UserController extends Controller
 
     public function ProfilePage()
     {
-        return view('User_Folder.ProfilePage');
+        $dasher = Auth::guard('dasher')->user();
+        $countUsers = QuizRecord::where('quiz_id', $dasher->id)
+            ->distinct('user_id')
+            ->count('user_id');
+
+        return view('User_Folder.ProfilePage', compact('dasher', 'countUsers'));
     }
 
     public function LogoutUser()

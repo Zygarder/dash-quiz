@@ -140,23 +140,27 @@
       <form method="POST" action="{{ route('register_request') }}">
         @csrf
 
-        <input id="name" type="text" name="name" placeholder="Name" value="{{ old('name') }}" required />
+        <input id="name" type="text" name="name" placeholder="First Name" value="{{ old('name') }}" />
         @error('name')
-        <div class="error">{{ $message }}</div>
+          <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="email" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
+        <input id="last" type="text" name="last" placeholder="Last Name" value="{{ old('last') }}" />
+        @error('last')
+          <div class="error">{{ $message }}</div>
+        @enderror
+
+        <input id="email" type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" />
         @error('email')
-        <div class="error">{{ $message }}</div>
+          <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="password" type="password" name="password" placeholder="Enter Password" required />
+        <input id="password" type="password" name="password" placeholder="Enter Password" />
         @error('password')
-        <div class="error">{{ $message }}</div>
+          <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Re-type Password"
-          required />
+        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Re-type Password" />
 
         <button type="submit" class="register-btn">Submit</button>
 

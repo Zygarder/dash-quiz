@@ -50,15 +50,11 @@ Route::prefix('admin')->controller(AdminController::class)->group(function () {
     // QUIZ MANAGEMENT
     Route::get('/quiz/create', 'addquiz')->name('quiz-add');
     Route::post('/quiz/store', 'savequiz')->name('quiz-save');
-<<<<<<< HEAD
-
-=======
     Route::get('/quiz/{id}/edit', 'editQuiz')->name('quiz-edit');
     Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
     Route::post('/quiz/del/{id}','deletequiz')->name('quizdel');
 
     
->>>>>>> refs/remotes/origin/main
     //USER MANAGEMENT
     Route::get('/records', 'UserTable')->name('user-table');
     Route::post('/del/{id}', 'dasherdelete')->name('deleteuser');

@@ -5,10 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dash Quiz | User Profile</title>
-  <link rel="stylesheet" href="{{asset('css/style.css')}}" />
-  <link rel="stylesheet" href="{{asset('css/profile-page.css')}}" />
 </head>
-
+  <link rel="stylesheet" href="{{ asset('css/profile-page.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <body>
 
   <!-- Sidebar -->
@@ -22,32 +21,37 @@
 
   <!-- Main Content -->
   <main class="main-content" id="mainContent">
-    <div class="profile-container">
-      <div class="profile-avatar">😎</div>
-      <div class="username" id="username">Username</div>
-      <small id="userEmail" style="color: gray">user@example.com</small>
+    <div class="profile-card">
 
-      <div class="profile-info">
-        <div class="info-row">
-          <span>Full Name:</span><span id="fullName">John Doe</span>
+        <div class="profile-header">
+            <div class="avatar">😎</div>
+            <h2 id="username">{{$dasher->name}}</h2>
+            <small id="userEmail">{{$dasher->email}}</small>
         </div>
-        <div class="info-row">
-          <span>Role:</span><span id="userRole">Student</span>
-        </div>
-        <div class="info-row">
-          <span>Date Joined:</span><span id="dateJoined">October 10, 2025</span>
-        </div>
-        <div class="info-row">
-          <span>Quizzes Taken:</span><span id="quizzesTaken">18</span>
-        </div>
-      </div>
 
-      <div class="profile-actions">
-        <button id="editProfileBtn">Edit Profile</button>
-        <button id="changePassBtn">Change Password</button>
-      </div>
+        <div class="profile-details">
+            <div class="detail-row">
+                <span>Full Name:</span>
+                <b id="fullName">{{$dasher->name}}</b>
+            </div>
+
+            <div class="detail-row">
+                <span>Date Joined:</span>
+                <b id="dateJoined">{{$dasher->created_at->format('M-d-Y')}}</b>
+            </div>
+
+            <div class="detail-row">
+                <span>Quizzes Taken:</span>
+                <b id="quizzesTaken">{{ $countUsers }}</b>
+            </div>
+        </div>
+
+        <div class="profile-buttons">
+            <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
+            <button class="btn-secondary" id="changePassBtn">Change Password</button>
+        </div>
     </div>
-  </main>
+</main>
 
   <!-- ======= MODALS ======= -->
   <!-- Edit Profile Modal -->

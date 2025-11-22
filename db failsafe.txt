@@ -14,3 +14,5 @@ FOREIGN KEY (question_id) REFERENCES questions(id)
 ON DELETE CASCADE;
 
 //in case deleting a quiz wont work sa imo machine -_-
+
+/reply: it works HAHAHAHAH

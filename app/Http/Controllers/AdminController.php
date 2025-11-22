@@ -52,10 +52,12 @@ class AdminController extends Controller
     {
         // Validate the incoming request
         $valid = $request->validate([
-            'name' => 'required|string|max:255',
+            'first' => 'required|string|max:255',
+            'last' => 'required|string|max:255',
             'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
         ], [
+            'first.required' => 'First required',
             'email.required' => 'Email required',
             'email.unique' => 'Email already taken',
             'password.required' => 'Password required',
@@ -64,6 +66,7 @@ class AdminController extends Controller
 
         // Create the user
         $dasher = Dasher::create([
+            'fullname' => $valid['first'] . ' ' . $valid['last'],
             'name' => $valid['name'],
             'email' => $valid['email'],
             'password' => Hash::make($valid['password']),
@@ -83,7 +86,7 @@ class AdminController extends Controller
     {
         $dboard = DB::select("SELECT COUNT(*) as total FROM dasher")[0]->total;
         $totalQuizzes = DB::table('quizzes')->count();
-    
+
         return view('Admin_Folder.Dashboard', [
             'dboard' => $dboard,
             'totalQuizzes' => $totalQuizzes
@@ -213,68 +216,69 @@ class AdminController extends Controller
 
 
     public function updateQuiz(Request $request, $id)
-{
-    // 1. Validate input
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string',
-        'questions' => 'required|array|min:1',
-        'questions.*.id' => 'required|integer',  // ← important
-        'questions.*.text' => 'required|string',
-        'questions.*.options' => 'required|array|size:4',
-        'questions.*.option_ids' => 'required|array|size:4', // ← important
-        'questions.*.correct_option' => 'required|integer|min:0|max:3',
-        'questions.*.answer_id' => 'required|integer', // ← important
-    ]);
+    {
+        // 1. Validate input
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'questions' => 'required|array|min:1',
+            'questions.*.id' => 'required|integer',  // ← important
+            'questions.*.text' => 'required|string',
+            'questions.*.options' => 'required|array|size:4',
+            'questions.*.option_ids' => 'required|array|size:4', // ← important
+            'questions.*.correct_option' => 'required|integer|min:0|max:3',
+            'questions.*.answer_id' => 'required|integer', // ← important
+        ]);
 
-    // 2. Update quiz
-    DB::update(
-        "UPDATE quizzes SET title = ?, description = ? WHERE id = ?",
-        [$request->title, $request->description, $id]
-    );
-
-    // 3. Update each question
-    foreach ($request->questions as $q) {
-
-        $questionId = $q['id'];
-
-        // Update question text
+        // 2. Update quiz
         DB::update(
-            "UPDATE questions SET question_text = ? WHERE id = ?",
-            [$q['text'], $questionId]
+            "UPDATE quizzes SET title = ?, description = ? WHERE id = ?",
+            [$request->title, $request->description, $id]
         );
 
-        // Update options
-        foreach ($q['options'] as $i => $optText) {
+        // 3. Update each question
+        foreach ($request->questions as $q) {
 
-            $optionId = $q['option_ids'][$i];
+            $questionId = $q['id'];
+
+            // Update question text
+            DB::update(
+                "UPDATE questions SET question_text = ? WHERE id = ?",
+                [$q['text'], $questionId]
+            );
+
+            // Update options
+            foreach ($q['options'] as $i => $optText) {
+
+                $optionId = $q['option_ids'][$i];
+
+                DB::update(
+                    "UPDATE question_options SET option_text = ? WHERE id = ?",
+                    [$optText, $optionId]
+                );
+            }
+
+            // Reset all answers to incorrect
+            DB::update(
+                "UPDATE answers SET is_correct = 0 WHERE question_id = ?",
+                [$questionId]
+            );
+
+            // Set correct answer
+            $correctOptionIndex = $q['correct_option'];
+            $correctText = $q['options'][$correctOptionIndex];
 
             DB::update(
-                "UPDATE question_options SET option_text = ? WHERE id = ?",
-                [$optText, $optionId]
+                "UPDATE answers SET is_correct = 1 WHERE question_id = ? AND answer_text = ?",
+                [$questionId, $correctText]
             );
         }
 
-        // Reset all answers to incorrect
-        DB::update(
-            "UPDATE answers SET is_correct = 0 WHERE question_id = ?",
-            [$questionId]
-        );
-
-        // Set correct answer
-        $correctOptionIndex = $q['correct_option'];
-        $correctText = $q['options'][$correctOptionIndex];
-
-        DB::update(
-            "UPDATE answers SET is_correct = 1 WHERE question_id = ? AND answer_text = ?",
-            [$questionId, $correctText]
-        );
+        return redirect()->route('quiz-manage')->with('success', 'Quiz updated successfully!');
     }
 
-    return redirect()->route('quiz-manage')->with('success', 'Quiz updated successfully!');
-}
-
-    public function deletequiz($id) {
+    public function deletequiz($id)
+    {
         DB::delete("DELETE from quizzes where id=?", [$id]);
         return redirect()->route('quiz-manage')->with('success', 'data deleted');
     }
