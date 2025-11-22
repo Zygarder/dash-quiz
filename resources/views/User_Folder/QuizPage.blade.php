@@ -28,7 +28,7 @@
     <header class="top-bar">
         <div class="menu-btn" id="menuBtn">&#9776;</div>
         <p>CHOOSE YOUR QUIZ</p>
-        <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
+        <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
     </header>
 
     <!-- Main Content -->
@@ -37,11 +37,12 @@
             <h2>Computer Systems Servicing</h2>
 
             <div class="quiz-container">
+                {{-- quizzes from UserController --}}
                 @foreach($quizzes as $quiz)
                     <form action="{{ route('quiz.start') }}" class="quiz-choice" method="GET">
                         @csrf
                         <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
-                        <button type="submit" class="competency-btn">{{ $quiz->title }}</button>
+                        <button type="submit" class="competency-btn">{{ $quiz->description }}</button>
                     </form>
                 @endforeach
             </div>

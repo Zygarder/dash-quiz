@@ -7,7 +7,6 @@
     <title>Take Quiz</title>
 
     {{-- CSS Styles --}}
-
     <style>
         * {
             margin: 0;
@@ -193,10 +192,6 @@
 
                 <button type="submit" class="submit-btn">Next</button>
             </form>
-
-
-
-
         </div>
     </div>
 

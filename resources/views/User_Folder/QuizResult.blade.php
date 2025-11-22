@@ -84,7 +84,7 @@
         <h1>Quiz Completed! 🎉</h1>
 
         <div class="score">
-            Score: {{ $score }} / {{ 10 }}
+            Score: {{ $score }} / {{ $totalQuestions }}
         </div>
 
         <a href="{{ route('quiz-page') }}">Take Another Quiz</a>

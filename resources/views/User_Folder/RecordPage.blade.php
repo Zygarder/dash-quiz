@@ -16,7 +16,7 @@
   <!-- Top Bar -->
   <header class="top-bar">
     <div class="menu-btn" id="menuBtn">&#9776;</div>
-    <a href="{{ route('logout') }}" class="logout-btn">Log Out</a>
+    <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
   </header>
 
   <!-- Main Content -->
@@ -38,54 +38,21 @@
       <div class="table-wrapper">
         <table id="recordsTable">
           <tbody>
-            <tr>
-              <td>10/19/2025</td>
-              <td>Topic 10</td>
-              <td>5/5</td>
-            </tr>
-            <tr>
-              <td>10/18/2025</td>
-              <td>Topic 11</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/17/2025</td>
-              <td>Topic 12</td>
-              <td>5/5</td>
-            </tr>
-            <tr>
-              <td>10/16/2025</td>
-              <td>Topic 13</td>
-              <td>3/5</td>
-            </tr>
-            <tr>
-              <td>10/15/2025</td>
-              <td>Topic 14</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/14/2025</td>
-              <td>Topic 15</td>
-              <td>2/5</td>
-            </tr>
-            <tr>
-              <td>10/13/2025</td>
-              <td>Topic 16</td>
-              <td>4/5</td>
-            </tr>
-            <tr>
-              <td>10/12/2025</td>
-              <td>Topic 17</td>
-              <td>5/5</td>
-            </tr>
-            <tr>
-              <td>10/11/2025</td>
-              <td>Topic 18</td>
-              <td>5/5</td>
-            </tr>
+            @forelse ($records as $record)
+              <tr>
+                <td>{{ $record->completed_at }}</td>
+                <td>{{ $record->quiz->title ?? 'N/A' }}</td>
+                <td>{{ $record->score }}/{{ $record->quiz->questions->count() ?? 10 }}</td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="3">No records found.</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
       </div>
+
     </div>
   </main>
 

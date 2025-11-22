@@ -11,14 +11,13 @@
 
 <body>
 
-
   <!-- Sidebar -->
   @include('User_Folder.Sidebar')
 
   <header class="top-bar">
     <button class="menu-btn" id="menuBtn">&#9776;</button>
     <h2>My Profile</h2>
-    <a href="{{route('logout')}}" class="logout-btn">Log Out</a>
+    <a href="{{route('logout-user')}}" class="logout-btn">Log Out</a>
   </header>
 
   <!-- Main Content -->
@@ -88,9 +87,9 @@
   </div>
 
   <!-- Sidebar Toggle Script -->
-    <script src="{{ asset('js/sidebar_function.js') }}"></script>
+  <script src="{{ asset('js/sidebar_function.js') }}"></script>
   <script>
-    
+
     // === PROFILE DATA MODALS ===
     let profile = {
       username: "Username",

@@ -15,4 +15,14 @@ class QuizRecord extends Model
         'score',
         'completed_at',
     ];
+
+    public $timestamps = false;
+
+    protected $dates = ['completed_at'];
+
+    public function quiz()
+{
+    return $this->belongsTo(Quiz::class, 'quiz_id');
+}
+
 }

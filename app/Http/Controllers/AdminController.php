@@ -88,12 +88,12 @@ class AdminController extends Controller
 
     public function Quizmgmt()
     {
-        $quizzes = DB::select("select * from quizzes");
+        $quizzes = DB::select("SELECT * FROM quizzes");
         return view('Admin_Folder.ManageQuestions', compact('quizzes'));
     }
     public function UserTable()
     {
-        $dasher = DB::select("select * from dasher");
+        $dasher = DB::select("SELECT * FROM dasher");
         return view('Admin_Folder.UsersTable', compact('dasher'));
     }
     public function srecords()
@@ -101,10 +101,7 @@ class AdminController extends Controller
         return view('Admin_Folder.StudentRecords');
     }
 
-
-
     //db manager for users (admin side)
-
     public function dasherdelete($id)
     {
         DB::delete("DELETE from dashers where id=?", [$id]);
