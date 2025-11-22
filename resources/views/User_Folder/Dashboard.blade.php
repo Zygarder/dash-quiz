@@ -17,35 +17,39 @@
     <div class="top-bar">
       <button class="menu-btn" id="menuBtn">&#9776;</button>
       <h2>Welcome {{ auth()->guard('dasher')->user()->first_name }}!</h2>
-      
+
       <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
     </div>
   </header>
 
   <!-- Main Content -->
-<main class="dashboard">
+  <main class="dashboard">
     <h3>Leaderboard (Top Scores)</h3>
 
     <table class="quiz-table">
-        <tr>
-            <th>Rank</th>
-            <th>Dasher</th>
-            <th>Quiz Title</th>
-            <th>Best Score</th>
-        </tr>
+      <tr>
+        <th>Rank</th>
+        <th>Dasher</th>
+        <th>Quiz Title</th>
+        <th>Best Score</th>
+      </tr>
 
-        @foreach ($leaders as $index => $leader)
+      @foreach ($leaders as $index => $leader)
         <tr>
-            <td>{{ $index + 1 }}</td>
+          <td>{{ $index + 1 }}</td>
+          @if($leader->user->id == auth()->guard('dasher')->user()->id)
+            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}(You)</td>
+          @else
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
-            <td>{{ $leader->quiz->title }}</td>
-            <td>{{ $leader->score }}</td>
+          @endif
+          <td>{{ $leader->quiz->title }}</td>
+          <td>{{ $leader->score }}</td>
         </tr>
-        @endforeach
+      @endforeach
     </table>
 
     <br>
-</main>
+  </main>
 
 
   <!-- Sidebar Toggle Script -->
