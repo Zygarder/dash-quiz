@@ -1,1 +1,35 @@
 nov 11 - change name into fullname sa db for the profile hehe
+
+Database Structure Recap & Relationships
+
+quizzes
+
+id, title
+
+Relation: hasMany(questions)
+
+questions
+
+id, quiz_id, question_text, correct_option_id
+
+Relation: belongsTo(quiz)
+
+Relation: hasMany(answers)
+
+answers
+
+id, question_id, answer_text, is_correct
+
+Relation: belongsTo(question)
+
+quiz_records
+
+id, user_id, quiz_id, score, completed_at
+
+Relation: belongsTo(user), belongsTo(quiz)
+
+dashers (users)
+
+id, first_name, last_name, email, password
+
+Relation: hasMany(quiz_records)
