@@ -27,8 +27,8 @@
 
     <main class="admin-main">
       <section class="admin-stats">
-        <div class="admin-card">Total Registered</div>
-        <div class="admin-card">Total Quizzes</div>
+        <div class="admin-card">Total Registered: {{ $dboard }}</div>
+        <div class="admin-card">Total Quizzes: {{ $totalQuizzes }}</div>
         <div class="admin-card">Active Users</div>
       </section>
 
@@ -38,12 +38,5 @@
       </section>
     </main>
   </div>
-  <footer class="admin-footer">
-    © 2025 Dash Quiz | All Rights Reserved.
-  </footer>
-
-  <script>
-    
-  </script>
 </body>
 </html>

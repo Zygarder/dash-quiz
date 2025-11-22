@@ -27,6 +27,13 @@
 
     <main class="admin-main">
       <section class="admin-section">
+
+        @if (session('success'))
+        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
         <h3 class="section-title">Manage Quizzes</h3>
 
         <button onclick="window.location='{{ route('quiz-add') }}'" class="add-btn">+ Add New Quiz</button>
@@ -45,8 +52,11 @@
             <span><tr>{{ $quiz->title }}</tr></span>
             <span><tr>{{ $quiz->description }}</tr></span>
             <span>
-              <button onclick="window.location=''" class="action-btn edit">Edit</button>
-              <button onclick="window.location=''" class="action-btn delete">Delete</button>
+              <button onclick="window.location='{{ route('quiz-edit', $quiz->id) }}'" class="action-btn edit">Edit</button>
+              <form action="{{ route('quizdel', $quiz->id) }}" method="POST">
+                @csrf
+                <button class="action-btn delete">Delete</button>
+            </form>
             </span>
           </div>
           @endforeach
