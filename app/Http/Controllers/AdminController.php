@@ -78,8 +78,6 @@ class AdminController extends Controller
 
     ############################### USER DB ##################################
 
-
-
     //Admin side nav controller
     public function Dashboard()
     {
