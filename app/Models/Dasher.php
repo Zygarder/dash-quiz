@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; // important
+use Illuminate\Notifications\Notifiable;
 
-class Dasher extends Model
+class Dasher extends Authenticatable
 {
-    use HasFactory;
+    use Notifiable;
 
-    public $table = 'dasher';
+    protected $table = 'dasher'; 
 
     protected $fillable = [
         'name',
@@ -17,5 +17,8 @@ class Dasher extends Model
         'password',
     ];
 
-
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 }

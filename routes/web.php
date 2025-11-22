@@ -42,15 +42,16 @@ Route::get('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
 
 // back to basics //
 use App\Http\Controllers\BasicController;
-Route::get('basic', function(){
+Route::get('basic', function () {
     return view('basic');
 });
-Route::get('login-request',[BasicController::class, 'login'])->name('basic-login');
+Route::get('login-request', [BasicController::class, 'login'])->name('basic-login');
 
 //admin side routes
 Route::prefix('admin')->controller(AdminController::class)->group(function(){
     Route::get('/', 'Dashboard')->name('admin-board');
     Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
+    Route::get('/admin-logout', 'LogoutRequest')->name('admin-logout');
 
     // QUIZ MANAGEMENT
     Route::get('/quiz/create', 'addquiz')->name('quiz-add');

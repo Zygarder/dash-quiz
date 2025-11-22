@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Quiz;
@@ -9,8 +8,8 @@ use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
-    /**
-     * Display quiz questions one at a time
+    /*
+     * Display quiz questions one at a ti``me
      */
     public function show(Request $request)
     {
@@ -127,9 +126,7 @@ class QuizController extends Controller
         // Move to next question
         session(['quiz_index' => session('quiz_index') + 1]);
 
-        return redirect()->route('quiz.start')->with([
-            'success' => ($question->correct_option_id == $request->answer) ? 'Correct!' : 'Wrong!'
-        ]);
+        return redirect()->back();
     }
 }
 

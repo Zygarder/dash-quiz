@@ -23,12 +23,6 @@
     <header class="top-bar">
         <p>Dash Quiz - Learn and test yourself!</p>
     </header>
-    <!--success key from registration-->
-    @if (session('success'))
-        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Main Section -->
     <main class="container">
@@ -49,10 +43,12 @@
                 @error('email')
                     <div class="error">{{ $message }}</div>
                 @enderror
+                @if($errors->has('error'))
+                    <div class="error">{{ $errors->first('error') }}</div>
+                @endif
 
                 <!-- Password Input -->
-                <input type="password" id="pass" name="password" placeholder="Enter Password"
-                    autocomplete="false" />
+                <input type="password" id="pass" name="password" placeholder="Enter Password" />
                 @error('password')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -61,9 +57,9 @@
                 <button type="submit" class="login-btn">Log In</button>
 
                 <!-- Links -->
-                <a href="" class="forgot">Forgot password?</a>
+                <a href=""  class="forgot">Forgot password?</a>
                 <button type="button" class="register-btn"
-                    onclick="window.location.href='{{ route('register_page') }}'">
+                    onclick="window.location.href='{{ route('register_page') }}'" target="_blank">
                     Register Now!
                 </button>
             </form>
