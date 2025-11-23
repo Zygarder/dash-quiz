@@ -9,7 +9,7 @@
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
-    <a href="{{ route('admin-logout') }}" class="logout-btn">Log Out</a>
+    <a href="{{ route('adminlogout') }}" class="logout-btn">Log Out</a>
   </header>
 
   <div class="admin-container">

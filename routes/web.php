@@ -45,7 +45,7 @@ Route::get('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
 Route::prefix('admin')->controller(AdminController::class)->group(function () {
     Route::get('/', 'Dashboard')->name('admin-board');
     Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
-    Route::get('/admin-logout', 'LogoutRequest')->name('admin-logout');
+    Route::get('/admin-logout', 'LogoutRequest')->name('adminlogout');
 
     // QUIZ MANAGEMENT
     Route::get('/quiz/create', 'addquiz')->name('quiz-add');

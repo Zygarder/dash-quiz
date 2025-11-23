@@ -139,7 +139,7 @@ body {
   .admin-table .table-header,
   .admin-table .table-row {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 2fr 1fr 1.5fr;
+    grid-template-columns: 1fr 1fr 1fr 1.3fr 2fr 1fr ;
     padding: 14px 16px;
     align-items: center;
   }
