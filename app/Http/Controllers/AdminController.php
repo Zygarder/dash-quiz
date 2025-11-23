@@ -107,7 +107,8 @@ class AdminController extends Controller
     }
     public function srecords()
     {
-        return view('Admin_Folder.StudentRecords');
+        $quiz_records=DB::select('SELECT * FROM quiz_records');
+        return view('Admin_Folder.StudentRecords', compact('quiz_records'));
     }
 
     //database manager for users (admin side)
