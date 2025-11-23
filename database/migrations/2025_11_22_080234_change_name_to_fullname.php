@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,10 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dasher', function (Blueprint $table) {
-            $table->renameColumn('name', 'first_name');
-            $table->string('last_name')->after('name');
-        });
+        //fixing compatibility issues
+        DB::statement('ALTER TABLE `quiz`.`dasher` CHANGE COLUMN `name` `first_name` VARCHAR(191) NOT NULL ;');
     }
 
     /**
