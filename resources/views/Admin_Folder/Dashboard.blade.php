@@ -29,12 +29,11 @@
       <section class="admin-stats">
         <div class="admin-card">Total Registered: {{ $dboard }}</div>
         <div class="admin-card">Total Quizzes: {{ $totalQuizzes }}</div>
-        <div class="admin-card">Active Users</div>
+        <div class="admin-card">Active Users: Not yet Implemented</div>
       </section>
 
       <section class="admin-details">
-        <div class="admin-card wide">Total Quizzes</div>
-        <div class="admin-card wide">Total Quizzes</div>
+        <div class="admin-card wide">Recent Logs:</div>
       </section>
     </main>
   </div>
