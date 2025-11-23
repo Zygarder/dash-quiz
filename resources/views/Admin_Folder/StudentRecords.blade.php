@@ -30,22 +30,24 @@
 
       <h3 class="section-title">Dasher Records</h3>
 
-        <div class="admin-table">
-          <div class="table-header">
+        <div class="records-table">
+          <div class="records-table records-table-header">
             <span>Record ID</span>
             <span>User ID</span>
             <span>Quiz ID</span>
             <span>Score</span>
+            <span>Date Completed</span>
           </div>
 
-          <!--foreach ($dasher as $user)-->
-          <div class="table-row">
-            <span>placeholder</span>
-            <span>bc</span>
-            <span>idk how</span>
-            <span>to do it on this one</span>
+          @foreach ($quiz_records as $rec)
+          <div class="records-table records-table-row">
+            <span>{{ $rec->id }}</span>
+            <span>{{ $rec->user_id }}</span>
+            <span>{{ $rec->quiz_id }}</span>
+            <span>{{ $rec->score }}</span>
+            <span>{{ $rec->completed_at }}</span>
           </div>
-          <!--endforeach-->
+          @endforeach
         </div>
       </section>
     </main>

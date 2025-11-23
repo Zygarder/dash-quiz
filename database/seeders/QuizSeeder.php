@@ -11,8 +11,16 @@ class QuizSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         // Clear existing data
+        DB::table('quizzes')->truncate();
         DB::table('questions')->truncate();
         DB::table('answers')->truncate();
+
+        //quiz categories
+        $quizzes = [
+            ['id' => 1, 'title' => 'COC1', 'description' => 'Certificate of Competency 1'],
+            ['id' => 2, 'title' => 'COC2', 'description' => 'Certificate of Competency 2'],
+            ['id' => 3, 'title' => 'COC3', 'description' => 'Certificate of Competency 3']
+        ];
 
         // Questions
         $questions = [
@@ -236,5 +244,6 @@ class QuizSeeder extends Seeder
         ];
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         DB::table('answers')->insert($answers);
+        DB::table('quizzes')->insert($quizzes);
     }
 }

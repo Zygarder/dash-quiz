@@ -38,8 +38,8 @@
 
         <button onclick="window.location='{{ route('quiz-add') }}'" class="add-btn">+ Add New Quiz</button>
 
-        <div class="admin-table">
-          <div class="table-header">
+        <div class="quiz-table quiz-admin-table">
+          <div class="quiz-table quiz-table-header">
             <span>Quiz ID</span>
             <span>Title</span>
             <span>Description</span>
@@ -47,15 +47,15 @@
           </div>
 
           @foreach ($quizzes as $quiz)
-          <div class="table-row">
+          <div class="quiz-table-row">
             <span><tr>{{ $quiz->id }}</tr></span>
             <span><tr>{{ $quiz->title }}</tr></span>
             <span><tr>{{ $quiz->description }}</tr></span>
             <span>
               <button onclick="window.location='{{ route('quiz-edit', $quiz->id) }}'" class="action-btn edit">Edit</button>
-              <form action="{{ route('quizdel', $quiz->id) }}" method="POST">
+              <form action="{{ route('quizdel', $quiz->id) }}" method="POST" style="display: inline">
                 @csrf
-                <button class="action-btn delete">Delete</button>
+                <button class="action-btn delete" style="display: inline">Delete</button>
             </form>
             </span>
           </div>
