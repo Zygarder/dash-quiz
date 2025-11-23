@@ -242,6 +242,164 @@ class QuizSeeder extends Seeder
 
 
         ];
+        $question_options = [
+            // === COC1 ===
+            ['question_id' => 1, 'option_text' => 'Multimeter'],
+            ['question_id' => 1, 'option_text' => 'Crimping tool'],
+            ['question_id' => 1, 'option_text' => 'Loopback plug'],
+            ['question_id' => 1, 'option_text' => 'RJ45 tester'],
+
+            ['question_id' => 2, 'option_text' => 'CPU'],
+            ['question_id' => 2, 'option_text' => 'RAM'],
+            ['question_id' => 2, 'option_text' => 'SSD'],
+            ['question_id' => 2, 'option_text' => 'PSU'],
+
+            ['question_id' => 3, 'option_text' => '7-pin data cable'],
+            ['question_id' => 3, 'option_text' => '40-pin IDE ribbon'],
+            ['question_id' => 3, 'option_text' => 'Ethernet cable'],
+            ['question_id' => 3, 'option_text' => 'USB cable'],
+
+            ['question_id' => 4, 'option_text' => 'Disconnect the power source'],
+            ['question_id' => 4, 'option_text' => 'Turn off monitor only'],
+            ['question_id' => 4, 'option_text' => 'Remove BIOS battery'],
+            ['question_id' => 4, 'option_text' => 'Format the hard drive'],
+
+            ['question_id' => 5, 'option_text' => 'PCIe x16'],
+            ['question_id' => 5, 'option_text' => 'AGP'],
+            ['question_id' => 5, 'option_text' => 'PCI'],
+            ['question_id' => 5, 'option_text' => 'IDE'],
+
+            ['question_id' => 6, 'option_text' => 'Basic Input Output System'],
+            ['question_id' => 6, 'option_text' => 'Binary Input Output Setup'],
+            ['question_id' => 6, 'option_text' => 'Basic Internal OS'],
+            ['question_id' => 6, 'option_text' => 'Boot Input Output System'],
+
+            ['question_id' => 7, 'option_text' => 'Boot device'],
+            ['question_id' => 7, 'option_text' => 'Monitor'],
+            ['question_id' => 7, 'option_text' => 'Printer'],
+            ['question_id' => 7, 'option_text' => 'Network interface'],
+
+            ['question_id' => 8, 'option_text' => 'Device Drivers'],
+            ['question_id' => 8, 'option_text' => 'Video editing software'],
+            ['question_id' => 8, 'option_text' => 'Game launcher'],
+            ['question_id' => 8, 'option_text' => 'Media player'],
+
+            ['question_id' => 9, 'option_text' => 'Transfer heat from CPU to heatsink'],
+            ['question_id' => 9, 'option_text' => 'Store data'],
+            ['question_id' => 9, 'option_text' => 'Clean components'],
+            ['question_id' => 9, 'option_text' => 'Power the CPU fan'],
+
+            ['question_id' => 10, 'option_text' => 'systeminfo'],
+            ['question_id' => 10, 'option_text' => 'ipconfig'],
+            ['question_id' => 10, 'option_text' => 'tasklist'],
+            ['question_id' => 10, 'option_text' => 'chkdsk'],
+
+
+            // === COC2 ===
+            ['question_id' => 11, 'option_text' => 'Internet Protocol'],
+            ['question_id' => 11, 'option_text' => 'Internal Process'],
+            ['question_id' => 11, 'option_text' => 'Internet Provider'],
+            ['question_id' => 11, 'option_text' => 'Input Packet'],
+
+            ['question_id' => 12, 'option_text' => '32 bits'],
+            ['question_id' => 12, 'option_text' => '16 bits'],
+            ['question_id' => 12, 'option_text' => '64 bits'],
+            ['question_id' => 12, 'option_text' => '48 bits'],
+
+            ['question_id' => 13, 'option_text' => 'ping'],
+            ['question_id' => 13, 'option_text' => 'ipconfig'],
+            ['question_id' => 13, 'option_text' => 'tracert'],
+            ['question_id' => 13, 'option_text' => 'netstat'],
+
+            ['question_id' => 14, 'option_text' => 'Crimping tool'],
+            ['question_id' => 14, 'option_text' => 'Multimeter'],
+            ['question_id' => 14, 'option_text' => 'Screwdriver'],
+            ['question_id' => 14, 'option_text' => 'Punch-down tool'],
+
+            ['question_id' => 15, 'option_text' => 'UTP Cat5e/Cat6'],
+            ['question_id' => 15, 'option_text' => 'Coaxial cable'],
+            ['question_id' => 15, 'option_text' => 'Fiber ribbon'],
+            ['question_id' => 15, 'option_text' => 'IDE cable'],
+
+            ['question_id' => 16, 'option_text' => 'Star topology'],
+            ['question_id' => 16, 'option_text' => 'Ring topology'],
+            ['question_id' => 16, 'option_text' => 'Bus topology'],
+            ['question_id' => 16, 'option_text' => 'Mesh topology'],
+
+            ['question_id' => 17, 'option_text' => 'DHCP server'],
+            ['question_id' => 17, 'option_text' => 'DNS server'],
+            ['question_id' => 17, 'option_text' => 'Web server'],
+            ['question_id' => 17, 'option_text' => 'FTP server'],
+
+            ['question_id' => 18, 'option_text' => '255.255.255.0'],
+            ['question_id' => 18, 'option_text' => '255.255.0.0'],
+            ['question_id' => 18, 'option_text' => '255.0.0.0'],
+            ['question_id' => 18, 'option_text' => '255.255.255.255'],
+
+            ['question_id' => 19, 'option_text' => 'DNS'],
+            ['question_id' => 19, 'option_text' => 'DHCP'],
+            ['question_id' => 19, 'option_text' => 'TCP'],
+            ['question_id' => 19, 'option_text' => 'FTP'],
+
+            ['question_id' => 20, 'option_text' => '127.0.0.1'],
+            ['question_id' => 20, 'option_text' => '192.168.0.1'],
+            ['question_id' => 20, 'option_text' => '0.0.0.0'],
+            ['question_id' => 20, 'option_text' => '255.255.255.255'],
+
+
+            // === COC3 ===
+            ['question_id' => 21, 'option_text' => 'Compressed air blower'],
+            ['question_id' => 21, 'option_text' => 'Vacuum cleaner'],
+            ['question_id' => 21, 'option_text' => 'Brush'],
+            ['question_id' => 21, 'option_text' => 'Fan'],
+
+            ['question_id' => 22, 'option_text' => 'RAM'],
+            ['question_id' => 22, 'option_text' => 'USB port'],
+            ['question_id' => 22, 'option_text' => 'Keyboard'],
+            ['question_id' => 22, 'option_text' => 'LAN cable'],
+
+            ['question_id' => 23, 'option_text' => 'sfc /scannow'],
+            ['question_id' => 23, 'option_text' => 'format c:'],
+            ['question_id' => 23, 'option_text' => 'diskpart clean'],
+            ['question_id' => 23, 'option_text' => 'shutdown /r'],
+
+            ['question_id' => 24, 'option_text' => 'Clicking noises'],
+            ['question_id' => 24, 'option_text' => 'Fast boot'],
+            ['question_id' => 24, 'option_text' => 'Bright display'],
+            ['question_id' => 24, 'option_text' => 'High FPS'],
+
+            ['question_id' => 25, 'option_text' => 'Run an antivirus scan'],
+            ['question_id' => 25, 'option_text' => 'Delete system32'],
+            ['question_id' => 25, 'option_text' => 'Unplug the monitor'],
+            ['question_id' => 25, 'option_text' => 'Rename the virus file'],
+
+            ['question_id' => 26, 'option_text' => 'Power cable & switch'],
+            ['question_id' => 26, 'option_text' => 'Video driver'],
+            ['question_id' => 26, 'option_text' => 'Mouse settings'],
+            ['question_id' => 26, 'option_text' => 'Wallpaper'],
+
+            ['question_id' => 27, 'option_text' => 'HWMonitor'],
+            ['question_id' => 27, 'option_text' => 'Paint'],
+            ['question_id' => 27, 'option_text' => 'Notepad'],
+            ['question_id' => 27, 'option_text' => 'CMD'],
+
+            ['question_id' => 28, 'option_text' => 'Preventive maintenance'],
+            ['question_id' => 28, 'option_text' => 'Corrective maintenance'],
+            ['question_id' => 28, 'option_text' => 'Predictive maintenance'],
+            ['question_id' => 28, 'option_text' => 'System overhaul'],
+
+            ['question_id' => 29, 'option_text' => 'Dust buildup'],
+            ['question_id' => 29, 'option_text' => 'New GPU installed'],
+            ['question_id' => 29, 'option_text' => 'Full storage'],
+            ['question_id' => 29, 'option_text' => 'Updated drivers'],
+
+            ['question_id' => 30, 'option_text' => 'CMOS battery'],
+            ['question_id' => 30, 'option_text' => 'CPU fan'],
+            ['question_id' => 30, 'option_text' => 'USB drive'],
+            ['question_id' => 30, 'option_text' => 'SSD'],
+        ];
+
+        DB::table('question_options')->insert($question_options);
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         DB::table('answers')->insert($answers);
         DB::table('quizzes')->insert($quizzes);
