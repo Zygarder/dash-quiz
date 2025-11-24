@@ -212,3 +212,28 @@ body {
   .records-table .records-table-row:hover {
     background: #eaeaea;
   }
+
+  .logs-table .logs-header,
+  .logs-table .logs-row {
+    display: grid;
+    grid-template-columns: 5fr;
+    padding: 14px 16px;
+    align-items: center;
+  }
+  .logs-table .logs-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+  }
+  
+  .logs-table .logs-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+  }
+  
+  .logs-table .logs-table-row:nth-child(even) {
+    background: #f0f0f0;
+  }
+  
+  .logs-table .logs-table-row:hover {
+    background: #eaeaea;
+  }

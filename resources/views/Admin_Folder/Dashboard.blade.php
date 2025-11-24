@@ -33,8 +33,19 @@
       </section>
 
       <section class="admin-details">
-        <div class="admin-card wide">Recent Logs:</div>
-      </section>
+        <div class="logs-table">
+            <div class="logs-header logs-table-header">
+                Recent Logs
+            </div>
+    
+            @foreach($logs as $log)
+                <div class="logs-row logs-table-row">
+                    <span>{{ $log->description }} at {{ $log->created_at }}</span>
+                </div>
+            @endforeach
+        </div>
+    </section>
+    
     </main>
   </div>
 </body>
