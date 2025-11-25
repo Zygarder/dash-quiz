@@ -139,7 +139,7 @@ body {
   .admin-table .table-header,
   .admin-table .table-row {
     display: grid;
-    grid-template-columns: 1fr 1.5fr 2fr 1fr 1.5fr;
+    grid-template-columns: 1fr 1fr 1fr 1.3fr 2fr 1fr ;
     padding: 14px 16px;
     align-items: center;
   }
@@ -162,16 +162,78 @@ body {
     background: #eaeaea;
   }
   
-  .settings-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  
+  .quiz-table .quiz-table-header,
+  .quiz-table .quiz-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.3fr ;
+    padding: 14px 16px;
+    align-items: center;
+  }
+  .quiz-table .quiz-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
   }
   
-  .settings-card {
-    background: #f1f1f1;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  .quiz-table .quiz-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
   }
   
+  .quiz-table .quiz-table-row:nth-child(even) {
+    background: #f0f0f0;
+  }
+  
+  .quiz-table .quiz-table-row:hover {
+    background: #eaeaea;
+  }
+
+  .records-table .records-table-header,
+  .records-table .records-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr ;
+    padding: 14px 16px;
+    align-items: center;
+  }
+  .records-table .records-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+  }
+  
+  .records-table .records-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+  }
+  
+  .records-table .records-table-row:nth-child(even) {
+    background: #f0f0f0;
+  }
+  
+  .records-table .records-table-row:hover {
+    background: #eaeaea;
+  }
+
+  .logs-table .logs-header,
+  .logs-table .logs-row {
+    display: grid;
+    grid-template-columns: 5fr;
+    padding: 14px 16px;
+    align-items: center;
+  }
+  .logs-table .logs-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+  }
+  
+  .logs-table .logs-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+  }
+  
+  .logs-table .logs-table-row:nth-child(even) {
+    background: #f0f0f0;
+  }
+  
+  .logs-table .logs-table-row:hover {
+    background: #eaeaea;
+  }

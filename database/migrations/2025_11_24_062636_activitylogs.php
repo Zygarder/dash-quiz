@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //fixing compatibility issues
-        Schema::table('dasher', function (Blueprint $table) {
-            $table->string('last_name')->after('first_name');
+        Schema::create('activity_logs',function (Blueprint $table){
+            $table->id();
+            $table->integer('user_id');
+            $table->string('action_type');
+            $table->text('description');
+            $table->timestamps();
         });
+        
     }
 
     /**
@@ -23,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dasher', function (Blueprint $table) {
-            //
-        });
+        //
     }
 };

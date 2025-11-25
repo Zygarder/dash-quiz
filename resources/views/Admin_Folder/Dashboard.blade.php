@@ -9,7 +9,7 @@
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
-    <a href="{{ route('admin-logout') }}" class="logout-btn">Log Out</a>
+    <a href="{{ route('adminlogout') }}" class="logout-btn">Log Out</a>
   </header>
 
   <div class="admin-container">
@@ -29,13 +29,23 @@
       <section class="admin-stats">
         <div class="admin-card">Total Registered: {{ $dboard }}</div>
         <div class="admin-card">Total Quizzes: {{ $totalQuizzes }}</div>
-        <div class="admin-card">Active Users</div>
+        <div class="admin-card">Active Users: Not yet Implemented</div>
       </section>
 
       <section class="admin-details">
-        <div class="admin-card wide">Total Quizzes</div>
-        <div class="admin-card wide">Total Quizzes</div>
-      </section>
+        <div class="logs-table">
+            <div class="logs-header logs-table-header">
+                Recent Logs
+            </div>
+    
+            @foreach($logs as $log)
+                <div class="logs-row logs-table-row">
+                    <span>{{ $log->description }} at {{ $log->created_at }}</span>
+                </div>
+            @endforeach
+        </div>
+    </section>
+    
     </main>
   </div>
 </body>

@@ -11,7 +11,7 @@
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
-    <a href="{{ route('admin-logout') }}" class="logout-btn">Log Out</a>
+    <a href="{{ route('adminlogout') }}" class="logout-btn">Log Out</a>
   </header>
 
   <div class="admin-container">
@@ -41,7 +41,8 @@
         <div class="admin-table">
           <div class="table-header">
             <span>User ID</span>
-            <span>Name</span>
+            <span>First Name</span>
+            <span>Last Name</span>
             <span>Email</span>
             <span>Date Registered</span>
             <span>Action</span>
@@ -50,7 +51,8 @@
           @foreach ($dasher as $user)
             <div class="table-row">
               <span>{{ $user->id }}</span>
-              <span>{{ $user->name }}</span>
+              <span>{{ $user->first_name }}</span>
+              <span>{{ $user->last_name }}</span>
               <span>{{ $user->email }}</span>
               <span>{{ $user->created_at }}</span>
               <span>

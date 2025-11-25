@@ -22,6 +22,14 @@
     </div>
   </header>
 
+  <!--success key, pls ayaw payaa, ikaw ra ini nagbutangh sa controller.-->
+
+  @if (session('success'))
+        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
   <!-- Main Content -->
   <main class="dashboard">
     <h3>Leaderboard (Top Scores)</h3>
