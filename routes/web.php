@@ -4,7 +4,6 @@ use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\RecordsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -40,7 +39,6 @@ Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz
 //load the questions for a questionnaire category
 Route::get('/quiz-start', [QuizController::class, 'show'])->name('quiz.start');
 
-
 //admin side routes
 Route::prefix('admin')->controller(AdminController::class)->group(function () {
     Route::get('/', 'Dashboard')->name('admin-board');
@@ -54,7 +52,6 @@ Route::prefix('admin')->controller(AdminController::class)->group(function () {
     Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
     Route::post('/quiz/del/{id}','deletequiz')->name('quizdel');
 
-    
     //USER MANAGEMENT
     Route::get('/records', 'UserTable')->name('user-table');
     Route::post('/del/{id}', 'dasherdelete')->name('deleteuser');

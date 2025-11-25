@@ -139,7 +139,6 @@
 
       <form method="POST" action="{{ route('register_request') }}">
         @csrf
-
         <input id="first_name" type="text" name="first_name" placeholder="First Name" value="{{ old('first_name') }}" />
         @error('first_name')
           <div class="error">{{ $message }}</div>

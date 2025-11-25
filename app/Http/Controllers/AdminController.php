@@ -26,7 +26,7 @@ class AdminController extends Controller
     public function LogoutRequest()
     {
         Auth::guard('dasher')->logout();
-        request()->session()->invalidate();
+        session()->invalidate();
         request()->session()->regenerateToken();
 
         return redirect()->route('login_page');
@@ -42,7 +42,8 @@ class AdminController extends Controller
         ]);
 
         if (Auth::guard('dasher')->attempt($valid)) {
-            return redirect()->route('user-board')->with('success', 'Successfully logged in');
+            dd(Auth::guard('dasher'));
+            return redirect()->intended(route('user-board'));
         }
 
         return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
@@ -73,8 +74,10 @@ class AdminController extends Controller
             'password' => Hash::make($valid['password']),
         ]);
 
-        Auth::guard('dasher')->loginUsingId($dasher->id);
 
+
+        $ye = Auth::guard('dasher')->loginUsingId($dasher->id);
+        
         // Redirect to user dashboard after registration
         return redirect()->route('login_page')->with('success', 'Account created successfully!');
     }
@@ -109,8 +112,8 @@ class AdminController extends Controller
     public function dasherdelete($id)
     {
         //find user then delete
-        $user = Dasher::where('id', $id)->firstOrFail();
-        $user::delete();
+        $user = Dasher::findOrFail($id);
+        dd($user);
         return redirect()->route('user-table')->with('success', 'data deleted');
     }
 
@@ -265,10 +268,8 @@ class AdminController extends Controller
 
     public function deletequiz($id)
     {
-        //prepare the query
-        $sql = "DELETE from quizzes where id=?";
+        Quiz::findOrFail($id)->delete();
 
-        DB::delete($sql, [$id]);
         return redirect()->route('quiz-manage')->with('success', 'data deleted');
     }
 }

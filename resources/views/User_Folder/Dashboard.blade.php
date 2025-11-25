@@ -41,7 +41,7 @@
           @if($leader->user->id == auth()->guard('dasher')->user()->id)
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}(You)</td>
           @else
-          {{-- add other on board --}}
+            {{-- add other --}}
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
           @endif
           <td>{{ $leader->quiz->title }}</td>

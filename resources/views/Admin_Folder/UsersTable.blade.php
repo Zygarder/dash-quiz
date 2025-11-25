@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Users Table</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
+
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
@@ -29,10 +31,10 @@
       <section class="admin-section">
 
         @if (session('success'))
-        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+          <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
             {{ session('success') }}
-        </div>
-    @endif
+          </div>
+        @endif
 
         <h3 class="section-title">Registered Users</h3>
 
@@ -46,18 +48,19 @@
           </div>
 
           @foreach ($dasher as $user)
-          <div class="table-row">
-            <span>{{ $user->id }}</span>
-            <span>{{ $user->name }}</span>
-            <span>{{ $user->email }}</span>
-            <span>{{ $user->created_at }}</span>
-            <span>
-              <form action="{{ route('deleteuser', $user->id) }}" method="POST">
-                @csrf
-                <button class="action-btn delete">Delete</button>
-            </form>
-            </span>
-          </div>
+            <div class="table-row">
+              <span>{{ $user->id }}</span>
+              <span>{{ $user->name }}</span>
+              <span>{{ $user->email }}</span>
+              <span>{{ $user->created_at }}</span>
+              <span>
+                <form action="{{ route('deleteuser', $user->id) }}" method="POST">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="action-btn delete">Delete</button>
+                </form>
+              </span>
+            </div>
           @endforeach
         </div>
       </section>
@@ -65,4 +68,5 @@
   </div>
 
 </body>
+
 </html>
