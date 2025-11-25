@@ -61,7 +61,8 @@
                 @csrf
 
                 <!-- Email Input -->
-                <input type="email" id="email" name="email" placeholder="Email Address" value="{{ old('email') }}" />
+                <input type="email" id="email" name="email" title="Enter your email" placeholder="Email Address"
+                    value="{{ old('email') }}" />
                 @error('email')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -70,7 +71,8 @@
                 @endif
 
                 <!-- Password Input -->
-                <input type="password" id="pass" name="password" placeholder="Enter Password" />
+                <input type="password" id="pass" name="password" title="Enter your password"
+                    placeholder="Enter Password" />
                 @error('password')
                     <div class="error">{{ $message }}</div>
                 @enderror

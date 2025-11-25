@@ -50,7 +50,7 @@ Route::prefix('admin')->controller(AdminController::class)->group(function () {
     Route::post('/quiz/store', 'savequiz')->name('quiz-save');
     Route::get('/quiz/{id}/edit', 'editQuiz')->name('quiz-edit');
     Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
-    Route::post('/quiz/del/{id}', 'deletequiz')->name('quizdel');
+    Route::delete('/quiz/del/{id}', 'deletequiz')->name('quizdel');
 
     //USER MANAGEMENT
     Route::get('/records', 'UserTable')->name('user-table');
