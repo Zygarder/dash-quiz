@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Users Table</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
+
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
@@ -28,7 +30,7 @@
     <main class="admin-main">
       <section class="admin-section">
 
-      <h3 class="section-title">Dasher Records</h3>
+        <h3 class="section-title">Dasher Records</h3>
 
         <div class="records-table">
           <div class="records-table records-table-header">
@@ -40,13 +42,13 @@
           </div>
 
           @foreach ($quiz_records as $rec)
-          <div class="records-table records-table-row">
-            <span>{{ $rec->id }}</span>
-            <span>{{ $rec->user_id }}</span>
-            <span>{{ $rec->quiz_id }}</span>
-            <span>{{ $rec->score }}</span>
-            <span>{{ $rec->completed_at }}</span>
-          </div>
+            <div class="records-table records-table-row">
+              <span>{{ $rec->id }}</span>
+              <span>{{ $rec->user_id }}</span>
+              <span>{{ $rec->quiz_id }}</span>
+              <span>{{ $rec->score }}</span>
+              <span>{{ $rec->completed_at }}</span>
+            </div>
           @endforeach
         </div>
       </section>
@@ -54,4 +56,5 @@
   </div>
 
 </body>
+
 </html>

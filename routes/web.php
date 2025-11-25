@@ -54,7 +54,7 @@ Route::prefix('admin')->controller(AdminController::class)->group(function () {
 
     //USER MANAGEMENT
     Route::get('/records', 'UserTable')->name('user-table');
-    Route::post('/del/{id}', 'dasherdelete')->name('deleteuser');
+    Route::delete('/del/{id}', 'dasherdelete')->name('deleteuser');
     Route::get('/studentrecords', 'srecords')->name('srecords');
 });
 

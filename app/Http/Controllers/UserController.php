@@ -9,9 +9,10 @@ class UserController extends Controller
 {
     public function Dashboard()
     {
-        $leaders = QuizRecord::with(['user', 'quiz']) // get user and quiz table
-            ->orderByDesc('score')                     // sort by score descending
-            ->limit(10)                                // top 10 scores
+        $leaders = QuizRecord::with(['user', 'quiz'])
+            ->whereHas('user')        // Only include records with a valid user
+            ->orderByDesc('score')
+            ->limit(10)
             ->get();
 
         return view('User_Folder.Dashboard', compact('leaders'));

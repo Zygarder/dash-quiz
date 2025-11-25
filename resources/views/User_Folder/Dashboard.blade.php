@@ -25,10 +25,10 @@
   <!--success key, pls ayaw payaa, ikaw ra ini nagbutangh sa controller.-->
 
   @if (session('success'))
-        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+      {{ session('success') }}
+    </div>
+  @endif
 
   <!-- Main Content -->
   <main class="dashboard">
@@ -42,21 +42,43 @@
         <th>Best Score</th>
       </tr>
 
+      @php
+        $currentUserId = auth()->guard('dasher')->user()->id;
+        $foundYou = false;
+      @endphp
+
       @foreach ($leaders as $index => $leader)
+        @php
+          if ($leader->user->id == $currentUserId) {
+            $foundYou = true;
+          }
+        @endphp
+
         <tr>
           <td>{{ $index + 1 }}</td>
-          {{-- Checks if its you --}}
-          @if($leader->user->id == auth()->guard('dasher')->user()->id)
-            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}(You)</td>
+
+          {{-- Highlight logged-in user --}}
+          @if($leader->user->id == $currentUserId)
+            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }} (You)</td>
           @else
-            {{-- add other --}}
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
           @endif
+
           <td>{{ $leader->quiz->title }}</td>
           <td>{{ $leader->score }}</td>
         </tr>
       @endforeach
+
+      {{-- If logged-in user has no score, show a message --}}
+      @if(!$foundYou)
+        <tr>
+          <td colspan="4" style="text-align:center; font-style:italic; color:gray;">
+            You have no quiz scores yet.
+          </td>
+        </tr>
+      @endif
     </table>
+
 
     <br>
   </main>

@@ -25,12 +25,12 @@ body {
 
 /* Main Section Layout */
 .container {
+  height: 100vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex: 1;
   flex-wrap: wrap;
-  padding: 40px 30px;
+  margin: 0;
 }
 
 .left-section {
@@ -39,7 +39,8 @@ body {
 }
 
 .left-section h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
+  text-align: center;
   font-weight: 800;
   line-height: 1.2;
   text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
@@ -49,6 +50,7 @@ body {
 .right-section {
   flex: 1 1 300px;
   display: flex;
+  height: auto;
   justify-content: center;
   align-items: center;
 }
@@ -108,21 +110,25 @@ body {
 
 /* Footer */
 footer {
+  width: 100%;
+  position: fixed;
+  left: 0;
+  text-align: center;
+  bottom: 0;
   background-color: #4b3fc2;
   color: #fff;
-  text-align: center;
   padding: 10px;
   font-size: 0.85rem;
-  margin-top: auto;
 }
+
 
 @media (max-width: 576px) {
   .container {
-    padding: 2px;
+    height: 70vh;
   }
 
   .left-section h1 {
-    font-size: 1.4rem;
+    display: none;
   }
 
   .login-box {
@@ -137,15 +143,6 @@ footer {
   footer {
     font-size: 0.75rem;
   }
-}
-
-/* registration */
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  min-height: 80vh;
 }
 
 /* Registration Box */
@@ -182,6 +179,7 @@ footer {
 .small-text {
   font-size: 0.8rem;
   color: #444;
+  text-align: center;
 }
 
 .small-text a {
@@ -600,31 +598,35 @@ body {
 }
 
 /* Main Content */
-/* Main Content */
 .main-content {
-  margin-left: 0; /* default no sidebar */
+  margin-left: 0;
+  /* default no sidebar */
   padding: 20px;
 
   /* Use flex container to center children */
   display: flex;
   justify-content: center;
-  align-items: center; /* top align the content */
-  
+  align-items: center;
+  /* top align the content */
+
   /* width adjustment */
   width: 100%;
   transition: margin-left 0.3s, max-width 0.3s;
 }
 
 /* When sidebar is active */
-.sidebar.active > .main-content {
-  margin-left: 250px; /* push content right */
-  width: calc(100% - 550px); /* reduce width so content remains centered */
+.sidebar.active>.main-content {
+  margin-left: 250px;
+  /* push content right */
+  width: calc(100% - 550px);
+  /* reduce width so content remains centered */
   padding: 20px;
 
   /* Use flex container to center children */
   display: flex;
   justify-content: center;
-  align-items: center; /* top align the content */
+  align-items: center;
+  /* top align the content */
 }
 
 

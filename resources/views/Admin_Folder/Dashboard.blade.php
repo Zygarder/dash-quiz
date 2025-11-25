@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin Dashboard</title>
   <link rel="stylesheet" href="css/admin.css">
 </head>
+
 <body>
   <header class="admin-header">
     <h2>Dash Quiz Admin Dashboard</h2>
@@ -34,19 +36,20 @@
 
       <section class="admin-details">
         <div class="logs-table">
-            <div class="logs-header logs-table-header">
-                Recent Logs
+          <div class="logs-header logs-table-header">
+            Recent Logs
+          </div>
+
+          @foreach($logs as $log)
+            <div class="logs-row logs-table-row">
+              <span>{{ $log->description }} at {{ $log->created_at }}</span>
             </div>
-    
-            @foreach($logs as $log)
-                <div class="logs-row logs-table-row">
-                    <span>{{ $log->description }} at {{ $log->created_at }}</span>
-                </div>
-            @endforeach
+          @endforeach
         </div>
-    </section>
-    
+      </section>
+
     </main>
   </div>
 </body>
+
 </html>

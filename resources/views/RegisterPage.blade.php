@@ -19,30 +19,28 @@
     .top-bar {
       background-color: #4b3fc2;
       color: #fff;
-      padding: 12px 20px;
-      font-weight: 600;
+      padding: 10px 20px;
       text-align: center;
-      font-size: 1rem;
     }
 
     .center-container {
-      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
+      height: 100vh;
     }
 
     .register-box {
       background-color: #fff;
-      padding: 30px;
+      padding: 20px 40px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       width: 100%;
-      max-width: 380px;
+      max-width: 350px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 5px;
     }
 
     .register-box h2 {
@@ -52,10 +50,12 @@
     }
 
     .register-box input {
-      padding: 10px;
+      padding: 10px 5px;
+      margin: 3px 0;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.95rem;
+      border-radius: 5px;
+      font-size: 13px;
+      text-indent: 10px;
       width: 100%;
     }
 
@@ -66,14 +66,15 @@
     }
 
     .register-btn {
-      padding: 12px;
+      padding: 10px 5px;
+      width: 100%;
       background-color: #4b3fc2;
       color: #fff;
       font-weight: bold;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: 0.5s ease-out;
     }
 
     .register-btn:hover {
@@ -82,30 +83,34 @@
 
     .error {
       color: red;
-      font-size: 0.85rem;
-      margin-top: -10px;
-      margin-bottom: 10px;
+      font-size: 12px;
     }
 
     .small-text {
       text-align: center;
       margin-top: 10px;
       font-size: 0.85rem;
-      color: #555;
+      color: #999;
     }
 
     .small-text a {
-      color: #4b3fc2;
-      font-weight: 600;
+      color: black;
       text-decoration: none;
     }
 
     footer {
+      width: 100%;
+      position: fixed;
+      left:0;
+      bottom: 0;
       background-color: #4b3fc2;
       color: #fff;
       text-align: center;
-      padding: 12px;
-      font-size: 0.85rem;
+      padding: 10px;
+    }
+
+    input:invalid {
+      border-color: red;
     }
 
     @media (max-width: 576px) {
@@ -130,7 +135,7 @@
 
 <body>
   <header class="top-bar">
-    New Account
+    Create New Account
   </header>
 
   <main class="center-container">
@@ -139,27 +144,29 @@
 
       <form method="POST" action="{{ route('register_request') }}">
         @csrf
-        <input id="first_name" type="text" name="first_name" placeholder="First Name" value="{{ old('first_name') }}" />
+        <input id="first_name" type="text" name="first_name" maxlength="50" placeholder="First Name" value="{{ old('first_name') }}" />
         @error('first_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="last_name" type="text" name="last_name" placeholder="Last Name" value="{{ old('last_name') }}" />
+        <input id="last_name" type="text"  name="last_name" maxlength="50" placeholder="Last Name" value="{{ old('last_name') }}" />
         @error('last_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="email" type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" />
+        <input id="email" type="email" name="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+          placeholder="Email Address" value="{{ old('email') }}" />
         @error('email')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="password" type="password" name="password" placeholder="Enter Password" />
+        <input id="password" type="password" name="password" placeholder="Enter Password" minlength="6" />
         @error('password')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Re-type Password" />
+        <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Re-type Password"
+          minlength="6" />
 
         <button type="submit" class="register-btn">Submit</button>
 

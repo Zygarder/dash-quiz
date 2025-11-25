@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dasher;
+use App\Models\QuizRecord;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,9 @@ class AdminController extends Controller
         $valid = $request->validate([
             'email' => 'required|string',
             'password' => 'required'
+        ], [
+            'email.required' => 'Email required',
+            'password.required' => 'Password required',
         ]);
 
         if ($valid['email'] === 'admin@admin.com' && $valid['password'] === 'admin') {
@@ -56,8 +60,8 @@ class AdminController extends Controller
     {
         // Validate the incoming request
         $valid = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
             'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
         ], [
@@ -89,11 +93,10 @@ class AdminController extends Controller
     function logActivity($action, $description)
     {
         DB::table('activity_logs')->insert([
-            'user_id' => auth()->id(),
+            'user_id' => 0, // Admin user ID
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
-
         ]);
 
     }
@@ -118,7 +121,7 @@ class AdminController extends Controller
     }
     public function srecords()
     {
-        $quiz_records = DB::select('SELECT * FROM quiz_records');
+        $quiz_records = QuizRecord::all();
         return view('Admin_Folder.StudentRecords', compact('quiz_records'));
     }
 
@@ -127,7 +130,8 @@ class AdminController extends Controller
     {
         //find user then delete
         $user = Dasher::findOrFail($id);
-        dd($user);
+        $user->delete();
+        $this->logActivity('User Deletion.', "User ID {$id} was deleted");
         return redirect()->route('user-table')->with('success', 'data deleted');
     }
 
@@ -286,9 +290,10 @@ class AdminController extends Controller
 
     public function deletequiz($id)
     {
-        $sql = "DELETE from quizzes where id=?";
-        DB::delete($sql, [$id]);
+        $quiz = Quiz::findOrFail($id);
+        $quiz->delete();
         $this->logActivity('Deletion.', "Quiz ID {$id} was deleted");
+
         return redirect()->route('quiz-manage')->with('success', 'Quiz deleted');
     }
 }

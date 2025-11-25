@@ -11,9 +11,24 @@
 
     <!-- Inline styles (optional) -->
     <style>
+        input:invalid {
+            border: 1px solid red;
+        }
+
+
         .error {
             color: red;
-            font-size: 12px;
+            font-size: 13.5px;
+        }
+
+        .success-register {
+            padding: 10px;
+            background: #00b430;
+            color: white;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0px 1px 0.5px 1px rgba(255, 255, 255, 1);
         }
     </style>
 </head>
@@ -26,7 +41,7 @@
 
     <!--success key from registration-->
     @if (session('success'))
-        <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+        <div class="success-register">
             {{ session('success') }}
         </div>
     @endif
@@ -64,8 +79,8 @@
                 <button type="submit" class="login-btn">Log In</button>
 
                 <!-- Links -->
-                <a href="" class="forgot">Forgot password?</a>
-                <button type="button" class="register-btn" onclick="window.location.href='{{ route('register_page') }}'"
+                <p class="small-text">Forgot password? <a href="" class="forgot">click here</a></p>
+                <button type="button" class="register-btn" onclick="location.href='{{ route('register_page') }}'"
                     target="_blank">
                     Register Now!
                 </button>

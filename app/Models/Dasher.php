@@ -11,6 +11,8 @@ class Dasher extends Authenticatable
 
     protected $table = 'dasher'; 
 
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'first_name',
         'last_name',
