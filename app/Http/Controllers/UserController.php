@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\QuizRecord;
 use App\Models\Quiz;
 class UserController extends Controller
@@ -36,12 +37,13 @@ class UserController extends Controller
         return view('User_Folder.ProfilePage', compact('dasher', 'fullname', 'countUsers'));
     }
 
-    public function LogoutUser()
+    public function LogoutUser(Request $request)
     {
         Auth::guard('dasher')->logout();
-        session()->flush();
-        session()->regenerate(true);
-        return redirect()->route('login_page');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 
     public function RecordPage()

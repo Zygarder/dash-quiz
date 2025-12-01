@@ -188,51 +188,7 @@ footer {
   font-weight: 600;
 }
 
-/* Forgot Password */
-.forgot-box {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 30px;
-  width: 100%;
-  max-width: 340px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
 
-.forgot-box h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.forgot-box p {
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.forgot-box input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.forgot-box button {
-  width: 100%;
-}
-
-.forgot-box .small-text {
-  margin-top: 10px;
-  font-size: 0.8rem;
-}
-
-.forgot-box .small-text a {
-  color: #00a02b;
-  text-decoration: none;
-  font-weight: 600;
-}
 
 /* Reset Password */
 .reset-box {

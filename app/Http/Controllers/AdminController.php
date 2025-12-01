@@ -13,14 +13,19 @@ use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller
 {
     ####### Below is ang mga code para ma view ang pages #########
-    public function RegisterPage()
-    {
-        return view('RegisterPage');
-    }
 
     public function LoginPage()
     {
         return view('LoginPage');
+    }
+
+    public function RegisterPage()
+    {
+        return view('RegisterPage');
+    }
+    public function ForgotPage()
+    {
+        return view('ForgotPage');
     }
 
     //dont forget to add session destroy after logging out
@@ -30,7 +35,7 @@ class AdminController extends Controller
         session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('login_page');
+        return redirect()->route('login');
     }
 
     ################## Below is code para sa mga requests ng user OK?!####################
