@@ -17,7 +17,6 @@ class ProfileController extends Controller
 
         $valid = $request->validate([
             'fullName' => 'required|string|max:55',
-            'email' => 'required|email|unique:dasher,email,' . $user->id
         ]);
 
 
@@ -25,7 +24,6 @@ class ProfileController extends Controller
         $fullName = explode(' ', $valid['fullName'], 2);
         $user->first_name = $fullName[0];
         $user->last_name = $fullName[1] ?? '';
-        $user->email = $valid['email'];
         $user->save(); //save new update to database
 
         return redirect()->back();
@@ -54,5 +52,23 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Password updated successfully.');
     }
+
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'myfile' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $user = Auth::guard('dasher')->user();
+
+        $filename = time() . '.' . $request->myfile->extension();
+        $request->myfile->storeAs('public/images/profiles', $filename);
+
+        $user->profile_photo = $filename;
+        $user->save();
+
+        return back()->with('success', 'Profile picture updated!');
+    }
+
 
 }

@@ -17,6 +17,7 @@ class Dasher extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'profile_photo',
         'password',
     ];
 

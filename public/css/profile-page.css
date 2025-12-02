@@ -1,8 +1,8 @@
 /* === PROFILE CARD MAIN CONTAINER === */
 .profile-card {
-  width: 500px;
-  max-width: 95%;
-  background: #ffffff;
+  width: 450px;
+  max-width: 100%;
+  background: #f9f9f9;
   border-radius: 14px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   padding: 2rem 1.8rem;
@@ -14,22 +14,27 @@
 
 /* === HEADER: AVATAR + NAME + EMAIL === */
 .profile-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .avatar {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  background: #eceaf7;
   display: flex;
+  width: 130px;
+  height: auto;
   align-items: center;
   justify-content: center;
-  font-size: 3.3rem;
-  color: #4b32a8;
-  margin: 0 auto 1rem;
-  border: 3px solid #ddd;
+  color: #4b32a8; 
+  margin-bottom: 3%;
+}
+
+.avatar img {
+  width: inherit;
+  border-radius: 50px;
+  object-fit: cover;
+  height: 150px;
 }
 
 .profile-header h2 {

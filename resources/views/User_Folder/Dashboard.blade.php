@@ -59,7 +59,14 @@
 
           {{-- Highlight logged-in user --}}
           @if($leader->user->id == $currentUserId)
-            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }} (You)</td>
+              <td>
+                <div class="avatar">
+                  <img src="{{ $leader->profile_photo
+            ? asset('storage/images/profiles/' . $leader->profile_photo)
+            : asset('images/profiles/person.jpg') 
+                  }}" alt="DP">
+                </div>{{ $leader->user->first_name . ' ' . $leader->user->last_name }} (You)
+              </td>
           @else
             <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
           @endif

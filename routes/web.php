@@ -40,6 +40,7 @@ Route::middleware('auth:dasher')->group(function () {
     Route::prefix('user')->group(function () {
         Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile-update');
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile-new-password');
+        Route::post('/profile/upload', [ProfileController::class, 'uploadPhoto'])->name('profile.upload');
     });
 
     // Answering quiz requires auth

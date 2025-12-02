@@ -88,17 +88,17 @@ class AdminController extends Controller
 
         Auth::guard('dasher')->loginUsingId($dasher->id);
         // Redirect to user dashboard after registration
-        return redirect()->route('login_page')->with('success', 'Account created successfully!');
+        return redirect()->route('login')->with('success', 'Account created successfully!');
     }
 
     ############################### USER DB ##################################
 
     //Admin side nav controller
     //logs function
-    function logActivity($action, $description)
+    public function logActivity($action, $description)
     {
         DB::table('activity_logs')->insert([
-            'user_id' => 0, // Admin user ID
+            'user_id' => Auth::guard('dasher')->user()->id, // Admin user ID
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
@@ -210,7 +210,7 @@ class AdminController extends Controller
                 }
             }
         }
-        $this->logActivity('New Quiz!', "Quiz '{$request->title}' was created");
+        $this->logActivity('New Quiz!', "Quiz $request->title was created");
         return redirect()->route('quiz-manage')->with('success', 'Quiz created successfully!, remember to take note of the quiz id in case of deletion tracking.');
     }
 
@@ -287,17 +287,16 @@ class AdminController extends Controller
             DB::update("UPDATE answers SET is_correct = 1 WHERE id = ?", [$correctOptionId]);
         }
 
-        $this->logActivity('Edit.', "Quiz ID {$request->title} was updated");
+        $this->logActivity('Edit.', "Quiz Title $request->title was updated");
 
         return redirect()->route('quiz-manage')->with('success', 'Quiz updated successfully!');
     }
-
 
     public function deletequiz($id)
     {
         $quiz = Quiz::findOrFail($id);
         $quiz->delete();
-        $this->logActivity('Deletion.', "Quiz ID {$id} was deleted");
+        $this->logActivity('Deletion.', "Quiz ID $id was deleted");
 
         return redirect()->route('quiz-manage')->with('success', 'Quiz deleted');
     }

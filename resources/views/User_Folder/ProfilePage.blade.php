@@ -50,21 +50,19 @@
   }
 
   .picture-set {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
+    max-width: auto;
+    padding: 10px;
+    border-radius: 10px;
     text-align: center;
     font-family: sans-serif;
   }
 
   .file-label {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 10px;
     background-color: #007BFF;
     color: white;
+    padding: 8px 25px;
     border-radius: 8px;
     cursor: pointer;
     margin-bottom: 10px;
@@ -83,7 +81,7 @@
   .upload-btn {
     display: inline-block;
     padding: 10px 25px;
-    background-color: #28a745;
+    background-color: #333;
     color: white;
     border: none;
     border-radius: 8px;
@@ -93,7 +91,7 @@
   }
 
   .upload-btn:hover {
-    background-color: #1e7e34;
+    background-color: black;
   }
 </style>
 
@@ -113,22 +111,26 @@
     <div class="profile-card">
 
       <div class="profile-header">
-        <div class="avatar">😎</div>
-
-        <div class="picture-set">
-          <form action="/upload" method="POST" enctype="multipart/form-data">
-            @csrf
-            <label class="file-label">
-              Choose File
-              <input type="file" name="myfile" class="file-input">
-            </label>
-            <button type="submit" class="upload-btn">Upload</button>
-          </form>
+        <div class="avatar">
+          <img src="{{ $dasher->profile_photo
+  ? asset('storage/images/profiles/' . $dasher->profile_photo)
+  : asset('images/profiles/person.jpg') 
+            }}" alt="DP">
         </div>
 
-        <h2 id="username">{{$dasher->first_name}}</h2>
-        <small id="userEmail">{{$dasher->email}}</small>
+        <h2 id="username">{{ $dasher->first_name }}</h2>
+        <small id="userEmail">{{ $dasher->email }}</small>
+
+        <form action="{{ route('profile.upload') }}" class="picture-set" method="POST" enctype="multipart/form-data">
+          @csrf
+          <label class="file-label">
+            Change Profile
+            <input type="file" name="myfile" class="file-input">
+          </label>
+          <button type="submit" class="upload-btn">Upload</button>
+        </form>
       </div>
+
 
       <div class="profile-details">
         <div class="detail-row">
@@ -143,7 +145,7 @@
 
         <div class="detail-row">
           <span>Quizzes Taken:</span>
-          <b id="quizzesTaken">{{ $countUsers }}</b>
+          <b id="quizzesTaken">{{ $quizzesCount }}</b>
         </div>
       </div>
 
@@ -267,7 +269,6 @@
       const confirmPass = document.getElementById("confirmPass").value;
 
       changePassModal.style.display = "none";
-      alert("Password changed successfully!");
     });
 
 
