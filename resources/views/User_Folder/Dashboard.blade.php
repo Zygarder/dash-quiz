@@ -16,7 +16,7 @@
   <header>
     <div class="top-bar">
       <button class="menu-btn" id="menuBtn">&#9776;</button>
-      <h2>Welcome {{ auth()->guard('dasher')->user()->first_name }}!</h2>
+      <h2>Welcome {{ auth()->guard('dasher')->user()->first_name }}!</h2> {{-- display current user name --}}
 
       <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
     </div>
@@ -34,7 +34,7 @@
   <main class="dashboard">
     <h3>Leaderboard (Top Scores)</h3>
 
-    <table class="quiz-table">
+    <table class="quiz-table" style="width:100%; border-collapse: collapse;">
       <tr>
         <th>Rank</th>
         <th>Dasher</th>
@@ -54,29 +54,27 @@
           }
         @endphp
 
-        <tr>
-          <td>{{ $index + 1 }}</td>
+        <tr @if($leader->user->id == $currentUserId) style="background-color: lightgreen;" @endif>
+          <td style="text-align:center;">{{ $index + 1 }}</td>
 
-          {{-- Highlight logged-in user --}}
-          @if($leader->user->id == $currentUserId)
-              <td>
-                <div class="avatar">
-                  <img src="{{ $leader->profile_photo
-            ? asset('storage/images/profiles/' . $leader->profile_photo)
-            : asset('images/profiles/person.jpg') 
-                  }}" alt="DP">
-                </div>{{ $leader->user->first_name . ' ' . $leader->user->last_name }} (You)
-              </td>
-          @else
-            <td>{{ $leader->user->first_name . ' ' . $leader->user->last_name }}</td>
-          @endif
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="{{ $leader->user->profilePhotoUrl() }}" alt="DP"
+                style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
+              <span>
+                {{ $leader->user->first_name . ' ' . $leader->user->last_name }}
+                @if($leader->user->id == $currentUserId)
+                  (You)
+                @endif
+              </span>
+            </div>
+          </td>
 
           <td>{{ $leader->quiz->title }}</td>
-          <td>{{ $leader->score }}</td>
+          <td style="text-align:center;">{{ $leader->score }}</td>
         </tr>
       @endforeach
 
-      {{-- If logged-in user has no score, show a message --}}
       @if(!$foundYou)
         <tr>
           <td colspan="4" style="text-align:center; font-style:italic; color:gray;">
@@ -85,6 +83,7 @@
         </tr>
       @endif
     </table>
+
 
 
     <br>

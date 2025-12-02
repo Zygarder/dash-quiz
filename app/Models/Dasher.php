@@ -9,7 +9,7 @@ class Dasher extends Authenticatable
 {
     use Notifiable;
 
-    protected $table = 'dasher'; 
+    protected $table = 'dasher';
 
     protected $primaryKey = 'id';
 
@@ -25,4 +25,11 @@ class Dasher extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function profilePhotoUrl()
+    {
+        return $this->profile_photo
+            ? asset('storage/images/profiles/' . $this->profile_photo)
+            : asset('images/profiles/person.jpg'); // fallback
+    }
 }
