@@ -5,108 +5,109 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dash Quiz | User Profile</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ asset('css/profile-page.css') }}" />
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+
+  <style>
+    .alert-error,
+    .alert-success {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 999;
+      border-radius: 10px;
+      width: 300px;
+      padding: 10px;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .alert-error {
+      background-color: pink;
+    }
+
+    .alert-success {
+      background-color: green;
+    }
+
+    .alert-side.active {
+      display: block;
+    }
+
+    .alert-close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .alert-body {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .alert-body div {
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .picture-set {
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      font-family: sans-serif;
+    }
+
+    .file-label {
+      display: inline-block;
+      padding: 8px 25px;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .file-label:hover {
+      background-color: #0056b3;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-btn {
+      padding: 10px 25px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .upload-btn:hover {
+      background-color: black;
+    }
+  </style>
 </head>
-<link rel="stylesheet" href="{{ asset('css/profile-page.css') }}" />
-<link rel="stylesheet" href="{{ asset('css/style.css') }}" />
-<style>
-  .alert-side {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 999;
-    border-radius: 10px;
-    background-color: pink;
-    width: 300px;
-    padding: 10px;
-    display: none;
-    /* hidden by default */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  .alert-side.active {
-    display: block;
-  }
-
-  .alert-close {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-  }
-
-  .alert-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .alert-body div {
-    line-height: 16px;
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-
-  .picture-set {
-    max-width: auto;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
-    font-family: sans-serif;
-  }
-
-  .file-label {
-    display: inline-block;
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    padding: 8px 25px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease;
-  }
-
-  .file-label:hover {
-    background-color: #0056b3;
-  }
-
-  .file-input {
-    display: none;
-    /* hide the default file input */
-  }
-
-  .upload-btn {
-    display: inline-block;
-    padding: 10px 25px;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-  }
-
-  .upload-btn:hover {
-    background-color: black;
-  }
-</style>
 
 <body>
 
-  <!-- Sidebar -->
   @include('User_Folder.Sidebar')
 
   <header class="top-bar">
     <button class="menu-btn" id="menuBtn">&#9776;</button>
     <h2>My Profile</h2>
-    <a href="{{route('logout-user')}}" class="logout-btn">Log Out</a>
+    <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
   </header>
 
-  <!-- Main Content -->
   <main class="main-content" id="mainContent">
     <div class="profile-card">
 
@@ -114,8 +115,7 @@
         <div class="avatar">
           <img src="{{ $dasher->profile_photo
   ? asset('storage/images/profiles/' . $dasher->profile_photo)
-  : asset('images/profiles/person.jpg') 
-            }}" alt="DP">
+  : asset('images/profiles/person.jpg') }}" alt="DP">
         </div>
 
         <h2 id="username">{{ $dasher->first_name }}</h2>
@@ -131,21 +131,20 @@
         </form>
       </div>
 
-
       <div class="profile-details">
         <div class="detail-row">
           <span>Full Name:</span>
-          <b id="fullName">{{$fullname}}</b>
+          <b id="fullName">{{ $fullname }}</b>
         </div>
 
         <div class="detail-row">
           <span>Date Joined:</span>
-          <b id="dateJoined">{{$dasher->created_at->format('M-d-Y')}}</b>
+          <b id="dateJoined">{{ $dasher->created_at->format('M-d-Y') }}</b>
         </div>
 
         <div class="detail-row">
           <span>Quizzes Taken:</span>
-          <b id="quizzesTaken">{{ $quizzesCount }}</b>
+          <b id="quizzesTaken">{{ $quizzesCount ?: 'N/A' }}</b>
         </div>
       </div>
 
@@ -153,13 +152,14 @@
         <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
         <button class="btn-secondary" id="changePassBtn">Change Password</button>
       </div>
+
     </div>
   </main>
 
-  <div class="alert-side" id="alertSide">
-    <div class="alert-close" id="alertClose">&times;</div>
+  <!-- ERROR ALERT -->
+  <div class="alert-error" id="alertError">
+    <div class="alert-close" id="alertCloseError">&times;</div>
     <div class="alert-body">
-      <!-- Error log -->
       @if ($errors->any())
         @foreach ($errors->all() as $error)
           <div style="color: red;">{{ $error }}</div>
@@ -169,17 +169,20 @@
       @if (session('error'))
         <div style="color: red;">{{ session('error') }}</div>
       @endif
+    </div>
+  </div>
 
+  <!-- SUCCESS ALERT -->
+  <div class="alert-success" id="alertSuccess">
+    <div class="alert-close" id="alertCloseSuccess">&times;</div>
+    <div class="alert-body">
       @if (session('success'))
-        <div style="color: green;">{{ session('success') }}</div>
+        <div style="color: white;">{{ session('success') }}</div>
       @endif
     </div>
   </div>
 
-
-
-  <!-- ======= MODALS ======= -->
-  <!-- Edit Profile Modal -->
+  <!-- EDIT PROFILE MODAL -->
   <div class="modal" id="editProfileModal">
     <div class="modal-content">
       <h3>Edit Profile</h3>
@@ -187,20 +190,20 @@
         @csrf
         @method('PUT')
         <label>Full Name</label>
-        <input type="text" id="editFullName" name="fullName"
-          value="{{$dasher->first_name . ' ' . $dasher->last_name}}" />
+        <input type="text" name="fullName" value="{{ $dasher->first_name . ' ' . $dasher->last_name }}" />
+
         <label>Email</label>
-        <input type="email" id="editEmail" name="email" value="{{ $dasher->email }}" disabled readonly />
+        <input type="email" value="{{ $dasher->email }}" disabled readonly />
+
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
-          <button type="submit" class="save-btn" id="saveEdit">Save</button>
+          <button type="submit" class="save-btn">Save</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Change Password Modal -->
-  <!-- Change Password Modal -->
+  <!-- CHANGE PASSWORD MODAL -->
   <div class="modal" id="changePassModal">
     <div class="modal-content">
       <h3>Change Password</h3>
@@ -208,90 +211,66 @@
         @csrf
         @method('PUT')
 
+        <label>Current Password</label>
+        <input type="password" name="current_password" />
 
+        <label>New Password</label>
+        <input type="password" name="new_password" />
 
-        <label for="currentPass">Current Password</label>
-        <input type="password" id="currentPass" name="current_password" />
-
-        <label for="newPass">New Password</label>
-        <input type="password" id="newPass" name="new_password" />
-
-        <label for="confirmPass">Confirm New Password</label>
-        <input type="password" id="confirmPass" name="new_confirm_password" />
+        <label>Confirm New Password</label>
+        <input type="password" name="new_confirm_password" />
 
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" id="cancelPass">Cancel</button>
-          <button type="submit" class="save-btn" id="savePass">Save</button>
+          <button type="submit" class="save-btn">Save</button>
         </div>
       </form>
     </div>
   </div>
 
-
-  <!-- Sidebar Toggle Script -->
   <script src="{{ asset('js/sidebar_function.js') }}"></script>
+
   <script>
-
-    // === Edit Profile Modal ===
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    const editProfileModal = document.getElementById("editProfileModal");
-    const cancelEdit = document.getElementById("cancelEdit");
-    const saveEdit = document.getElementById("saveEdit");
-
-    editProfileBtn.addEventListener("click", () => {
-      editProfileModal.style.display = "flex";
-    });
-
-    cancelEdit.addEventListener(
-      "click",
-      () => (editProfileModal.style.display = "none")
-    );
-
-    saveEdit.addEventListener("click", () => {
-      editProfileModal.style.display = "none";
-    });
-
-    // === Change Password Modal ===
-    const changePassBtn = document.getElementById("changePassBtn");
-    const changePassModal = document.getElementById("changePassModal");
-    const cancelPass = document.getElementById("cancelPass");
-    const savePass = document.getElementById("savePass");
-
-    changePassBtn.addEventListener("click", () => {
-      changePassModal.style.display = "flex";
-    });
-
-    cancelPass.addEventListener("click", () => (changePassModal.style.display = "none"));
-
-    savePass.addEventListener("click", () => {
-      const currentPass = document.getElementById("currentPass").value;
-      const newPass = document.getElementById("newPass").value;
-      const confirmPass = document.getElementById("confirmPass").value;
-
-      changePassModal.style.display = "none";
-    });
-
-
-    //for  float alert errors
-    const alertSide = document.getElementById('alertSide');
-    const alertClose = document.getElementById('alertClose');
-
-    // Show alert if it has content
-    if (alertSide.querySelector('.alert-body').children.length > 0) {
-      alertSide.classList.add('active');
-
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        alertSide.classList.remove('active');
-      }, 5000);
+    function getID(target) {
+      return document.querySelector("#" + target)
     }
+    // ===== MODALS =====
+    getID("editProfileBtn").onclick = () =>
+      getID("editProfileModal").style.display = "flex";
 
-    // Close button
-    alertClose.addEventListener('click', () => {
-      alertSide.classList.remove('active');
-    });
+    getID("cancelEdit").onclick = () =>
+      getID("editProfileModal").style.display = "none";
 
+    getID("changePassBtn").onclick = () =>
+      getID("changePassModal").style.display = "flex";
+
+    getID("cancelPass").onclick = () =>
+      getID("changePassModal").style.display = "none";
+
+    // ===== ALERT SYSTEM =====
+    const alertError = document.getElementById("alertError");
+    const alertSuccess = document.getElementById("alertSuccess");
+
+    const hasError = alertError.querySelector(".alert-body").children.length > 0;
+    const hasSuccess = alertSuccess.querySelector(".alert-body").children.length > 0;
+
+    // show either success or error
+    if (hasError) alertError.style.display = "block";
+    if (hasSuccess) alertSuccess.style.display = "block";
+
+    // set 5 secs then display none
+    setTimeout(() => {
+      alertError.style.display = "none";
+      alertSuccess.style.display = "none";
+    }, 5000);
+
+    getID("alertCloseError").onclick = () =>
+      alertError.style.display = "none";
+
+    getID("alertCloseSuccess").onclick = () =>
+      alertSuccess.style.display = "none";
   </script>
+
 </body>
 
 </html>

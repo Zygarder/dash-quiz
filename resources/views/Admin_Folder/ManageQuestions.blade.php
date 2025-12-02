@@ -65,7 +65,8 @@
                 <form action="{{ route('quizdel', $quiz->id) }}" method="POST" style="display: inline">
                   @csrf
                   @method('DELETE')
-                  <button class="action-btn delete" onclick="return confirm('Are you sure you want to delete quiz {{ $quiz->title }}')">Delete</button>
+                  <button class="action-btn delete"
+                    onclick="return confirm('Are you sure you want to delete quiz {{ $quiz->title }}')">Delete</button>
                 </form>
 
               </span>

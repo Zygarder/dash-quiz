@@ -17,14 +17,6 @@
         .quiz-container {
             text-align: center;
         }
-
-        .space {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-right: 24px;
-        }
     </style>
 </head>
 
@@ -35,9 +27,7 @@
     <!-- Top Bar -->
     <header class="top-bar">
         <div class="menu-btn" id="menuBtn">&#9776;</div>
-        <div class="space">
-            <p>CHOOSE YOUR QUIZ</p>
-        </div>
+        <p>CHOOSE YOUR QUIZ</p>
         <a href="{{ route('profile-page') }}">
             <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
                 style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
