@@ -105,7 +105,7 @@
             font-weight: bold;
         }
 
-        form{
+        form {
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -119,12 +119,6 @@
         <p>Forgot password</p>
     </header>
 
-    <!--success key from registration-->
-    @if (session('success'))
-        <div class="success-register">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Main Section -->
     <main class="forgot-container">
@@ -147,6 +141,9 @@
                 <button type="submit" class="send-btn">Send</button>
 
             </form>
+            <div style="margin:3% auto;">
+                <a class="small-text" href="{{ route('login') }}">Back to Login</a>
+            </div>
         </div>
     </main>
 

@@ -14,8 +14,16 @@
             margin: 10px;
         }
 
-        .quiz-container{
+        .quiz-container {
             text-align: center;
+        }
+
+        .space {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-right: 24px;
         }
     </style>
 </head>
@@ -27,8 +35,13 @@
     <!-- Top Bar -->
     <header class="top-bar">
         <div class="menu-btn" id="menuBtn">&#9776;</div>
-        <p>CHOOSE YOUR QUIZ</p>
-        <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
+        <div class="space">
+            <p>CHOOSE YOUR QUIZ</p>
+        </div>
+        <a href="{{ route('profile-page') }}">
+            <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
+                style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
+        </a>
     </header>
 
     <!-- Main Content -->
@@ -46,7 +59,7 @@
                     </form>
                 @endforeach
             </div>
-            
+
         </section>
 
     </main>

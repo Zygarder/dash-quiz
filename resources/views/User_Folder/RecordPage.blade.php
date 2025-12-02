@@ -15,9 +15,12 @@
 
   <!-- Top Bar -->
   <header class="top-bar">
-    <div class="menu-btn" id="menuBtn">&#9776;</div>
-    <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
-  </header>
+        <div class="menu-btn" id="menuBtn">&#9776;</div>
+        <a href="{{ route('profile-page') }}">
+            <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
+                style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
+        </a>
+    </header>
 
   <!-- Main Content -->
   <main class="main-content" id="mainContent">

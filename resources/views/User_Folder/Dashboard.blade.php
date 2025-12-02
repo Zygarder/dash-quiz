@@ -16,14 +16,18 @@
   <header>
     <div class="top-bar">
       <button class="menu-btn" id="menuBtn">&#9776;</button>
-      <h2>Welcome {{ auth()->guard('dasher')->user()->first_name }}!</h2> {{-- display current user name --}}
+      <div>
+        <h2>Welcome {{ auth()->guard('dasher')->user()->first_name }}!</h2> {{-- display current user name --}}
+      </div>
 
-      <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
+      <a href="{{ route('profile-page') }}">
+        <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
+          style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
+      </a>
     </div>
   </header>
 
   <!--success key, pls ayaw payaa, ikaw ra ini nagbutangh sa controller.-->
-
   @if (session('success'))
     <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
       {{ session('success') }}
@@ -59,7 +63,7 @@
 
           <td>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <img src="{{ $leader->user->profilePhotoUrl() }}" alt="DP"
+              <img src="{{ $leader->user->profile() }}" alt="DP"
                 style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
               <span>
                 {{ $leader->user->first_name . ' ' . $leader->user->last_name }}
