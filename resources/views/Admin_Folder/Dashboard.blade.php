@@ -50,6 +50,8 @@
 
     </main>
   </div>
+
+  <script src="{{ asset('js/leaderboard.js') }}"></script>
 </body>
 
 </html>

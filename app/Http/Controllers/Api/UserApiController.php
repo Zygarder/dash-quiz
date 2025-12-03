@@ -12,7 +12,7 @@ class UserApiController extends Controller
     // Leaderboard
     public function leaderboard()
     {
-        $leaders = QuizRecord::with(['user'])
+        $leaders = QuizRecord::with(['user','quiz'])
             ->whereHas('user')
             ->orderByDesc('score')
             ->limit(10)
@@ -23,7 +23,7 @@ class UserApiController extends Controller
                     'name' => $record->user->first_name . ' ' . $record->user->last_name,
                     'profile_photo' => $record->user->profile_photo ? asset('storage/images/profiles/' . $record->user->profile_photo) : null,
                     'score' => $record->score,
-                    'quiz_id' => $record->quiz_id
+                    'quiz_title' => $record->title
                 ];
             });
 

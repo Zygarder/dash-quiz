@@ -10,13 +10,31 @@ class UserController extends Controller
 {
     public function Dashboard()
     {
-        $leaders = QuizRecord::with(['user', 'quiz'])
-            ->whereHas('user')        // Only include records with a valid user
+        return view('User_Folder.Dashboard');
+    }
+
+    // Leaderboard
+    public function leaderboard()
+    {
+        $leaders = QuizRecord::with(['user','quiz'])
+            ->whereHas('user')
             ->orderByDesc('score')
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'user_id' => $record->user->id,
+                    'name' => $record->user->first_name . ' ' . $record->user->last_name,
+                    'profile_photo' => $record->user->profile_photo ? asset('storage/images/profiles/' . $record->user->profile_photo) : null,
+                    'score' => $record->score,
+                    'quiz_title' => $record->quiz->title
+                ];
+            });
 
-        return view('User_Folder.Dashboard', compact('leaders'));
+        return response()->json([
+            'status' => 'success',
+            'leaders' => $leaders
+        ]);
     }
 
     public function QuizPage()

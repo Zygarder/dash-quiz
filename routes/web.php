@@ -29,6 +29,7 @@ Route::middleware('auth:dasher')->group(function () {
     // Routes using UserController
     Route::prefix('user')->controller(UserController::class)->group(function () {
         Route::get('/', 'Dashboard')->name('user-board');
+        Route::get('/leaderboard-data', 'leaderboard')->name('get-leaderboard');
         Route::get('/quiz', 'QuizPage')->name('quiz-page');
         Route::get('/record', 'RecordPage')->name('record-page');
         Route::get('/profile', 'ProfilePage')->name('profile-page');
