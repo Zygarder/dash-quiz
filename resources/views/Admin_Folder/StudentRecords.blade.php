@@ -36,7 +36,7 @@
           <div class="records-table records-table-header">
             <span>Record ID</span>
             <span>User ID</span>
-            <span>Quiz ID</span>
+            <span>Quiz Title</span>
             <span>Score</span>
             <span>Date Completed</span>
           </div>
@@ -45,7 +45,7 @@
             <div class="records-table records-table-row">
               <span>{{ $rec->id }}</span>
               <span>{{ $rec->user_id }}</span>
-              <span>{{ $rec->quiz_id }}</span>
+              <span>{{ $rec->quiz->title }}</span>
               <span>{{ $rec->score }}</span>
               <span>{{ $rec->completed_at }}</span>
             </div>
