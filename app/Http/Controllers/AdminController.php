@@ -51,7 +51,6 @@ class AdminController extends Controller
             'password.required' => 'Password required',
         ]);
 
-
         //check if an admin login
         if (Auth::guard('dasher')->attempt($valid)) {
             return redirect()->route('user-board');
@@ -99,7 +98,7 @@ class AdminController extends Controller
     public function logActivity($action, $description)
     {
         DB::table('activity_logs')->insert([
-            'user_id' => Auth::guard('dasher')->user()->id, // Admin user ID
+            'admin_id' => Auth::guard('admin')->user()->id, // Admin user ID
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
@@ -127,7 +126,10 @@ class AdminController extends Controller
     }
     public function srecords()
     {
-        $quiz_records = QuizRecord::all();
+        $quiz_records = QuizRecord::with(['quiz'])
+            ->whereHas('quiz')
+            ->get();
+
         return view('Admin_Folder.StudentRecords', compact('quiz_records'));
     }
 
@@ -138,7 +140,7 @@ class AdminController extends Controller
         $user = Dasher::findOrFail($id);
         $user->delete();
         $this->logActivity('User Deletion.', "User ID {$id} was deleted");
-        return redirect()->route('user-table')->with('success', 'data deleted');
+        return redirect()->back()->with('success', 'data deleted');
     }
 
     //DB FOR QUIZZES
