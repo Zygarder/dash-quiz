@@ -5,19 +5,19 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-  }
-  
-  /* === Header === */
-  .admin-header {
+}
+
+/* === Header === */
+.admin-header {
     background: #3f2ea3;
     color: white;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  .logout-btn {
+}
+
+.logout-btn {
     color: white;
     text-decoration: none;
     font-weight: bold;
@@ -25,21 +25,21 @@ body {
     padding: 6px 14px;
     border-radius: 6px;
     transition: background 0.3s;
-  }
-  
-  .logout-btn:hover {
+}
+
+.logout-btn:hover {
     background: #6c5bf7;
-  }
-  
-  /* === Layout === */
-  .admin-container {
+}
+
+/* === Layout === */
+.admin-container {
     flex: 1;
     display: flex;
     min-height: 0;
-  }
-  
-  /* === Sidebar === */
-  .admin-sidebar {
+}
+
+/* === Sidebar === */
+.admin-sidebar {
     width: 240px;
     background: #4b3cd1;
     color: white;
@@ -47,193 +47,193 @@ body {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 70px);
-  }
-  
-  .sidebar-title {
+}
+
+.sidebar-title {
     text-align: center;
     font-size: 18px;
     margin-bottom: 20px;
     font-weight: 600;
-  }
-  
-  .admin-sidebar ul {
+}
+
+.admin-sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  
-  .admin-sidebar ul li {
+}
+
+.admin-sidebar ul li {
     margin: 10px 0;
-  }
-  
-  .admin-sidebar ul li a {
+}
+
+.admin-sidebar ul li a {
     color: white;
     text-decoration: none;
     display: block;
     padding: 12px 20px;
     transition: background 0.3s;
-    border-radius: 6px;
-  }
-  
-  .admin-sidebar ul li.active a,
-  .admin-sidebar ul li a:hover {
+    border-width: 8px;
+    border-radius: 12px;
+    margin: 0 10px;
+}
+.admin-sidebar ul li.active a,
+.admin-sidebar ul li a:hover {
     background: white;
     color: #3f2ea3;
-  }
-  
-  /* === Main Content === */
-  .admin-main {
+}
+
+/* === Main Content === */
+.admin-main {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-  }
-  
-  .admin-stats {
+}
+
+.admin-stats {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
     margin-bottom: 20px;
-  }
-  
-  .admin-card {
+}
+
+.admin-card {
     background: #eaeaea;
     padding: 30px;
     border-radius: 10px;
     flex: 1 1 200px;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-card.wide {
+}
+
+.admin-card.wide {
     flex: 1 1 100%;
-  }
-  
-  /* === Footer === */
-  .admin-footer {
+}
+
+/* === Footer === */
+.admin-footer {
     text-align: center;
     background: #3f2ea3;
     color: white;
     padding: 10px 0;
     font-size: 14px;
-  }
-  
-  /* === Users Table === */
-  .admin-section {
+}
+
+/* === Users Table === */
+.admin-section {
     margin: 20px;
-  }
-  
-  .section-title {
+}
+
+.section-title {
     font-size: 18px;
     margin-bottom: 15px;
     font-weight: 600;
-  }
-  
-  .admin-table {
+}
+
+.admin-table {
     background: white;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-table .table-header,
-  .admin-table .table-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1.3fr 2fr 1fr ;
-    padding: 14px 16px;
-    align-items: center;
-  }
-  
-  .admin-table .table-header {
-    background: #e2e2e2;
-    font-weight: 600;
-  }
-  
-  .admin-table .table-row {
-    border-top: 1px solid #ddd;
-    background: #f8f8f8;
-  }
-  
-  .admin-table .table-row:nth-child(even) {
-    background: #f0f0f0;
-  }
-  
-  .admin-table .table-row:hover {
-    background: #eaeaea;
-  }
-  
-  
-  .quiz-table .quiz-table-header,
-  .quiz-table .quiz-table-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1.3fr ;
-    padding: 14px 16px;
-    align-items: center;
-  }
-  .quiz-table .quiz-table-header {
-    background: #e2e2e2;
-    font-weight: 600;
-  }
-  
-  .quiz-table .quiz-table-row {
-    border-top: 1px solid #ddd;
-    background: #f8f8f8;
-  }
-  
-  .quiz-table .quiz-table-row:nth-child(even) {
-    background: #f0f0f0;
-  }
-  
-  .quiz-table .quiz-table-row:hover {
-    background: #eaeaea;
-  }
+}
 
-  .records-table .records-table-header,
-  .records-table .records-table-row {
+.admin-table .table-header,
+.admin-table .table-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr ;
+    grid-template-columns: 1fr 1fr 1fr 1.3fr 2fr 1fr;
     padding: 14px 16px;
     align-items: center;
-  }
-  .records-table .records-table-header {
+}
+
+.admin-table .table-header {
     background: #e2e2e2;
     font-weight: 600;
-  }
-  
-  .records-table .records-table-row {
+}
+
+.admin-table .table-row {
     border-top: 1px solid #ddd;
     background: #f8f8f8;
-  }
-  
-  .records-table .records-table-row:nth-child(even) {
-    background: #f0f0f0;
-  }
-  
-  .records-table .records-table-row:hover {
-    background: #eaeaea;
-  }
+}
 
-  .logs-table .logs-header,
-  .logs-table .logs-row {
+.admin-table .table-row:nth-child(even) {
+    background: #f0f0f0;
+}
+
+.admin-table .table-row:hover {
+    background: #eaeaea;
+}
+
+.quiz-table .quiz-table-header,
+.quiz-table .quiz-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.3fr;
+    padding: 14px 16px;
+    align-items: center;
+}
+.quiz-table .quiz-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+}
+
+.quiz-table .quiz-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+}
+
+.quiz-table .quiz-table-row:nth-child(even) {
+    background: #f0f0f0;
+}
+
+.quiz-table .quiz-table-row:hover {
+    background: #eaeaea;
+}
+
+.records-table .records-table-header,
+.records-table .records-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    padding: 14px 16px;
+    align-items: center;
+}
+.records-table .records-table-header {
+    background: #e2e2e2;
+    font-weight: 600;
+}
+
+.records-table .records-table-row {
+    border-top: 1px solid #ddd;
+    background: #f8f8f8;
+}
+
+.records-table .records-table-row:nth-child(even) {
+    background: #f0f0f0;
+}
+
+.records-table .records-table-row:hover {
+    background: #eaeaea;
+}
+
+.logs-table .logs-header,
+.logs-table .logs-row {
     display: grid;
     grid-template-columns: 5fr;
     padding: 14px 16px;
     align-items: center;
-  }
-  .logs-table .logs-table-header {
+}
+.logs-table .logs-table-header {
     background: #e2e2e2;
     font-weight: 600;
-  }
-  
-  .logs-table .logs-table-row {
+}
+
+.logs-table .logs-table-row {
     border-top: 1px solid #ddd;
     background: #f8f8f8;
-  }
-  
-  .logs-table .logs-table-row:nth-child(even) {
+}
+
+.logs-table .logs-table-row:nth-child(even) {
     background: #f0f0f0;
-  }
-  
-  .logs-table .logs-table-row:hover {
+}
+
+.logs-table .logs-table-row:hover {
     background: #eaeaea;
-  }
+}

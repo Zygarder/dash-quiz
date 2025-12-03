@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up()
 {
-    Schema::table('quiz_records', function (Blueprint $table) {
-        $table->date('completed_at')->nullable()->after('score');
+    Schema::create('quiz_records', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
+        $table->integer('score')->default(0);
+        $table->date('completed_at')->nullable();
     });
 }
 
