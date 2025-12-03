@@ -26,7 +26,7 @@ Route::post('/login', [AdminApiController::class, 'login']);
 Route::post('/register', [AdminApiController::class, 'register']);
 
 // Admin Side
-Route::middleware('auth:dasher')->group(function () {
+Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/dashboard', [AdminApiController::class, 'dashboard']);
     Route::get('/admin/quizzes', [AdminApiController::class, 'allQuizzes']);
     Route::post('/admin/quizzes/create', [AdminApiController::class, 'createQuiz']);

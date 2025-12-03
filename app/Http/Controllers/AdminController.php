@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dasher;
+use App\Models\Admin;
 use App\Models\QuizRecord;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
@@ -50,10 +51,12 @@ class AdminController extends Controller
             'password.required' => 'Password required',
         ]);
 
-        if ($valid['email'] === 'admin@admin.com' && $valid['password'] === 'admin') {
+        //check if an admin login
+        if (Auth::guard('admin')->attempt($valid)) {
             return redirect()->route('admin-board');
         }
 
+         //check if a dasher login
         if (Auth::guard('dasher')->attempt($valid)) {
             return redirect()->intended(route('user-board'));
         }

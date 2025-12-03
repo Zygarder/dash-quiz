@@ -81,7 +81,8 @@
                 <button type="submit" class="login-btn">Log In</button>
 
                 <!-- Links -->
-                <p class="small-text">Forgot password? <a href="{{ route('forgot_page') }}" class="forgot">click here</a></p>
+                <p class="small-text">Forgot password? <a href="{{ route('forgot_page') }}" class="forgot">click
+                        here</a></p>
                 <button type="button" class="register-btn" onclick="location.href='{{ route('register_page') }}'"
                     target="_blank" title="Make new account!">
                     Register Now!

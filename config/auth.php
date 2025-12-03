@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'dashers',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -71,6 +75,10 @@ return [
         'dashers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Dasher::class,
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
 
         // 'users' => [

@@ -1,9 +1,8 @@
 <?php
-
-use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -29,7 +28,7 @@ Route::middleware('auth:dasher')->group(function () {
     // Routes using UserController
     Route::prefix('user')->controller(UserController::class)->group(function () {
         Route::get('/', 'Dashboard')->name('user-board');
-        Route::get('/leaderboard-data', 'leaderboard')->name('get-leaderboard');
+        Route::get('/leaderboard-data', 'leaderboard')->name('get-leaderboard');//get data from db
         Route::get('/quiz', 'QuizPage')->name('quiz-page');
         Route::get('/record', 'RecordPage')->name('record-page');
         Route::get('/profile', 'ProfilePage')->name('profile-page');
@@ -42,7 +41,7 @@ Route::middleware('auth:dasher')->group(function () {
         Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile-update');
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile-new-password');
         Route::post('/profile/upload', [ProfileController::class, 'uploadPhoto'])->name('profile.upload');
-    }); 
+    });
 
     // Answering quiz requires auth
     Route::post('/quiz-submit', [QuizController::class, 'submitAnswer'])->name('quiz.submit');
@@ -55,7 +54,7 @@ Route::middleware('auth:dasher')->group(function () {
 // =========================================
 // ADMIN ROUTES (ALL REQUIRE AUTH)
 // =========================================
-Route::middleware('auth:dasher')->prefix('admin')->controller(AdminController::class)->group(function () {
+Route::middleware('auth:admin')->prefix('admin')->controller(AdminController::class)->group(function () {
     Route::get('/', 'Dashboard')->name('admin-board');
     Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
     Route::get('/admin-logout', 'LogoutRequest')->name('adminlogout');
