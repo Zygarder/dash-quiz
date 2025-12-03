@@ -28,3 +28,18 @@ CREATE TABLE activity_logs (
         );
 
         //sql for admin logs hehe~
+
+--Admin insert--
+
+DB::insert("
+    INSERT INTO admin (id, first_name, last_name, email, password)
+    VALUES (?, ?, ?, ?)
+", [
+    '1',
+    'louie',
+    'guiritan',
+    'guiritan@example.com',
+    Hash::make('gueritan')
+]);
+
+// e change nalang base sa imo gusto sa imo admin info, pero ayaw kalimut migrate also check db

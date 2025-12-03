@@ -51,17 +51,15 @@ class AdminController extends Controller
             'password.required' => 'Password required',
         ]);
 
+
         //check if an admin login
-        if (Auth::guard('admin')->attempt($valid)) {
-            return redirect()->route('admin-board');
-        }
-
-         //check if a dasher login
         if (Auth::guard('dasher')->attempt($valid)) {
-            return redirect()->intended(route('user-board'));
+            return redirect()->route('user-board');
+        } else if (Auth::guard('admin')->attempt($valid)) {
+            return redirect()->route('admin-board');
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
         }
-
-        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
     }
 
     public function RegisterRequest(Request $request)
