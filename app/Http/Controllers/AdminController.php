@@ -54,11 +54,12 @@ class AdminController extends Controller
         //check if an admin login
         if (Auth::guard('dasher')->attempt($valid)) {
             return redirect()->route('user-board');
-        } else if (Auth::guard('admin')->attempt($valid)) {
-            return redirect()->route('admin-board');
-        } else {
-            return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
         }
+
+        if (Auth::guard('admin')->attempt($valid)) {
+            return redirect()->route('admin-board');
+        }
+        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
     }
 
     public function RegisterRequest(Request $request)
@@ -103,7 +104,6 @@ class AdminController extends Controller
             'description' => $description,
             'created_at' => now()
         ]);
-
     }
     public function Dashboard()
     {
