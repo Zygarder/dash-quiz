@@ -14,6 +14,7 @@ return new class extends Migration
     {
         //fixing compatibility issues
         Schema::table('dasher', function (Blueprint $table) {
+            $table->string('first_name')->after('id');
             $table->string('last_name')->after('first_name');
         });
     }

@@ -16,7 +16,7 @@ class UserController extends Controller
     // Leaderboard
     public function leaderboard()
     {
-        $leaders = QuizRecord::with(['user','quiz'])
+        $leaders = QuizRecord::with(['user', 'quiz'])
             ->whereHas('user')
             ->orderByDesc('score')
             ->limit(10)
@@ -67,7 +67,7 @@ class UserController extends Controller
         // Get the logged-in user's quiz records
         $userId = Auth::guard('dasher')->id();// Assuming you use Laravel auth
         $records = QuizRecord::where('user_id', $userId)
-            ->orderBy('completed_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->get();
 
 

@@ -13,7 +13,6 @@ class QuizRecord extends Model
         'user_id',
         'quiz_id',
         'score',
-        'completed_at',
     ];
 
     public $timestamps = false;

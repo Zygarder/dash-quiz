@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dasher;
-use App\Models\Admin;
 use App\Models\QuizRecord;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
@@ -51,15 +50,16 @@ class AdminController extends Controller
             'password.required' => 'Password required',
         ]);
 
+        if (Auth::guard('admin')->attempt($valid)) {
+            return redirect()->route('admin-board');
+        }
 
         //check if an admin login
         if (Auth::guard('dasher')->attempt($valid)) {
             return redirect()->route('user-board');
-        } else if (Auth::guard('admin')->attempt($valid)) {
-            return redirect()->route('admin-board');
-        } else {
-            return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
         }
+        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
+
     }
 
     public function RegisterRequest(Request $request)
@@ -99,7 +99,7 @@ class AdminController extends Controller
     public function logActivity($action, $description)
     {
         DB::table('activity_logs')->insert([
-            'user_id' => Auth::guard('dasher')->user()->id, // Admin user ID
+            'user_id' => Auth::guard('admin')->user()->id, // Admin user ID
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()

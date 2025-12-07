@@ -12,7 +12,8 @@ return new class extends Migration
     public function up()
 {
     Schema::table('dasher', function (Blueprint $table) {
-        $table->string('profile_photo')->nullable()->after('email');
+        $table->string('profile_photo')->nullable();
+        $table->dropColumn('name');
     });
 }
 
@@ -21,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('dasher');
     }
 };

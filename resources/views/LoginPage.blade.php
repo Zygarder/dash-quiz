@@ -60,7 +60,7 @@
             <form class="login-box" method="POST" action="{{ route('login_request') }}">
                 @csrf
 
-                <!-- Email Input -->
+                <!-- Email In   put -->
                 <input type="email" id="email" name="email" title="Enter your email" placeholder="Email Address"
                     value="{{ old('email') }}" />
                 @error('email')

@@ -4,28 +4,27 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('activity_logs',function (Blueprint $table){
+        Schema::create('quiz_records', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->string('action_type');
-            $table->text('description');
+            $table->string('user_id');
+            $table->string('quiz_id');
+            $table->string('score');
             $table->timestamps();
         });
-        
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('activity_logs');
+        Schema::dropIfExists('quiz_records');
     }
 };
