@@ -11,10 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('quiz_records', function (Blueprint $table) {
-            $table->foreign('quiz_id')
-                ->references('id')
-                ->on('quizzes')
-                ->onDelete('cascade'); // optional, deletes records if quiz is deleted
+            $table->foreign('quiz_id')->references('id')->on('quizzes')->onDelete('cascade'); // optional, deletes records if quiz is deleted
         });
     }
 

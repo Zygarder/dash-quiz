@@ -37,8 +37,13 @@ DB::insert("
     '1',
     'louie',
     'guiritan',
+<<<<<<< HEAD
     'guiritan@test.com',
     Hash::make('gueritan')
+=======
+    'guiritan@example.com',
+    Hash::make('guiritan')
+>>>>>>> 47dbb23d2c5c289a2953f0d3b6734f667572bf16
 ]);
 
 

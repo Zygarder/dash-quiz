@@ -26,7 +26,7 @@ class Dasher extends Authenticatable
         'remember_token',
     ];
 
-    public function profile()
+    public function get_profile()
     {
         return $this->profile_photo
             ? asset('storage/images/profiles/' . $this->profile_photo)

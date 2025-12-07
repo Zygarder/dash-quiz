@@ -86,7 +86,7 @@
       </div>
 
       <a href="{{ route('profile-page') }}">
-        <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
+        <img src="{{ auth()->guard('dasher')->user()->get_profile() }}" alt="DP"
           style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
       </a>
     </div>

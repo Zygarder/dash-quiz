@@ -14,7 +14,7 @@ class QuizSeeder extends Seeder
         DB::table('quizzes')->truncate();
         DB::table('questions')->truncate();
         DB::table('answers')->truncate();
-
+        
         //quiz categories
         $quizzes = [
             ['id' => 1, 'title' => 'COC1', 'description' => 'Certificate of Competency 1'],

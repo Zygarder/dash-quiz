@@ -25,7 +25,9 @@ class UserController extends Controller
                 return [
                     'user_id' => $record->user->id,
                     'name' => $record->user->first_name . ' ' . $record->user->last_name,
-                    'profile_photo' => $record->user->profile_photo ? asset('storage/images/profiles/' . $record->user->profile_photo) : null,
+                    'profile_photo' => $record->user->profile_photo
+                        ? asset('storage/images/profiles/' . $record->user->profile_photo)
+                        : asset('images/profiles/person.jpg'),
                     'score' => $record->score,
                     'quiz_title' => $record->quiz->title
                 ];
