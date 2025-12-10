@@ -72,7 +72,7 @@
 
                 <!-- Password Input -->
                 <input type="password" id="pass" name="password" title="Enter your password"
-                    placeholder="Enter Password" />
+                    placeholder="Enter Password"  autocomplete="false"/>
                 @error('password')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -94,6 +94,7 @@
     <footer>
         <p>© 2025 Dash Quiz All Rights Reserved.</p>
     </footer>
+    
 </body>
 
 </html>

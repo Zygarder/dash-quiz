@@ -101,7 +101,7 @@
     footer {
       width: 100%;
       position: fixed;
-      left:0;
+      left: 0;
       bottom: 0;
       background-color: #4b3fc2;
       color: #fff;
@@ -144,29 +144,32 @@
 
       <form method="POST" action="{{ route('register_request') }}">
         @csrf
-        <input id="first_name" type="text" name="first_name" maxlength="50" placeholder="First Name" value="{{ old('first_name') }}" />
+        <input id="first_name" type="text" name="first_name" maxlength="50" placeholder="First Name"
+          value="{{ old('first_name') }}" />
         @error('first_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="last_name" type="text"  name="last_name" maxlength="50" placeholder="Last Name" value="{{ old('last_name') }}" />
+        <input id="last_name" type="text" name="last_name" maxlength="50" placeholder="Last Name"
+          value="{{ old('last_name') }}" />
         @error('last_name')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="email" type="email" name="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-          placeholder="Email Address" value="{{ old('email') }}" />
+        <input id="email" type="email" name="email" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" placeholder="Email Address"
+          value="{{ old('email') }}" />
         @error('email')
           <div class="error">{{ $message }}</div>
         @enderror
 
-        <input id="password" type="password" name="password" placeholder="Enter Password" minlength="6" />
+        <input id="password" type="password" name="password" placeholder="Enter Password" minlength="6"
+          autocomplete="false" />
         @error('password')
           <div class="error">{{ $message }}</div>
         @enderror
 
         <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Re-type Password"
-          minlength="6" />
+          minlength="6" autocomplete="false" />
 
         <button type="submit" class="register-btn">Submit</button>
 

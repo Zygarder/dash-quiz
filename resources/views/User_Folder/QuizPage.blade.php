@@ -29,7 +29,7 @@
         <div class="menu-btn" id="menuBtn">&#9776;</div>
         <p>CHOOSE YOUR QUIZ</p>
         <a href="{{ route('profile-page') }}">
-            <img src="{{ auth()->guard('dasher')->user()->profile() }}" alt="DP"
+            <img src="{{ auth()->guard('dasher')->user()->get_profile() }}" alt="DP"
                 style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
         </a>
     </header>
@@ -42,11 +42,11 @@
             <div class="quiz-container">
                 {{-- quizzes from UserController --}}
                 @foreach($quizzes as $quiz)
-                    <form action="{{ route('quiz.start') }}" class="quiz-choice" method="GET">
-                        @csrf
-                        <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
-                        <button type="submit" class="competency-btn">{{ $quiz->description }}</button>
-                    </form>
+                    <a class="quiz-choice" href="{{ route('quiz.start', ['quiz_id' => $quiz->id]) }}">
+                        <div class="competency-btn">
+                            {{ $quiz->description }}
+                        </div>
+                    </a>
                 @endforeach
             </div>
 

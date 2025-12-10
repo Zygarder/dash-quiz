@@ -119,7 +119,6 @@
         <p>Forgot password</p>
     </header>
 
-
     <!-- Main Section -->
     <main class="forgot-container">
 

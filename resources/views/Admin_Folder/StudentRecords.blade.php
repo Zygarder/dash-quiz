@@ -47,7 +47,7 @@
               <span>{{ $rec->user_id }}</span>
               <span>{{ $rec->quiz->title }}</span>
               <span>{{ $rec->score }}</span>
-              <span>{{ $rec->completed_at }}</span>
+              <span>{{ $rec->create_at }}</span>
             </div>
           @endforeach
         </div>

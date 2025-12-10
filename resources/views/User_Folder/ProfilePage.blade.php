@@ -212,13 +212,13 @@
         @method('PUT')
 
         <label>Current Password</label>
-        <input type="password" name="current_password" />
+        <input type="password" name="current_password" autocomplete="false" />
 
         <label>New Password</label>
-        <input type="password" name="new_password" />
+        <input type="password" name="new_password" autocomplete="false" />
 
         <label>Confirm New Password</label>
-        <input type="password" name="new_confirm_password" />
+        <input type="password" name="new_confirm_password" autocomplete="false" />
 
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" id="cancelPass">Cancel</button>
@@ -234,6 +234,7 @@
     function getID(target) {
       return document.querySelector("#" + target)
     }
+
     // ===== MODALS =====
     getID("editProfileBtn").onclick = () =>
       getID("editProfileModal").style.display = "flex";
@@ -269,6 +270,9 @@
 
     getID("alertCloseSuccess").onclick = () =>
       alertSuccess.style.display = "none";
+
+      const evt = new Event('newEvent');
+      console.log(evt);
   </script>
 
 </body>

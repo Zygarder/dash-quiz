@@ -32,10 +32,11 @@ class QuizController extends Controller
                 'quiz_title' => $quiz->title,
 
             ]);
+
         }
 
         // Reset session if mag change or back ng quizzes
-        if (session('quiz_id') !== $quizId) {
+        if (session('quiz_id') !== $request->quiz_id) {
             session()->forget(['quiz_questions', 'quiz_index', 'score']);// reset session 
         }
 
@@ -68,12 +69,11 @@ class QuizController extends Controller
             if (Auth::guard('dasher')->check()) {
                 QuizRecord::create([
                     'user_id' => auth()->guard('dasher')->id(),
-                    'quiz_id' => $validated['quiz_id'],
+                    'quiz_id' => $request->quiz_id,
                     'score' => $score,
                     'completed_at' => now()->format('Y-m-d'),
                 ]);
             }
-
             return view('User_Folder.QuizResult', compact('score', 'quizTitle', 'totalQuestions'));
         }
 

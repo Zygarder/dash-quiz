@@ -51,12 +51,9 @@ Route::middleware('auth:dasher')->group(function () {
     Route::post('/profile/photo', [ProfileApiController::class, 'uploadPhoto']);
 });
 
-
 //Quiz Page
-Route::middleware('auth:dasher')->group(function () {
-    Route::get('/quiz', [QuizApiController::class, 'getQuiz']);
+    Route::get('/quiz/{id}', [QuizApiController::class, 'getQuiz']);
     Route::post('/quiz/answer', [QuizApiController::class, 'submitAnswer']);
     Route::post('/quiz/result', [QuizApiController::class, 'submitQuizResult']);
-});
 
 
