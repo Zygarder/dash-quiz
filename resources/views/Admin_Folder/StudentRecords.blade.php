@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Users Table</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+  <style>
+    span{
+      text-align:center;
+    }
+  </style>
 </head>
 
 <body>
@@ -35,7 +40,7 @@
         <div class="records-table">
           <div class="records-table records-table-header">
             <span>Record ID</span>
-            <span>User ID</span>
+            <span>Dasher ID</span>
             <span>Quiz Title</span>
             <span>Score</span>
             <span>Date Completed</span>
@@ -47,7 +52,7 @@
               <span>{{ $rec->user_id }}</span>
               <span>{{ $rec->quiz->title }}</span>
               <span>{{ $rec->score }}</span>
-              <span>{{ $rec->create_at }}</span>
+              <span>{{ $rec->created_at->format('d/M/Y')}}</span>
             </div>
           @endforeach
         </div>

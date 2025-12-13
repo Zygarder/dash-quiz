@@ -39,13 +39,6 @@
         <p>Dash Quiz - Learn and test yourself!</p>
     </header>
 
-    <!--success key from registration-->
-    @if (session('success'))
-        <div class="success-register">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <!-- Main Section -->
     <main class="container">
         <div class="left-section">

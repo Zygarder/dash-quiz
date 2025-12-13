@@ -22,6 +22,7 @@ class Dasher extends Authenticatable
     ];
 
     protected $hidden = [
+        'active',
         'password',
         'remember_token',
     ];

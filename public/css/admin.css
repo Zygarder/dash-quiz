@@ -7,14 +7,22 @@ body {
     height: 100vh;
 }
 
+button {
+    cursor: pointer;
+}
+
 /* === Header === */
 .admin-header {
     background: #3f2ea3;
     color: white;
-    padding: 12px 20px;
+    padding: 8px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.admin-header h2{
+    margin:0;
 }
 
 .logout-btn {
@@ -24,7 +32,37 @@ body {
     background: #5b4bf2;
     padding: 6px 14px;
     border-radius: 6px;
-    transition: background 0.3s;
+    transition: background-color 0.3s;
+}
+
+.add-btn {
+    padding: 10px;
+    background-color: #111;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    margin-bottom: 10px;
+    transition: background-color .3s ease-out;
+}
+
+.add-btn:hover {
+    background-color: #3f2ea3;
+}
+
+.action-btn {
+    padding: 5px 7px;
+    border: none;
+    border-radius: 5px;
+}
+
+.edit {
+    color: white;
+    background-color: green;
+}
+
+.delete {
+    color: white;
+    background-color: brown;
 }
 
 .logout-btn:hover {
@@ -76,6 +114,7 @@ body {
     border-radius: 12px;
     margin: 0 10px;
 }
+
 .admin-sidebar ul li.active a,
 .admin-sidebar ul li a:hover {
     background: white;
@@ -100,30 +139,39 @@ body {
 
 /*Tested something, kung balaan kaw patanggal na lang :)*/
 .admin-card {
-    background: #eaeaea;
-    padding: 30px;
-    border-radius: 10px;
+    padding: 25px;
+    border-radius: 5px;
     flex: 1 1 200px;
-    cursor: pointer;    /*this*/
-    text-align: center;
-    transform: perspective(800px) rotateX(45deg) scale(0.9);   /*this*/
-    box-shadow:                                                /*this*/
-        0.2px 4px rgba(0, 0, 0, 0.1),                        /*this*/
-        inset 0 -4px 8px rgba(255,255,255,0.6);              /*this*/
-    transition: transform 0.5s ease, box-shadow 0.6s ease;     /*this*/
+    box-shadow:
+        0.2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-out, box-shadow 0.3s ease-in-out;
 }
 
 /*pati na ining hover part*/
 .admin-card:hover {
-    transform: perspective(800px) rotateX(0deg) scale(1) translateY(-10px);
-    box-shadow: 
-        0.1px 2px rgba(0, 0, 0, 0.1),
-        inset 0 -2px 10px rgba(255,255,255,0.7);
+    transform: perspective(800px) rotateX(0deg) scale(1) translateY(-5px);
+    box-shadow:
+        0.1px 2px rgba(0, 0, 0, 0.1)
 }
 
 
 .admin-card.wide {
     flex: 1 1 100%;
+}
+
+.total-registered {
+    background: green;
+    color: white;
+}
+
+.total-quizzes {
+    background: goldenrod;
+    color: white;
+}
+
+.total-active {
+    background: darkred;
+    color: white;
 }
 
 /* === Footer === */
@@ -148,16 +196,14 @@ body {
 
 .admin-table {
     background: white;
-    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .admin-table .table-header,
 .admin-table .table-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1.3fr 2fr 1fr;
-    padding: 14px 16px;
+    padding: 10px 15px;
     align-items: center;
 }
 
@@ -182,10 +228,11 @@ body {
 .quiz-table .quiz-table-header,
 .quiz-table .quiz-table-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1.3fr;
-    padding: 14px 16px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 10px 15px;
     align-items: center;
 }
+
 .quiz-table .quiz-table-header {
     background: #e2e2e2;
     font-weight: 600;
@@ -208,9 +255,10 @@ body {
 .records-table .records-table-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    padding: 14px 16px;
+    padding: 10px 15px;
     align-items: center;
 }
+
 .records-table .records-table-header {
     background: #e2e2e2;
     font-weight: 600;
@@ -232,10 +280,12 @@ body {
 .logs-table .logs-header,
 .logs-table .logs-row {
     display: grid;
+    text-align: center;
     grid-template-columns: 5fr;
-    padding: 14px 16px;
+    padding: 10px 15px;
     align-items: center;
 }
+
 .logs-table .logs-table-header {
     background: #e2e2e2;
     font-weight: 600;

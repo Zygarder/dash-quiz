@@ -21,11 +21,11 @@
             @csrf
 
             <!-- Quiz Name -->
-            <label>Quiz number/name:</label>
+            <label>Quiz Name:</label>
             <input type="text" name="title" placeholder="Quiz" required>
 
             <label>Topic</label>
-            <input type="text" name="description" placeholder="title" required></input>
+            <input type="text" name="description" placeholder="description" required>
 
             <button onclick="location.href='{{ route('quiz-manage') }}'" class="submit-btn">Cancel</button>
 

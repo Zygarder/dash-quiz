@@ -29,9 +29,9 @@
 
     <main class="admin-main">
       <section class="admin-stats">
-        <div class="admin-card">Total Registered: {{ $dboard }}</div>
-        <div class="admin-card">Total Quizzes: {{ $totalQuizzes }}</div>
-        <div class="admin-card">Active Users: Not yet Implemented</div>
+        <div class="admin-card total-registered">Total Registered: {{ $dboard }}</div>
+        <div class="admin-card total-quizzes">Total Quiz: {{ $totalQuizzes }}</div>
+        <div class="admin-card total-active">Active User/s: {{$activeCount}}</div>
       </section>
 
       <section class="admin-details">

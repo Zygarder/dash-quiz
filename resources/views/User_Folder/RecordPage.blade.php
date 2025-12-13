@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dash Quiz | Check Records</title>
+  <title>Dash Quiz / Check Records</title>
   <link rel="stylesheet" href="{{asset('css/style.css')}}" />
   <link rel="stylesheet" href="{{ asset('css/record.css') }}">
 </head>
@@ -15,12 +15,12 @@
 
   <!-- Top Bar -->
   <header class="top-bar">
-        <div class="menu-btn" id="menuBtn">&#9776;</div>
-        <a href="{{ route('profile-page') }}">
-            <img src="{{ auth()->guard('dasher')->user()->get_profile() }}" alt="DP"
-                style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
-        </a>
-    </header>
+    <div class="menu-btn" id="menuBtn">&#9776;</div>
+    <a href="{{ route('profile-page') }}">
+      <img src="{{ auth()->guard('dasher')->user()->get_profile() }}" alt="DP"
+        style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;">
+    </a>
+  </header>
 
   <!-- Main Content -->
   <main class="main-content" id="mainContent">
@@ -33,7 +33,7 @@
       </div>
 
       <div class="header-lists">
-        <div>Dates</div>
+        <div>Date taken</div>
         <div>Topics</div>
         <div>Scores</div>
       </div>
@@ -43,9 +43,9 @@
           <tbody>
             @forelse ($records as $record)
               <tr>
-                <td>{{ $record->completed_at }}</td>
+                <td>{{ $record->created_at->format('d/M/Y') }}</td>
                 <td>{{ $record->quiz->title ?? 'N/A' }}</td>
-                <td>{{ $record->score }}/{{ $record->quiz->questions->count() ?? 10 }}</td>
+                <td>{{ $record->score }}/{{ $record->quiz->questions->count()}}</td>
               </tr>
             @empty
               <tr>

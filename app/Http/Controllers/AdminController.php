@@ -16,6 +16,14 @@ class AdminController extends Controller
 
     public function LoginPage()
     {
+        if (Auth::guard('dasher')->user()) {
+            return redirect()->route('user-board');
+        }
+
+        if (Auth::guard('admin')->user()) {
+            return redirect()->route('admin-board');
+        }
+
         return view('LoginPage');
     }
 
@@ -31,7 +39,8 @@ class AdminController extends Controller
     //dont forget to add session destroy after logging out
     public function LogoutRequest()
     {
-        Auth::guard('dasher')->logout();
+        Dasher::where('id', Auth::guard('admin')->user()->id)->update(['active_status' => false]);
+        Auth::guard('admin')->logout();
         session()->invalidate();
         request()->session()->regenerateToken();
 
@@ -86,12 +95,12 @@ class AdminController extends Controller
             'password' => Hash::make($valid['password']),
         ]);
 
-        Auth::guard('dasher')->loginUsingId($dasher->id);
+        Auth::guard('dasher')->login($dasher->id);
         // Redirect to user dashboard after registration
-        return redirect()->route('login')->with('success', 'Account created successfully!');
+        return redirect()->route('user-board')->with('success', 'Account created successfully!');
     }
 
-    ############################### USER DB ##################################
+    ############################### USER DB END ##################################
 
     //Admin side nav controller
     //logs function
@@ -104,13 +113,18 @@ class AdminController extends Controller
             'created_at' => now()
         ]);
     }
+
     public function Dashboard()
     {
         $dboard = DB::select("SELECT COUNT(*) as total FROM dasher")[0]->total;
         $totalQuizzes = DB::table('quizzes')->count();
         $logs = DB::select("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 20");
+        $activeCount = Dasher::where("active_status", '=', 1)->count();
 
-        return view('Admin_Folder.Dashboard', compact('dboard', 'totalQuizzes', 'logs'));
+        return view(
+            'Admin_Folder.Dashboard',
+            compact('dboard', 'totalQuizzes', 'logs', 'activeCount')
+        );
     }
 
     public function Quizmgmt()

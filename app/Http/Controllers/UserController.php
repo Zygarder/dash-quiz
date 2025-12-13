@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dasher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\QuizRecord;
 use App\Models\Quiz;
 class UserController extends Controller
 {
+
     public function Dashboard()
     {
+        Dasher::where('id', Auth::guard('dasher')
+            ->user()->id)
+            ->update(['active_status' => true]);
         return view('User_Folder.Dashboard');
     }
 
@@ -57,6 +62,9 @@ class UserController extends Controller
 
     public function LogoutUser(Request $request)
     {
+        Dasher::where('id', Auth::guard('dasher')
+            ->user()->id)
+            ->update(['active_status' => false]);
         Auth::guard('dasher')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -71,8 +79,6 @@ class UserController extends Controller
         $records = QuizRecord::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
-
-
         return view('User_Folder.RecordPage', compact('records'));
     }
 

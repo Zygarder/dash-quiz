@@ -11,15 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('activity_logs',function (Blueprint $table){
-            $table->engine = 'InnoDB';
-            $table->id();
-            $table->integer('admin_id');
-            $table->string('action_type');
-            $table->text('description');
-            $table->timestamps();
+        Schema::table('dasher',function($table){
+            $table->boolean('active_status')->default(0)->after('id');
         });
-        
     }
 
     /**
@@ -27,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('activity_logs');
+        Schema::dropIfExists('active_status');
     }
 };

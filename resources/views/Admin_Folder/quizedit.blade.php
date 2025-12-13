@@ -18,10 +18,10 @@
 
             <!-- Quiz info -->
             <label>Quiz number/name:</label>
-            <input type="text" name="title" value="{{ $quiz->title }}" required>
+            <input type="text" name="title" value="{{ $quiz->title }}" placeholder="Title" required>
 
             <label>Topic</label>
-            <input type="text" name="description" value="{{ $quiz->description }}" required>
+            <input type="text" name="description" value="{{ $quiz->description }}" placeholder="description" required>
 
             <button onclick="location.href='{{ route('quiz-manage') }}'" type="button"
                 class="submit-btn">Cancel</button>
@@ -37,14 +37,14 @@
                         <!-- Question -->
                         <input type="hidden" name="questions[{{ $qIndex }}][id]" value="{{ $q->id }}">
                         <label>Question Text</label>
-                        <input type="text" name="questions[{{ $qIndex }}][text]" value="{{ $q->question_text }}" required>
+                        <input type="text" name="questions[{{ $qIndex }}][text]" value="{{ $q->question_text }}"
+                            placeholder="Question" required>
 
-                        <!-- Options -->
+                        <!-- Options/Choices -->
                         <label>Choices</label>
                         @foreach($q->options as $optIndex => $opt)
                             <input type="hidden" name="questions[{{ $qIndex }}][option_ids][]" value="{{ $opt->id }}">
-                            <input type="text" name="questions[{{ $qIndex }}][options][]" value="{{ $opt->option_text }}"
-                                required>
+                            <input type="text" name="questions[{{ $qIndex }}][options][]" value="{{ $opt->option_text }}" required>
                         @endforeach
 
                         <!-- Correct answer select -->

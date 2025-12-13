@@ -26,7 +26,7 @@
   height: auto;
   align-items: center;
   justify-content: center;
-  color: #4b32a8; 
+  color: #4b32a8;
   margin-bottom: 3%;
 }
 
@@ -85,36 +85,32 @@
   justify-content: center;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: 0.7rem 1.4rem;
-  border-radius: 8px;
-  border: none;
+#edit-profile,
+#delete {
   cursor: pointer;
-  transition: 0.2s;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
-}
-
-/* Main purple button */
-.btn-primary {
   background: #4b32a8;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
   color: white;
 }
 
-.btn-primary:hover {
+#edit-profile {
+  background-color: #4b32a8;
+}
+
+#delete {
+  background: brown;
+}
+
+#edit-profile:hover {
   background: #3a2591;
   transform: translateY(-1px);
 }
 
-/* Gray button */
-.btn-secondary {
-  background: #d6d6d6;
-  color: black;
-}
-
-.btn-secondary:hover {
-  background: #c4c4c4;
+#delete:hover {
+  background: darkred;
+  transform: translateY(-1px);
 }
 
 /* === MODAL STYLES === */
@@ -133,19 +129,19 @@
 }
 
 .modal-content {
-  background: #ffffff;
+  background: #f9f9f9;
   padding: 1.7rem;
   border-radius: 12px;
   width: 90%;
   max-width: 420px;
   text-align: left;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   animation: fadeInUp 0.25s ease;
 }
 
 .modal-content h3 {
   margin-bottom: 1rem;
-  color: #4b32a8;
+  color: brown;
   font-weight: 700;
 }
 
@@ -165,8 +161,8 @@
 }
 
 .modal-buttons {
-  margin-top: 1.3rem;
-  text-align: right;
+  margin-top: 1.2rem;
+  text-align: center;
 }
 
 .save-btn {
@@ -206,11 +202,23 @@
 
 /* === ANIMATIONS === */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

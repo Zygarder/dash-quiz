@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Manage Quizzes</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+  <style>
+    span{
+      text-align:center;
+    }
+  </style>
 </head>
 
 <body>
@@ -38,7 +43,7 @@
 
         <h3 class="section-title">Manage Quizzes</h3>
 
-        <button onclick="window.location='{{ route('quiz-add') }}'" class="add-btn">+ Add New Quiz</button>
+        <button onclick="window.location='{{ route('quiz-add') }}'" class="add-btn">+ New Quiz</button>
 
         <div class="quiz-table quiz-admin-table">
           <div class="quiz-table quiz-table-header">

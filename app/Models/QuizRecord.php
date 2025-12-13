@@ -15,7 +15,6 @@ class QuizRecord extends Model
         'score',
     ];
 
-    protected $dates = ['completed_at'];
 
     public function quiz()
     {

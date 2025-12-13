@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dash Quiz | User Profile</title>
+  <title>Dash Quiz / User Profile</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="{{ asset('css/profile-page.css') }}" />
@@ -107,6 +107,12 @@
     <h2>My Profile</h2>
     <a href="{{ route('logout-user') }}" class="logout-btn">Log Out</a>
   </header>
+  <!--success key, pls ayaw payaa, ikaw ra ini nagbutangh sa controller.-->
+  @if (session('success'))
+    <div style="padding:10px; background:lightgreen; position: absolute; border:1px solid green;">
+      {{ session('success') }}
+    </div>
+  @endif
 
   <main class="main-content" id="mainContent">
     <div class="profile-card">
@@ -149,8 +155,8 @@
       </div>
 
       <div class="profile-buttons">
-        <button class="btn-primary" id="editProfileBtn">Edit Profile</button>
-        <button class="btn-secondary" id="changePassBtn">Change Password</button>
+        <button id="edit-profile">Edit Profile</button>
+        <button id="delete">Delete Account</button>
       </div>
 
     </div>
@@ -193,7 +199,16 @@
         <input type="text" name="fullName" value="{{ $dasher->first_name . ' ' . $dasher->last_name }}" />
 
         <label>Email</label>
-        <input type="email" value="{{ $dasher->email }}" disabled readonly />
+        <input type="email" value="{{ $dasher->email }}" />
+
+        <label>Current Password</label>
+        <input type="password" name="current_password" autocomplete="false" />
+
+        <label>New Password</label>
+        <input type="password" name="new_password" autocomplete="false" />
+
+        <label>Confirm New Password</label>
+        <input type="password" name="new_confirm_password" autocomplete="false" />
 
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
@@ -206,23 +221,18 @@
   <!-- CHANGE PASSWORD MODAL -->
   <div class="modal" id="changePassModal">
     <div class="modal-content">
-      <h3>Change Password</h3>
-      <form action="{{ route('profile-new-password') }}" method="POST">
+      <h3 style="text-align:center">Delete Account</h3>
+      <form action="{{ route('user-delete-account') }}" method="POST">
         @csrf
-        @method('PUT')
+        @method('DELETE')
+        {{-- profile-new-password --}}
 
-        <label>Current Password</label>
-        <input type="password" name="current_password" autocomplete="false" />
-
-        <label>New Password</label>
-        <input type="password" name="new_password" autocomplete="false" />
-
-        <label>Confirm New Password</label>
-        <input type="password" name="new_confirm_password" autocomplete="false" />
+        <input type="hidden" name="id" value="{{ $dasher->id }}">
+        <p class="small-text">Are you sure you wanna delete your account?</p>
 
         <div class="modal-buttons">
-          <button type="button" class="cancel-btn" id="cancelPass">Cancel</button>
-          <button type="submit" class="save-btn">Save</button>
+          <button type="button" class="cancel-btn" id="cancelDelete">Cancel</button>
+          <button type="submit" class="save-btn">Yes, of course</button>
         </div>
       </form>
     </div>
@@ -236,16 +246,16 @@
     }
 
     // ===== MODALS =====
-    getID("editProfileBtn").onclick = () =>
+    getID("edit-profile").onclick = () =>
       getID("editProfileModal").style.display = "flex";
 
     getID("cancelEdit").onclick = () =>
       getID("editProfileModal").style.display = "none";
 
-    getID("changePassBtn").onclick = () =>
+    getID("delete").onclick = () =>
       getID("changePassModal").style.display = "flex";
 
-    getID("cancelPass").onclick = () =>
+    getID("cancelDelete").onclick = () =>
       getID("changePassModal").style.display = "none";
 
     // ===== ALERT SYSTEM =====
@@ -270,9 +280,6 @@
 
     getID("alertCloseSuccess").onclick = () =>
       alertSuccess.style.display = "none";
-
-      const evt = new Event('newEvent');
-      console.log(evt);
   </script>
 
 </body>

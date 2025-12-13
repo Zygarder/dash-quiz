@@ -8,7 +8,6 @@ use App\Models\QuizRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
 class QuizController extends Controller
 {
     /*
@@ -30,7 +29,6 @@ class QuizController extends Controller
                 'quiz_id' => $quizId,
                 'score' => session('score'),
                 'quiz_title' => $quiz->title,
-
             ]);
 
         }
@@ -71,7 +69,7 @@ class QuizController extends Controller
                     'user_id' => auth()->guard('dasher')->id(),
                     'quiz_id' => $request->quiz_id,
                     'score' => $score,
-                    'completed_at' => now()->format('Y-m-d'),
+                    'created_at' => now()->format('y-m-d'),
                 ]);
             }
             return view('User_Folder.QuizResult', compact('score', 'quizTitle', 'totalQuestions'));

@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz Admin | Users Table</title>
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+  <style>
+    span{
+      text-align:center;
+    }
+  </style>
 </head>
 
 <body>
@@ -36,13 +41,13 @@
           </div>
         @endif
 
-        <h3 class="section-title">Registered Users</h3>
+        <h3 class="section-title">Registered Dashers</h3>
 
         <div class="admin-table">
           <div class="table-header">
-            <span>User ID</span>
-            <span>First Name</span>
-            <span>Last Name</span>
+            <span>Dasher ID</span>
+            <span>First</span>
+            <span>Last</span>
             <span>Email</span>
             <span>Date Registered</span>
             <span>Action</span>

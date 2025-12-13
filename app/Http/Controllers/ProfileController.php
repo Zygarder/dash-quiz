@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QuizRecord;
+use App\Models\Dasher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,27 +30,16 @@ class ProfileController extends Controller
     }
 
     // Update password
-    public function updatePassword(Request $request)
+    public function deleteAccount(Request $request)
     {
         // Validate input
         $valid = $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:6',
-            'new_confirm_password' => 'required|same:new_password',
+            'id' => 'required',
         ]);
 
-        $user = Auth::guard('dasher')->user();
+        Dasher::findOrFail($valid['id'])->delete();
 
-        // Check if old password matches
-        if (!Hash::check($valid['current_password'], $user->password)) {
-            return redirect()->back()->with('error', 'Your current password is incorrect.');
-        }
-
-        // Save new password
-        $user->password = Hash::make($valid['new_password']);
-        $user->save();
-
-        return redirect()->back()->with('success', 'Password updated successfully.');
+        return redirect()->intended('login');
     }
 
     public function uploadPhoto(Request $request)

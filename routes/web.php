@@ -19,12 +19,11 @@ Route::get('/forgot-password', [AdminController::class, 'ForgotPage'])->name('fo
 Route::post('/login-request', [AdminController::class, 'LoginRequest'])->name('login_request');
 Route::post('/register-request', [AdminController::class, 'RegisterRequest'])->name('register_request');
 
-
 // =========================================
 // USER ROUTES (ALL REQUIRE AUTH)
 // =========================================
-Route::middleware('auth:dasher')->group(function () {
 
+Route::middleware('auth:dasher')->group(function () {
     // Routes using UserController
     Route::prefix('user')->controller(UserController::class)->group(function () {
         Route::get('/', 'Dashboard')->name('user-board');
@@ -39,7 +38,7 @@ Route::middleware('auth:dasher')->group(function () {
     // Profile Update Routes (ProfileController)
     Route::prefix('user')->group(function () {
         Route::put('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile-update');
-        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile-new-password');
+        Route::delete('/profile/delete-account', [ProfileController::class, 'deleteAccount'])->name('user-delete-account');
         Route::post('/profile/upload', [ProfileController::class, 'uploadPhoto'])->name('profile.upload');
     });
 
@@ -54,20 +53,22 @@ Route::middleware('auth:dasher')->group(function () {
 // =========================================
 // ADMIN ROUTES (ALL REQUIRE AUTH)
 // =========================================
-Route::middleware('auth:admin')->prefix('admin')->controller(AdminController::class)->group(function () {
-    Route::get('/', 'Dashboard')->name('admin-board');
-    Route::get('/quizmgmt', 'Quizmgmt')->name('quiz-manage');
-    Route::get('/admin-logout', 'LogoutRequest')->name('adminlogout');
+Route::middleware('auth:admin')->group(function () {
+    Route::prefix('admin')->controller(AdminController::class)->group(function () {
+        Route::get('/', 'Dashboard')->name('admin-board');
+        Route::get('/quiz-manage', 'Quizmgmt')->name('quiz-manage');
+        Route::get('/admin-logout', 'LogoutRequest')->name('adminlogout');
 
-    // QUIZ MANAGEMENT
-    Route::get('/quiz/create', 'addquiz')->name('quiz-add');
-    Route::post('/quiz/store', 'savequiz')->name('quiz-save');
-    Route::get('/quiz/{id}/edit', 'editQuiz')->name('quiz-edit');
-    Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
-    Route::delete('/quiz/del/{id}', 'deletequiz')->name('quizdel');
+        // QUIZ MANAGEMENT
+        Route::get('/quiz/create', 'addquiz')->name('quiz-add');
+        Route::post('/quiz/store', 'savequiz')->name('quiz-save');
+        Route::get('/quiz/{id}/edit', 'editQuiz')->name('quiz-edit');
+        Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
+        Route::delete('/quiz/del/{id}', 'deletequiz')->name('quizdel');
 
-    // USER MANAGEMENT
-    Route::get('/records', 'UserTable')->name('user-table');
-    Route::delete('/del/{id}', 'dasherdelete')->name('deleteuser');
-    Route::get('/studentrecords', 'srecords')->name('srecords');
+        // USER MANAGEMENT
+        Route::get('/records', 'UserTable')->name('user-table');
+        Route::delete('/delete/{id}', 'dasherdelete')->name('deleteuser');
+        Route::get('/student-records', 'srecords')->name('srecords');
+    });
 });

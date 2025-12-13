@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dash Quiz - Dashboard</title>
+  <title>Dash Quiz |
+    {{ auth()->guard('dasher')->user()->first_name . '-' . auth()->guard('dasher')->user()->last_name }}
+  </title>
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <style>
     .leaderboard {
@@ -94,7 +96,7 @@
 
   <!--success key, pls ayaw payaa, ikaw ra ini nagbutangh sa controller.-->
   @if (session('success'))
-    <div style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+    <div style="padding:10px; background:lightgreen; position: absolute; border:1px solid green;">
       {{ session('success') }}
     </div>
   @endif
