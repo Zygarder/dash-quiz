@@ -95,7 +95,7 @@ class AdminController extends Controller
             'password' => Hash::make($valid['password']),
         ]);
 
-        Auth::guard('dasher')->login($dasher->id);
+        Auth::guard('dasher')->login($dasher);
         // Redirect to user dashboard after registration
         return redirect()->route('user-board')->with('success', 'Account created successfully!');
     }
