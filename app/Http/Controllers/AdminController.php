@@ -151,8 +151,9 @@ class AdminController extends Controller
     {
         //find user then delete
         $user = Dasher::findOrFail($id);
+        dd($user);
         $user->delete();
-        $this->logActivity('User Deletion.', "User ID {$id} was deleted");
+        $this->logActivity('User Deletion.', "Dasher ID {$id} was deleted");
         return redirect()->back()->with('success', 'data deleted');
     }
 

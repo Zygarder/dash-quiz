@@ -121,10 +121,9 @@
         <div class="avatar">
           <img src="{{ $dasher->profile_photo
   ? asset('storage/images/profiles/' . $dasher->profile_photo)
-  : asset('images/profiles/person.jpg') }}" alt="DP">
+  : asset('images/profiles/person.jpg') }}" alt="DP" readonly draggable="false"/>
         </div>
-
-        <h2 id="username">{{ $dasher->first_name }}</h2>
+        <h2 id="username">{{ $dasher->first_name }} </h2>
         <small id="userEmail">{{ $dasher->email }}</small>
 
         <form action="{{ route('profile.upload') }}" class="picture-set" method="POST" enctype="multipart/form-data">

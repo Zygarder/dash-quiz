@@ -17,8 +17,6 @@ async function leaderBoard() {
 
     let foundYou = false;
 
-    console.log(data)
-
     data.leaders.forEach(function (leader, index) {
       const isYou = leader.user_id === currentUserId;
       if (isYou) foundYou = true;
