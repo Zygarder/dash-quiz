@@ -13,6 +13,7 @@ class QuizRecord extends Model
         'user_id',
         'quiz_id',
         'score',
+        'total_questions',
     ];
 
 

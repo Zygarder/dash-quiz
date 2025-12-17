@@ -32,20 +32,23 @@
         <input type="text" id="searchInput" placeholder="Search topic or score..." />
       </div>
 
-      <div class="header-lists">
-        <div>Date taken</div>
-        <div>Topics</div>
-        <div>Scores</div>
+      <div >
+        
       </div>
       <!-- Scrollable Table -->
       <div class="table-wrapper">
         <table id="recordsTable">
+          <thead>
+              <th>Date taken</th>
+              <th>Topics</th>
+              <th>Scores</th>
+          </thead>
           <tbody>
             @forelse ($records as $record)
               <tr>
                 <td>{{ $record->created_at->format('d/M/Y') }}</td>
-                <td>{{ $record->quiz->title ?? 'N/A' }}</td>
-                <td>{{ $record->score }}/{{ $record->quiz->questions->count()}}</td>
+                <td>{{ $record->quiz->description ?? 'N/A' }}</td>
+                <td>{{ $record->score }}/{{ $record->total_questions}}</td>
               </tr>
             @empty
               <tr>

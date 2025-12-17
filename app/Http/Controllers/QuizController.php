@@ -51,6 +51,7 @@ class QuizController extends Controller
                     ->pluck('id')
                     ->toArray(),
                 'quiz_index' => 0,
+                
             ]);
         }
 
@@ -70,6 +71,7 @@ class QuizController extends Controller
                     'quiz_id' => $request->quiz_id,
                     'score' => $score,
                     'created_at' => now()->format('y-m-d'),
+                    'total_questions' => $totalQuestions,
                 ]);
             }
             return view('User_Folder.QuizResult', compact('score', 'quizTitle', 'totalQuestions'));

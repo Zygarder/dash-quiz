@@ -76,9 +76,10 @@ class UserController extends Controller
     {
         // Get the logged-in user's quiz records
         $userId = Auth::guard('dasher')->id();// Assuming you use Laravel auth
-        $records = QuizRecord::where('user_id', $userId)
+        $records = QuizRecord::with('quiz')->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
+
         return view('User_Folder.RecordPage', compact('records'));
     }
 

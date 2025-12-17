@@ -254,7 +254,7 @@ button {
 .records-table .records-table-header,
 .records-table .records-table-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     padding: 10px 15px;
     align-items: center;
 }

@@ -42,6 +42,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('dasher')->onDelete('cascade');
             $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
             $table->integer('score')->default(0);
+            $table->integer('total_questions')->default(0);
             $table->timestamps();
         });
 
