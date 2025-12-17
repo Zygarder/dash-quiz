@@ -56,19 +56,19 @@ Route::middleware('auth:dasher')->group(function () {
 Route::middleware('auth:admin')->group(function () {
     Route::prefix('admin')->controller(AdminController::class)->group(function () {
         Route::get('/', 'Dashboard')->name('admin-board');
-        Route::get('/quiz-manage', 'Quizmgmt')->name('quiz-manage');
+        Route::get('/quiz-manage', 'quizManagement')->name('quiz-manage');
         Route::get('/admin-logout', 'LogoutRequest')->name('adminlogout');
 
         // QUIZ MANAGEMENT
-        Route::get('/quiz/create', 'addquiz')->name('quiz-add');
-        Route::post('/quiz/store', 'savequiz')->name('quiz-save');
+        Route::get('/quiz/create', 'addQuiz')->name('quiz-add');
+        Route::post('/quiz/store', 'saveQuiz')->name('quiz-save');
         Route::get('/quiz/{id}/edit', 'editQuiz')->name('quiz-edit');
         Route::put('/quiz/{id}', 'updateQuiz')->name('quiz-update');
-        Route::delete('/quiz/del/{id}', 'deletequiz')->name('quizdel');
+        Route::delete('/quiz/del/{id}', 'deleteQuiz')->name('quizdel');
 
         // USER MANAGEMENT
         Route::get('/records', 'UserTable')->name('user-table');
-        Route::delete('/delete/{id}', 'dasherdelete')->name('deleteuser');
-        Route::get('/student-records', 'srecords')->name('srecords');
+        Route::delete('/delete/{id}', 'dasherDelete')->name('deleteuser');
+        Route::get('/student-records', 'studentRecords')->name('srecords');
     });
 });

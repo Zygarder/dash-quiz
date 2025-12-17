@@ -127,7 +127,7 @@ class AdminController extends Controller
         );
     }
 
-    public function Quizmgmt()
+    public function quizManagement()
     {
         $quizzes = Quiz::all();
         return view('Admin_Folder.ManageQuestions', compact('quizzes'));
@@ -137,7 +137,7 @@ class AdminController extends Controller
         $dasher = Dasher::all();
         return view('Admin_Folder.UsersTable', compact('dasher'));
     }
-    public function srecords()
+    public function studentRecords()
     {
         $quiz_records = QuizRecord::with(['quiz'])
             ->whereHas('quiz')
@@ -147,7 +147,7 @@ class AdminController extends Controller
     }
 
     //database manager for users (admin side)
-    public function dasherdelete($id)
+    public function dasherDelete($id)
     {
         //find user then delete
         $user = Dasher::findOrFail($id);
@@ -158,12 +158,12 @@ class AdminController extends Controller
     }
 
     //DB FOR QUIZZES
-    public function addquiz()
+    public function addQuiz()
     {
         return view('Admin_Folder.quizadd');
     }
 
-    public function savequiz(Request $request)
+    public function saveQuiz(Request $request)
     {
 
         $request->validate([
@@ -309,7 +309,7 @@ class AdminController extends Controller
         return redirect()->route('quiz-manage')->with('success', 'Quiz updated successfully!');
     }
 
-    public function deletequiz($id)
+    public function deleteQuiz($id)
     {
         $quiz = Quiz::findOrFail($id);
         $quiz->delete();
