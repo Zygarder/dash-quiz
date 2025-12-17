@@ -39,7 +39,7 @@ class ProfileController extends Controller
 
         Dasher::findOrFail($valid['id'])->delete();
 
-        return redirect()->intended('login');
+        return redirect()->route('login');
     }
 
     public function uploadPhoto(Request $request)
