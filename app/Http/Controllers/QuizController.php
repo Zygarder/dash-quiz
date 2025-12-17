@@ -66,7 +66,7 @@ class QuizController extends Controller
             // Store quiz result in database
             if (Auth::guard('dasher')->check()) {
                 QuizRecord::create([
-                    'user_id' => auth()->guard('dasher')->id(),
+                    'user_id' => Auth::guard('dasher')->id(),
                     'quiz_id' => $request->quiz_id,
                     'score' => $score,
                     'created_at' => now()->format('y-m-d'),
@@ -77,9 +77,14 @@ class QuizController extends Controller
 
         $question = Question::findOrFail($currentQuestionId);
         $options = $question->options;
+
         $currentQuestionNumber = $index + 1;
-        $totalQuestions = count($questionIds);
-        $progress = round($currentQuestionNumber / $totalQuestions * 100) . '%';
+        $totalQuestions = count(session('quiz_questions'));
+
+        $progress = $totalQuestions > 0
+            ? intval((($currentQuestionNumber / $totalQuestions) * 100)) . '%'
+            : '0%';
+
 
         return response()
             ->view('User_Folder.TakeQuizPage', compact(
