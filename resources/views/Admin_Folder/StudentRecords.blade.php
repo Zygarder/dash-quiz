@@ -52,8 +52,8 @@
               <span>{{ $rec->id }}</span>
               <span>{{ $rec->user_id }}</span>
               <span>{{ $rec->quiz->title }}</span>
-              <span>{{ $rec->total_questions }}</span>
               <span>{{ $rec->score }}</span>
+              <span>{{ $rec->total_questions }}</span>
               <span>{{ $rec->created_at->format('d/M/Y')}}</span>
             </div>
           @endforeach

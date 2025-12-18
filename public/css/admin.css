@@ -6,6 +6,11 @@ body {
     flex-direction: column;
     height: 100vh;
 }
+header{
+    position:sticky;
+    top:0;
+    z-index: 999;
+}
 
 button {
     cursor: pointer;
@@ -85,6 +90,10 @@ button {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 70px);
+    position: fixed;       
+    top: 40px;
+    overflow-y: auto;
+    left:0;
 }
 
 .sidebar-title {
@@ -126,6 +135,8 @@ button {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    margin-left: 240px; /* Pushes content to the right so sidebar doesn't cover it */
+    width: calc(100% - 240px);
 }
 
 .admin-stats {
