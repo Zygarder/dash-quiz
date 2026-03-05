@@ -43,6 +43,7 @@
             <span>Dasher ID</span>
             <span>Quiz Title</span>
             <span>Score</span>
+            <span>Total Questions</span>
             <span>Date Completed</span>
           </div>
 
@@ -52,6 +53,7 @@
               <span>{{ $rec->user_id }}</span>
               <span>{{ $rec->quiz->title }}</span>
               <span>{{ $rec->score }}</span>
+              <span>{{ $rec->total_questions }}</span>
               <span>{{ $rec->created_at->format('d/M/Y')}}</span>
             </div>
           @endforeach

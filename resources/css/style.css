@@ -4,6 +4,11 @@
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
 }
+  header{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
 
 body {
   display: flex;
@@ -11,16 +16,6 @@ body {
   min-height: 100vh;
   background: #fff;
   color: #000;
-}
-
-/* Top Bar */
-.top-bar {
-  background-color: #4b3fc2;
-  color: #fff;
-  text-align: left;
-  padding: 6px 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
 }
 
 /* Main Section Layout */
