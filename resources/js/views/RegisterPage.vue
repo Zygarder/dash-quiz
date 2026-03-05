@@ -4,6 +4,7 @@
     </header>
 
     <main class="center-container">
+    
         <div class="register-box">
             <h2>Account Registration</h2>
             <form @submit.prevent="handleRegister">

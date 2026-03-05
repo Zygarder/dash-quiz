@@ -21,12 +21,14 @@ class UserApiController extends Controller
                 return [
                     'user_id' => $record->user->id,
                     'name' => $record->user->first_name . ' ' . $record->user->last_name,
-                    'profile_photo' => $record->user->profile_photo ?
-                        asset('storage/images/profiles/' . $record->user->profile_photo) : null,
+                    'profile_photo' => $record->user->profile_photo
+                        ? asset('storage/images/profiles/' . $record->user->profile_photo)
+                        : null,
                     'score' => $record->score,
                     'quiz_title' => $record->title
                 ];
             });
+
         return response()->json([
             'status' => 'success',
             'leaders' => $leaders
@@ -57,7 +59,9 @@ class UserApiController extends Controller
                 'last_name' => $user->last_name,
                 'full_name' => $user->first_name . ' ' . $user->last_name,
                 'email' => $user->email,
-                'profile_photo' => $user->profile_photo ? asset('storage/images/profiles/' . $user->profile_photo) : null,
+                'profile_photo' => $user->profile_photo
+                    ? asset('storage/images/profiles/' . $user->profile_photo)
+                    : null,
                 'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count()
             ]
         ]);
@@ -67,6 +71,7 @@ class UserApiController extends Controller
     public function records()
     {
         $userId = Auth::guard('dasher')->id();
+
         $records = QuizRecord::where('user_id', $userId)
             ->orderByDesc('completed_at')
             ->get()

@@ -3,5 +3,5 @@
         <div :key="route.name">
             <component :is="Component" />
         </div>
-    </router-view>
+    </router-view>  
 </template>
