@@ -17,6 +17,9 @@ use App\Http\Controllers\Api\ProfileApiController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::get("/test-me", function () {
+    return 'Hello from Laravel!';
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -36,7 +39,7 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/records', [AdminApiController::class, 'studentRecords']);
 });
 
-Route::middleware('auth:dasher')->group(function() {
+Route::middleware('auth:dasher')->group(function () {
     Route::get('/dashboard/leaderboard', [UserApiController::class, 'leaderboard']);
     Route::get('/quizzes', [UserApiController::class, 'quizzes']);
     Route::get('/profile', [UserApiController::class, 'profile']);
@@ -52,8 +55,8 @@ Route::middleware('auth:dasher')->group(function () {
 });
 
 //Quiz Page
-    Route::get('/quiz/{id}', [QuizApiController::class, 'getQuiz']);
-    Route::post('/quiz/answer', [QuizApiController::class, 'submitAnswer']);
-    Route::post('/quiz/result', [QuizApiController::class, 'submitQuizResult']);
+Route::get('/quiz/{id}', [QuizApiController::class, 'getQuiz']);
+Route::post('/quiz/answer', [QuizApiController::class, 'submitAnswer']);
+Route::post('/quiz/result', [QuizApiController::class, 'submitQuizResult']);
 
 

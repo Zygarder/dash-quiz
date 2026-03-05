@@ -12,7 +12,6 @@ use App\Http\Controllers\ProfileController;
 */
 
 // PUBLIC ROUTES (NO AUTH)
-Route::get('/', [AdminController::class, 'LoginPage'])->name('login');
 Route::get('/register-account', [AdminController::class, 'RegisterPage'])->name('register_page');
 Route::get('/forgot-password', [AdminController::class, 'ForgotPage'])->name('forgot_page');
 
@@ -72,3 +71,7 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/student-records', 'studentRecords')->name('srecords');
     });
 });
+
+Route::get('/{vue_capture?}', function () {
+    return view('welcome');
+})->where('vue_capture', '[\/\w\.-]*');

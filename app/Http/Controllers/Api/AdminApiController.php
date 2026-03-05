@@ -23,21 +23,18 @@ class AdminApiController extends Controller
             'password' => 'required'
         ]);
 
-        // STATIC ADMIN LOGIN
-        if ($valid['email'] === 'admin@admin.com' && $valid['password'] === 'admin') {
+        //for admin login request handler
+        if (Auth::guard('admin')->attempt($valid)) {
             return response()->json([
                 'status' => 'success',
-                'role' => 'admin',
                 'message' => 'Admin authenticated'
             ]);
         }
-
+        //for user login request handler
         if (Auth::guard('dasher')->attempt($valid)) {
             return response()->json([
                 'status' => 'success',
-                'role' => 'dasher',
-                'message' => 'Login successful',
-                'user' => Auth::guard('dasher')->user()
+                'redirect' => '/user'
             ]);
         }
 
@@ -130,7 +127,8 @@ class AdminApiController extends Controller
 
             foreach ($q['options'] as $opt) {
                 DB::insert("INSERT INTO question_options (question_id, option_text) VALUES (?, ?)", [
-                    $question_id, $opt
+                    $question_id,
+                    $opt
                 ]);
 
                 $option_ids[] = DB::getPdo()->lastInsertId();

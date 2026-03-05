@@ -51,7 +51,7 @@ class AdminController extends Controller
 
     public function LoginRequest(Request $request)
     {
-        $valid = $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|string',
             'password' => 'required'
         ], [
@@ -59,25 +59,27 @@ class AdminController extends Controller
             'password.required' => 'Password required',
         ]);
 
-        //check if an admin login
-        if (Auth::guard('dasher')->attempt($valid)) {
+        if (Auth::guard('dasher')->attempt($credentials)) {
             return redirect()->route('user-board');
         }
 
-        if (Auth::guard('admin')->attempt($valid)) {
+        if (Auth::guard('admin')->attempt($credentials)) {
             return redirect()->route('admin-board');
         }
-        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
+
+        return back()->withErrors([
+            'error' => 'Invalid credentials'
+        ])->withInput();
     }
 
     public function RegisterRequest(Request $request)
     {
         // Validate the incoming request
         $valid = $request->validate([
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:dasher,email',
-            'password' => 'required|string|confirmed|min:6',
+            'password' => 'required|string|confirmed|min:5',
         ], [
             'first_name.required' => 'First required',
             'last_name.required' => 'Last required',

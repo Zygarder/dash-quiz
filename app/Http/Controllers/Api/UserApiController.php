@@ -12,21 +12,21 @@ class UserApiController extends Controller
     // Leaderboard
     public function leaderboard()
     {
-        $leaders = QuizRecord::with(['user','quiz'])
+        $leaders = QuizRecord::with(['user', 'quiz'])
             ->whereHas('user')
             ->orderByDesc('score')
             ->limit(10)
             ->get()
-            ->map(function($record) {
+            ->map(function ($record) {
                 return [
                     'user_id' => $record->user->id,
                     'name' => $record->user->first_name . ' ' . $record->user->last_name,
-                    'profile_photo' => $record->user->profile_photo ? asset('storage/images/profiles/' . $record->user->profile_photo) : null,
+                    'profile_photo' => $record->user->profile_photo ?
+                        asset('storage/images/profiles/' . $record->user->profile_photo) : null,
                     'score' => $record->score,
                     'quiz_title' => $record->title
                 ];
             });
-
         return response()->json([
             'status' => 'success',
             'leaders' => $leaders
