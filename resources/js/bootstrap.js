@@ -8,11 +8,11 @@ import axios from 'axios';
 window.axios = axios;
 
 // This is the "magic" part for Sanctum
-window.axios.defaults.withCredentials = true;
-window.axios.defaults.withXSRFToken = true;
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-window.axios.defaults.headers.common['Accept'] = 'application/json';
-window.axios.defaults.baseURL = '/api'
+axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.baseURL = '/api'
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
