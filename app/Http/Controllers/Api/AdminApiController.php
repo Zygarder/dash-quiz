@@ -13,29 +13,29 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminApiController extends Controller
 {
+
     ###############################################
     # LOGIN API
     ###############################################
     public function login(Request $request)
     {
         $valid = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        //for admin login request handler
         if (Auth::guard('admin')->attempt($valid)) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Admin authenticated'
-            ]);
+                'role' => 'admin'
+            ], 200);
         }
-        //for user login request handler
+
         if (Auth::guard('dasher')->attempt($valid)) {
             return response()->json([
                 'status' => 'success',
-                'redirect' => '/user'
-            ]);
+                'role' => 'dasher'
+            ], 200);
         }
 
         return response()->json([
@@ -66,7 +66,7 @@ class AdminApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Account created successfully',
-            'user' => $dasher
+            'data' => $dasher
         ], 201);
     }
 
@@ -77,13 +77,15 @@ class AdminApiController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'total_users' => DB::table('dasher')->count(),
-            'total_quizzes' => DB::table('quizzes')->count(),
-            'recent_logs' => DB::table('activity_logs')
-                ->orderBy('created_at', 'DESC')
-                ->limit(20)
-                ->get()
-        ]);
+            'data' => [
+                'total_users' => DB::table('dasher')->count(),
+                'total_quizzes' => DB::table('quizzes')->count(),
+                'recent_logs' => DB::table('activity_logs')
+                    ->orderBy('created_at', 'DESC')
+                    ->limit(20)
+                    ->get()
+            ]
+        ], 200);
     }
 
     ###############################################
@@ -94,7 +96,7 @@ class AdminApiController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => Quiz::all()
-        ]);
+        ], 200);
     }
 
     public function createQuiz(Request $request)
@@ -108,54 +110,57 @@ class AdminApiController extends Controller
             'questions.*.correct_option' => 'required|integer|min:0|max:3',
         ]);
 
-        DB::insert("INSERT INTO quizzes (title, description) VALUES (?, ?)", [
-            $request->title,
-            $request->description
-        ]);
+        DB::beginTransaction();
 
-        $quiz_id = DB::getPdo()->lastInsertId();
+        try {
 
-        foreach ($request->questions as $q) {
-            DB::insert("INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)", [
-                $quiz_id,
-                $q['text']
+            DB::insert("INSERT INTO quizzes (title, description) VALUES (?, ?)", [
+                $request->title,
+                $request->description
             ]);
 
-            $question_id = DB::getPdo()->lastInsertId();
+            $quiz_id = DB::getPdo()->lastInsertId();
 
-            $option_ids = [];
+            foreach ($request->questions as $q) {
 
-            foreach ($q['options'] as $opt) {
-                DB::insert("INSERT INTO question_options (question_id, option_text) VALUES (?, ?)", [
-                    $question_id,
-                    $opt
+                DB::insert("INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)", [
+                    $quiz_id,
+                    $q['text']
                 ]);
 
-                $option_ids[] = DB::getPdo()->lastInsertId();
-            }
+                $question_id = DB::getPdo()->lastInsertId();
 
-            $correct = $q['correct_option'];
+                foreach ($q['options'] as $i => $opt) {
 
-            DB::insert(
-                "INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, 1)",
-                [$question_id, $q['options'][$correct]]
-            );
-
-            foreach ($q['options'] as $i => $opt) {
-                if ($i !== $correct) {
                     DB::insert(
-                        "INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, 0)",
-                        [$question_id, $opt]
+                        "INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)",
+                        [
+                            $question_id,
+                            $opt,
+                            $i == $q['correct_option'] ? 1 : 0
+                        ]
                     );
                 }
             }
-        }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Quiz created',
-            'quiz_id' => $quiz_id
-        ]);
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Quiz created successfully',
+                'quiz_id' => $quiz_id
+            ], 201);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create quiz',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     ###############################################
@@ -163,12 +168,21 @@ class AdminApiController extends Controller
     ###############################################
     public function deleteQuiz($id)
     {
-        Quiz::findOrFail($id)->delete();
+        $quiz = Quiz::find($id);
+
+        if (!$quiz) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Quiz not found'
+            ], 404);
+        }
+
+        $quiz->delete();
 
         return response()->json([
             'status' => 'success',
             'message' => "Quiz ID $id deleted"
-        ]);
+        ], 200);
     }
 
     ###############################################
@@ -179,17 +193,26 @@ class AdminApiController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => Dasher::all()
-        ]);
+        ], 200);
     }
 
     public function deleteUser($id)
     {
-        Dasher::findOrFail($id)->delete();
+        $user = Dasher::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $user->delete();
 
         return response()->json([
             'status' => 'success',
             'message' => "User ID $id deleted"
-        ]);
+        ], 200);
     }
 
     ###############################################
@@ -200,6 +223,6 @@ class AdminApiController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => QuizRecord::all()
-        ]);
+        ], 200);
     }
 }
