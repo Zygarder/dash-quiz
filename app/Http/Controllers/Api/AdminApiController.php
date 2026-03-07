@@ -25,6 +25,7 @@ class AdminApiController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($valid)) {
+            $request->session()->regenerate();
             return response()->json([
                 'status' => 'success',
                 'role' => 'admin'
@@ -32,6 +33,7 @@ class AdminApiController extends Controller
         }
 
         if (Auth::guard('dasher')->attempt($valid)) {
+            $request->session()->regenerate();
             return response()->json([
                 'status' => 'success',
                 'role' => 'dasher'

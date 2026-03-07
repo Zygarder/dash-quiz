@@ -51,6 +51,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useUser } from '@/composables/useUser';
 
 const email = ref('');
 const password = ref('');
@@ -59,6 +60,7 @@ const loading = ref(false);
 const errors = ref({});
 const generalError = ref('');
 const router = useRouter();
+const { clearUser } = useUser();
 
 const handleLogin = async () => {
     loading.value = true;
@@ -67,38 +69,50 @@ const handleLogin = async () => {
 
     try {
         // 1. Initialize CSRF protection 
-        // Laravel sets a cookie named XSRF-TOKEN here
         await axios.get('/sanctum/csrf-cookie');
 
         // 2. Perform Login
-        // Axios automatically picks up that cookie and sends it as a header
-        const response = await axios.post('/login', {
+        const response = await axios.post('/api/login', {
             email: email.value,
             password: password.value
         });
 
-        // 3. Success: Redirect to Dashboard using Vue Router
+        // 3. Success Logic
         if (response.status === 200 || response.status === 204) {
-            router.push('/dashboard');
+
+            // --- THE CRITICAL UPDATE ---
+            // Set the flag that the router guard is looking for
+            localStorage.setItem('isLoggedIn', 'true');
+            // store role returned by api for admin checks
+            if (response.data.role) {
+                localStorage.setItem('userRole', response.data.role);
+            }
+
+            // clear previous profile so next page will refetch
+            clearUser();
+            // redirect based on role
+            if (response.data.role === 'admin') {
+                router.push('/admin/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
         }
 
     } catch (err) {
-        // Axios puts the server response inside err.response
         if (err.response) {
             const status = err.response.status;
             const data = err.response.data;
 
             if (status === 422) {
-                // Validation errors (e.g., "The password field is required")
                 errors.value = data.errors;
             } else if (status === 401 || status === 419) {
-                // Unauthorized or Session Expired
-                generalError.value = data.message || "Session expired. Please refresh.";
+                // If login fails, ensure the flag is cleared
+                localStorage.removeItem('isLoggedIn');
+                generalError.value = data.message || "Invalid credentials or session expired.";
             } else {
                 generalError.value = "An unexpected server error occurred.";
             }
         } else {
-            // Network error (Server is down)
             generalError.value = "Cannot connect to server. Check your connection.";
         }
     } finally {

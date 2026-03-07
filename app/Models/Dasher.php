@@ -19,6 +19,7 @@ class Dasher extends Authenticatable
         'email',
         'profile_photo',
         'password',
+        'active_status',
     ];
 
     protected $hidden = [
@@ -29,6 +30,7 @@ class Dasher extends Authenticatable
 
     public function get_profile()
     {
+
         return $this->profile_photo
             ? asset('storage/images/profiles/' . $this->profile_photo)
             : asset('images/profiles/person.jpg'); // fallback

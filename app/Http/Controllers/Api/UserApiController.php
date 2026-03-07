@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
+use Illuminate\Http\Request;
 use App\Models\QuizRecord;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,13 +20,14 @@ class UserApiController extends Controller
             ->get()
             ->map(function ($record) {
                 return [
-                    'user_id' => $record->user->id,
+                    'all' => $record,
                     'name' => $record->user->first_name . ' ' . $record->user->last_name,
                     'profile_photo' => $record->user->profile_photo
-                        ? asset('storage/images/profiles/' . $record->user->profile_photo)
+                        ? '/storage/images/profiles/' . $record->user->profile_photo
                         : null,
                     'score' => $record->score,
-                    'quiz_title' => $record->title
+                    'quiz_title' => $record->quiz->title,
+                    'user_id' => $record->user_id
                 ];
             });
 
@@ -60,9 +62,10 @@ class UserApiController extends Controller
                 'full_name' => $user->first_name . ' ' . $user->last_name,
                 'email' => $user->email,
                 'profile_photo' => $user->profile_photo
-                    ? asset('storage/images/profiles/' . $user->profile_photo)
+                    ? '/storage/images/profiles/' . $user->profile_photo
                     : null,
-                'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count()
+                'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
+                'created_at' => $user->created_at->format('F j, Y')
             ]
         ]);
     }
@@ -72,20 +75,39 @@ class UserApiController extends Controller
     {
         $userId = Auth::guard('dasher')->id();
 
-        $records = QuizRecord::where('user_id', $userId)
-            ->orderByDesc('completed_at')
+        $records = QuizRecord::where('user_id', $userId)->with(['quiz'])
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($record) {
                 return [
                     'quiz_id' => $record->quiz_id,
                     'score' => $record->score,
-                    'completed_at' => $record->completed_at->format('Y-m-d')
+                    'quiz_title' => $record->quiz->title,
+                    'created_at' => $record->created_at->format('Y-m-d')
                 ];
             });
 
         return response()->json([
             'status' => 'success',
             'records' => $records
+        ]);
+    }
+
+
+
+    public function logout(Request $request)
+    {
+        // explicitly log out the dasher guard (API users are dashers)
+        if (Auth::guard('dasher')->check()) {
+            Auth::guard('dasher')->logout();
+        }
+
+        // invalidate session/csrf token regardless
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'status' => 'success'
         ]);
     }
 }

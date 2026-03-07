@@ -4,7 +4,7 @@
     </header>
 
     <main class="center-container">
-    
+
         <div class="register-box">
             <h2>Account Registration</h2>
             <form @submit.prevent="handleRegister">
@@ -14,13 +14,14 @@
                 <input v-model="form.last_name" type="text" maxlength="50" placeholder="Last Name" />
                 <div v-if="errors.last_name" class="error">{{ errors.last_name[0] }}</div>
 
-                <input v-model="form.email" type="email" placeholder="Email Address" />
+                <input v-model="form.email" type="email" placeholder="Email Address" autocomplete="off" />
                 <div v-if="errors.email" class="error">{{ errors.email[0] }}</div>
 
-                <input v-model="form.password" type="password" placeholder="Enter Password" />
+                <input v-model="form.password" type="password" placeholder="Enter Password" autocomplete="off" />
                 <div v-if="errors.password" class="error">{{ errors.password[0] }}</div>
 
-                <input v-model="form.password_confirmation" type="password" placeholder="Re-type Password" />
+                <input v-model="form.password_confirmation" autocomplete="off" type="password"
+                    placeholder="Re-type Password" />
 
                 <div v-if="generalError" class="error">{{ generalError }}</div>
                 <button type="submit" class="register-btn" :disabled="loading">
@@ -40,7 +41,11 @@
 </template>
 
 <script setup>
+import axios from 'axios'
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const form = reactive({
     first_name: '',
@@ -55,6 +60,7 @@ const generalError = ref('')
 const loading = ref(false)
 
 
+
 const handleRegister = async () => {
     loading.value = true
     errors.value = {}
@@ -62,37 +68,27 @@ const handleRegister = async () => {
 
     try {
         // 1. Get CSRF Cookie
-        await fetch('/sanctum/csrf-cookie', { credentials: 'include' })
-
-        // 2. Extract Token
-        const token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1];
+        await axios.get('/sanctum/csrf-cookie')
 
         // 3. Post to Register API
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-XSRF-TOKEN': decodeURIComponent(token)
-            },
-            body: JSON.stringify(form)
+        const response = await axios.post('/api/register', {
+            'first_name': form.first_name,
+            'last_name': form.last_name,
+            'email': form.email,
+            'password': form.password,
+            'password': form.password
         })
 
-        const data = await response.json()
-
         if (response.status === 422) {
-            errors.value = data.errors
+            errors.value = response.errors
         } else if (response.ok) {
             // Success - redirect to login or dashboard
-            window.location.href = data.redirect || '/login'
+            router.push('/')
         } else {
             generalError.value = data.message || 'Something went wrong.'
         }
     } catch (err) {
+        console.error(err.response.data)
         generalError.value = 'Cannot connect to server.'
     } finally {
         loading.value = false

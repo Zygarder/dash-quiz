@@ -7,9 +7,9 @@
 
       <h2>My Profile</h2>
 
-      <router-link to="/" class="logout-btn">
+      <button @click="handleLogout" class="logout-btn">
         Log Out
-      </router-link>
+      </button>
     </header>
 
     <main class="main-content">
@@ -20,21 +20,21 @@
         <div class="profile-header">
 
           <div class="avatar">
-            <img :src="profileImageUrl" draggable="false" />
+            <div class="avatar">
+              <img :src="preview || profileImageUrl" draggable="false" />
+            </div>
           </div>
 
           <h2>{{ user.first_name }}</h2>
           <small>{{ user.email }}</small>
 
-          <form @submit.prevent="handleUpload" enctype="multipart/form-data">
+          <form enctype="multipart/form-data">
+
+
             <label class="file-label">
               Change Profile
               <input type="file" @change="onFileChange">
             </label>
-
-            <button class="upload-btn" :disabled="loading">
-              {{ loading ? 'Uploading...' : 'Upload' }}
-            </button>
           </form>
 
         </div>
@@ -58,8 +58,8 @@
         </div>
 
         <div class="profile-buttons">
-          <button @click="showEditModal = true">Edit Profile</button>
-          <button @click="showDeleteModal = true" class="danger">
+          <button @click="showEditModal = true" id="edit-profile">Edit Profile</button>
+          <button @click="showDeleteModal = true" class="danger" id="delete">
             Delete Account
           </button>
         </div>
@@ -76,11 +76,13 @@ import { ref, computed, onMounted } from "vue"
 import axios from "axios"
 import SideBarComp from "../../components/SideBar.vue"
 import { useSidebar } from "@/composables/useSidebar"
+import { useRouter } from "vue-router"
+import { useUser } from "@/composables/useUser"
+
+const router = useRouter()
 
 const { showSidebar, toggleSidebar, closeSidebar } = useSidebar()
-
-const user = ref(null)
-const quizzesCount = ref(0)
+const { user, fetchUser, avatar, clearUser } = useUser()
 
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
@@ -97,13 +99,25 @@ const selectedFile = ref(null)
 |--------------------------------------------------------------------------
 */
 
-const fetchProfile = async () => {
+// profile data is fetched via composable
+
+const handleLogout = async () => {
   try {
-    const { data } = await axios.get("/profile")
-    user.value = data.data
-    quizzesCount.value = data.data.quizzes_taken || 0
+
+    // correct path for logout API
+    await axios.post("/api/logout")
+
+    // clear auth flag
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userRole');
+
+    // clear global user state
+    clearUser();
+
+    router.push("/")
+
   } catch (err) {
-    console.error(err)
+    console.error("Logout failed", err)
   }
 }
 
@@ -113,51 +127,51 @@ const fetchProfile = async () => {
 |--------------------------------------------------------------------------
 */
 
+
+
 const fullName = computed(() => {
   if (!user.value) return ""
   return `${user.value.first_name} ${user.value.last_name}`
 })
 
-const profileImageUrl = computed(() => {
-  if (!user.value) return "/images/profiles/person.jpg"
+const profileImageUrl = computed(() => avatar.value)
 
-  return user.value.profile_photo
-    ? `/storage/images/profiles/${user.value.profile_photo}`
-    : "/images/profiles/person.jpg"
+const quizzesCount = computed(() => {
+  if (!user.value) return 0
+
+  return user.value.quizzes_taken || 0
 })
 
 const formattedDate = computed(() => {
   if (!user.value) return ""
 
-  const d = new Date(user.value.created_at)
-
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric"
-  })
+  return user.value.created_at || ""
 })
 
 /*
 |--------------------------------------------------------------------------
 | Upload Profile Photo
 |--------------------------------------------------------------------------
-*/
+*/const preview = ref(null)
 
-const onFileChange = (e) => {
-  selectedFile.value = e.target.files[0]
-}
+const onFileChange = async (e) => {
 
-const handleUpload = async () => {
-  if (!selectedFile.value) return
+  const file = e.target.files[0]
+  if (!file) return
+
+  selectedFile.value = file
+
+  // preview
+  preview.value = URL.createObjectURL(file)
 
   loading.value = true
 
   try {
-    const formData = new FormData()
-    formData.append("myfile", selectedFile.value)
 
-    const { data } = await axios.post("/profile/photo", formData, {
+    const formData = new FormData()
+    formData.append("photo", file)
+
+    const { data } = await axios.post("/api/profile/photo", formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       }
@@ -165,17 +179,20 @@ const handleUpload = async () => {
 
     successMessage.value = "Profile updated!"
 
-    if (data.new_photo) {
-      user.value.profile_photo = data.new_photo
+    if (data.photo_url) {
+      user.value.profile_photo = data.photo_url
+    } else if (data.new_photo) {
+      user.value.profile_photo = `/storage/images/profiles/${data.new_photo}`
     }
 
-  } catch {
+  } catch (err) {
     errorMessage.value = "Upload failed."
   } finally {
     loading.value = false
     triggerAlertTimeout()
   }
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -195,8 +212,8 @@ const triggerAlertTimeout = () => {
 |--------------------------------------------------------------------------
 */
 
-onMounted(() => {
-  fetchProfile()
+onMounted(async () => {
+  await fetchUser()
 })
 </script>
 

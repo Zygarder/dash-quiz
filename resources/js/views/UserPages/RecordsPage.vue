@@ -8,7 +8,7 @@
             <button class="menu-btn" @click="toggleSidebar">&#9776;</button>
 
             <router-link to="/profile">
-                <img :src="profilePhoto" class="top-avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #ccc;"/>
+                <img :src="avatar" class="user-avatar top-avatar" />
             </router-link>
         </header>
 
@@ -38,11 +38,11 @@
 
                         <tbody>
 
-                            <tr v-for="record in filteredRecords" :key="record.quiz_id">
+                            <tr v-for="record in filteredRecords">
 
                                 <td>{{ record.created_at }}</td>
-                                <td>{{ record.topic }}</td>
-                                <td>{{ record.score }}</td>
+                                <td>{{ record.quiz_title }}</td>
+                                <td>{{ record.score }} / 10</td>
 
                             </tr>
 
@@ -66,12 +66,13 @@
 import { ref, computed, onMounted } from "vue"
 import axios from "axios"
 import SideBarComp from "@/components/SideBar.vue"
+import { useUser } from "@/composables/useUser"
 
+const { user, fetchUser, avatar } = useUser()
 const records = ref([])
 const searchQuery = ref("")
 const showSidebar = ref(false)
 
-const profilePhoto = ref("/images/profiles/person.jpg")
 
 /*
 |--------------------------------------------------------------------------
@@ -81,15 +82,8 @@ const profilePhoto = ref("/images/profiles/person.jpg")
 
 const fetchRecords = async () => {
     try {
-        const { data } = await axios.get("/records")
-
-        records.value = data.records.map(r => ({
-            quiz_id: r.quiz_id,
-            topic: r.quiz_title || "N/A",
-            score: `${r.score}`,
-            created_at: r.completed_at
-        }))
-
+        const { data } = await axios.get("api/records")
+        records.value = data.records
     } catch (err) {
         console.error(err)
     }
@@ -105,8 +99,8 @@ const filteredRecords = computed(() => {
     if (!searchQuery.value) return records.value
 
     return records.value.filter(record =>
-        record.topic.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        record.score.includes(searchQuery.value)
+        record.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        record.score.toString().includes(searchQuery.value)
     )
 })
 
@@ -126,11 +120,10 @@ const toggleSidebar = () => {
 |--------------------------------------------------------------------------
 */
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchUser()
     fetchRecords()
 })
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
