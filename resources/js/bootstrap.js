@@ -11,6 +11,7 @@ window.axios = axios;
 // This is the "magic" part for Sanctum
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
+axios.defaults.baseURL = "http://localhost:8000"
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Accept'] = 'application/json';
 
