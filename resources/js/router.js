@@ -87,7 +87,7 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
-        path: '/admin/quizzes/edit/:id',
+        path: '/admin/quizzes/:id/edit',
         component: QuizEdit,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
