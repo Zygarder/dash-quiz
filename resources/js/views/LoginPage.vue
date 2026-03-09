@@ -143,5 +143,9 @@ const handleLogin = async () => {
     box-shadow: 0px 1px 0.5px 1px rgba(255, 255, 255, 1);
 }
 
-/* Add your existing .container, .login-box, etc. styles here */
+.register-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none; 
+}
 </style>
