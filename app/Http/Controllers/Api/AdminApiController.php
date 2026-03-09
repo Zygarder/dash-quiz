@@ -17,6 +17,7 @@ class AdminApiController extends Controller
     ###############################################
     # LOGIN API
     ###############################################
+
     public function login(Request $request)
     {
         $valid = $request->validate([
@@ -24,16 +25,24 @@ class AdminApiController extends Controller
             'password' => 'required'
         ]);
 
+        //renegerate a session for admin
         if (Auth::guard('admin')->attempt($valid)) {
+
             $request->session()->regenerate();
+
             return response()->json([
                 'status' => 'success',
                 'role' => 'admin'
             ], 200);
         }
 
+        //renegerate a session for user
         if (Auth::guard('dasher')->attempt($valid)) {
+            $id = Auth::guard('dasher')->user()->id;
+
             $request->session()->regenerate();
+            DB::update("UPDATE dasher SET active_status = 1 WHERE id = ?", [$id]);
+
             return response()->json([
                 'status' => 'success',
                 'role' => 'dasher'
@@ -49,6 +58,7 @@ class AdminApiController extends Controller
     ###############################################
     # REGISTER API
     ###############################################
+
     public function register(Request $request)
     {
         $valid = $request->validate([
@@ -62,7 +72,7 @@ class AdminApiController extends Controller
             'first_name' => $valid['first_name'],
             'last_name' => $valid['last_name'],
             'email' => $valid['email'],
-            'password' => Hash::make($valid['password']),
+            'password' => Hash::make($valid['password'])
         ]);
 
         return response()->json([

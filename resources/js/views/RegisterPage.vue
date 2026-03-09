@@ -8,20 +8,24 @@
         <div class="register-box">
             <h2>Account Registration</h2>
             <form @submit.prevent="handleRegister">
-                <input v-model="form.first_name" type="text" maxlength="50" placeholder="First Name" />
+                <input v-model.trim="form.first_name" type="text" maxlength="50" placeholder="First Name"
+                    :class="{ 'invalid-input': errors.first_name }" />
                 <div v-if="errors.first_name" class="error">{{ errors.first_name[0] }}</div>
 
-                <input v-model="form.last_name" type="text" maxlength="50" placeholder="Last Name" />
+                <input v-model.trim="form.last_name" type="text" maxlength="50" placeholder="Last Name"
+                    :class="{ 'invalid-input': errors.last_name }" />
                 <div v-if="errors.last_name" class="error">{{ errors.last_name[0] }}</div>
 
-                <input v-model="form.email" type="email" placeholder="Email Address" autocomplete="off" />
+                <input v-model.trim="form.email" type="email" placeholder="Email Address" autocomplete="off"
+                    :class="{ 'invalid-input': errors.email }" />
                 <div v-if="errors.email" class="error">{{ errors.email[0] }}</div>
 
-                <input v-model="form.password" type="password" placeholder="Enter Password" autocomplete="off" />
+                <input v-model.trim="form.password" type="password" placeholder="Enter Password" autocomplete="off"
+                    :class="{ 'invalid-input': errors.password }" />
                 <div v-if="errors.password" class="error">{{ errors.password[0] }}</div>
 
-                <input v-model="form.password_confirmation" autocomplete="off" type="password"
-                    placeholder="Re-type Password" />
+                <input v-model.trim="form.password_confirmation" autocomplete="off" type="password"
+                    placeholder="Re-type Password" :class="{ 'invalid-input': errors.password_confirmation }" />
 
                 <div v-if="generalError" class="error">{{ generalError }}</div>
                 <button type="submit" class="register-btn" :disabled="loading">
@@ -44,6 +48,7 @@
 import axios from 'axios'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import CryptoJS from 'crypto-js'
 
 const router = useRouter()
 
@@ -60,7 +65,6 @@ const generalError = ref('')
 const loading = ref(false)
 
 
-
 const handleRegister = async () => {
     loading.value = true
     errors.value = {}
@@ -70,26 +74,31 @@ const handleRegister = async () => {
         // 1. Get CSRF Cookie
         await axios.get('/sanctum/csrf-cookie')
 
+        // hashed before sending, to prevent sending plain text
+        const hashed_password = CryptoJS.SHA256(form.password).toString()
+        const hashed_confirmation = CryptoJS.SHA256(form.password_confirmation).toString()
+
         // 3. Post to Register API
         const response = await axios.post('/api/register', {
             'first_name': form.first_name,
             'last_name': form.last_name,
             'email': form.email,
-            'password': form.password,
-            'password': form.password
+            'password': hashed_password,
+            'password_confirmation': hashed_confirmation
         })
 
         if (response.status === 422) {
             errors.value = response.errors
-        } else if (response.ok) {
+        } else if (response.data) {
             // Success - redirect to login or dashboard
             router.push('/')
         } else {
             generalError.value = data.message || 'Something went wrong.'
         }
+
     } catch (err) {
-        console.error(err.response.data)
-        generalError.value = 'Cannot connect to server.'
+        console.log(err.response.data)
+        errors.value = err.response.data.errors
     } finally {
         loading.value = false
     }
@@ -175,6 +184,11 @@ const handleRegister = async () => {
     margin-top: -5px;
     margin-bottom: 5px;
 }
+
+.invalid-input {
+    border: 1px solid red !important;
+}
+
 
 .small-text {
     text-align: center;

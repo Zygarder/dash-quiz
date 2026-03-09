@@ -39,21 +39,39 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.sidebar {
-    position: fixed;
-    left: -250px;
-    top: 0;
-    height: 100%;
-    width: 250px;
-    background-color: #4b3fc2;
-    color: #fff;
-    padding: 30px 20px;
-    transition: left 0.3s ease;
-    z-index: 1000;
+<style scoped>.sidebar {
+  position: fixed;
+  left: -250px;
+  top: 0;
+  height: 100%;
+  width: 250px;
+  background-color: #4b3fc2;
+  color: #fff;
+  padding: 30px 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0 10px 10px 0;
 }
 
 .sidebar.active {
-    left: 0;
+  left: 0;
+}
+
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: white;
+  color: #4b3fc2;
 }
 </style>

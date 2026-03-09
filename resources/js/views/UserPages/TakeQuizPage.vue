@@ -21,19 +21,6 @@
                     <div class="progress-bar" :style="{ width: progress + '%' }"></div>
                 </div>
 
-                <!-- Option Statistics -->
-                <div class="option-stats">
-                    <h4>Your Choice Pattern:</h4>
-                    <div class="stats-grid">
-                        <div v-for="(count, label) in optionStats" :key="label" class="stat-item">
-                            <span class="stat-label">{{ label }}:</span>
-                            <span class="stat-count">{{ count }}</span>
-                            <div class="stat-bar">
-                                <div class="stat-fill" :style="{ width: getOptionPercentage(label) + '%' }"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="question-box">
                     <h3>Q{{ currentQuestion.question_number }}. {{ currentQuestion.text }}</h3>
@@ -83,8 +70,8 @@ const currentQuestion = computed(() => questions.value[currentIndex.value] || {}
 const progress = computed(() => ((currentIndex.value) / questions.value.length) * 100)
 
 const getOptionPercentage = (label) => {
-  const total = Object.values(optionStats.value).reduce((sum, count) => sum + count, 0)
-  return total > 0 ? (optionStats.value[label] / total) * 100 : 0
+    const total = Object.values(optionStats.value).reduce((sum, count) => sum + count, 0)
+    return total > 0 ? (optionStats.value[label] / total) * 100 : 0
 }
 
 const fetchQuiz = async () => {
@@ -178,140 +165,201 @@ onMounted(() => {
     fetchQuiz()
 })
 </script>
-
 <style scoped>
-/* include similar styles from blade for question layout */
-.quiz-container {
-    max-width: 600px;
-    margin: auto;
+/* ===== MAIN CONTAINER ===== */
+.take-quiz-page .container {
+    max-width: 700px;
+    margin: 40px auto;
     padding: 20px;
-    background: #fff;
-    border-radius: 12px;
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    font-family: 'Inter', sans-serif;
 }
 
-.progress-wrapper {
-    background: #eee;
-    height: 8px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: #4b3fc2;
-    transition: width 0.3s;
-}
-
-.question-box h3 {
-    margin-bottom: 10px;
-}
-
-.option {
-    margin: 8px 0;
-}
-
-.submit-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
+/* ===== QUIZ HEADER ===== */
 .quiz-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .quiz-header h2 {
     color: #4b3fc2;
+    font-weight: 800;
+    font-size: 2rem;
     margin-bottom: 5px;
 }
 
 .quiz-stats {
     color: #666;
-    font-size: 14px;
+    font-size: 0.9rem;
 }
 
-.option-label {
-    font-weight: bold;
-    color: #4b3fc2;
-    margin-right: 8px;
-}
-
-.option-stats {
-    background: #f8f9fa;
-    padding: 15px;
+/* ===== PROGRESS BAR ===== */
+.progress-wrapper {
+    width: 100%;
+    background: #eee;
+    height: 10px;
     border-radius: 8px;
+    overflow: hidden;
     margin-bottom: 20px;
 }
 
-.option-stats h4 {
-    margin-bottom: 10px;
-    color: #333;
-    text-align: center;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-label {
-    font-weight: bold;
-    color: #4b3fc2;
-    display: block;
-    margin-bottom: 2px;
-}
-
-.stat-count {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 5px;
-}
-
-.stat-bar {
-    height: 4px;
-    background: #eee;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.stat-fill {
+.progress-bar {
     height: 100%;
     background: linear-gradient(90deg, #4b3fc2, #6c5ce7);
-    transition: width 0.3s ease;
+    width: 0;
+    border-radius: 8px;
+    transition: width 0.4s ease;
 }
 
-.loading-container,
-.error-container {
-    max-width: 600px;
-    margin: auto;
-    padding: 40px 20px;
-    text-align: center;
+/* ===== QUESTION BOX ===== */
+.question-box {
     background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.question-box h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    border: 1px solid #000;
+    padding: 10px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+/* ===== OPTIONS AS BUTTONS ===== */
+.option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.option input[type="radio"] {
+    display: none;
+}
+
+.option label {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
     border-radius: 12px;
+    border: 2px solid #4b3fc2;
+    background: #fff;
+    color: #4b3fc2;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.option input[type="radio"]:checked+label {
+    background: #4b3fc2;
+    color: #fff;
+    box-shadow: 0 8px 15px rgba(75, 63, 194, 0.3);
+    transform: translateY(-2px);
+}
+
+.option label:hover {
+    background: #f0f0ff;
+}
+
+/* ===== SUBMIT BUTTON CENTERED ===== */
+.submit-btn {
+    margin: 0 auto;
+    display: block;
+    background-color: #4b3fc2;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background-color: #3a2d99;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(75, 63, 194, 0.3);
+}
+
+.submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* ===== LOADING STATE ===== */
+.loading-container {
+    text-align: center;
+    padding: 50px 20px;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* ===== ERROR STATE ===== */
+.error-container {
+    background: #fff0f0;
+    border: 1px solid #f4cccc;
+    border-radius: 16px;
+    padding: 40px 25px;
+    text-align: center;
 }
 
 .error-container h2 {
     color: #e74c3c;
-    margin-bottom: 10px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.error-container p {
+    color: #a94442;
+    margin-bottom: 20px;
+    font-size: 1rem;
 }
 
 .back-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #4b3fc2;
+    background-color: #4b3fc2;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    padding: 12px 28px;
+    border-radius: 12px;
     cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-    background: #3a2d99;
+    background-color: #3a2d99;
+    transform: translateY(-1px);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+    .question-box h3 {
+        font-size: 1.1rem;
+        
+    }
+
+    .option label {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+    .submit-btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
 }
 </style>

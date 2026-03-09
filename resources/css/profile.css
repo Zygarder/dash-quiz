@@ -1,3 +1,245 @@
+<template>
+  <div class="profile-page-wrapper">
+    <SideBarComp :show="showSidebar" @close="closeSidebar" />
+    <!-- Top Bar -->
+    <TopBar />
+
+    <main class="main-content">
+
+      <div class="profile-card" v-if="user">
+
+        <!-- Avatar -->
+        <div class="profile-header">
+
+          <div class="avatar">
+            <img :src="preview || profileImageUrl" draggable="false" />
+          </div>
+
+          <h2>{{ user.first_name }}</h2>
+          <small>{{ user.email }}</small>
+
+          <form enctype="multipart/form-data">
+
+
+            <label class="file-label">
+              Change Profile
+              <input type="file" @change="onFileChange">
+            </label>
+          </form>
+
+        </div>
+
+        <!-- Profile Details -->
+        <div class="profile-details">
+          <div class="detail-row">
+            <span>Full Name:</span>
+            <b>{{ fullName }}</b>
+          </div>
+
+          <div class="detail-row">
+            <span>Date Joined:</span>
+            <b>{{ formattedDate }}</b>
+          </div>
+
+          <div class="detail-row">
+            <span>Quizzes Taken:</span>
+            <b>{{ quizzesCount || 0 }}</b>
+          </div>
+        </div>
+
+        <div class="profile-buttons">
+          <button @click="showEditModal = true" id="edit-profile">Edit Profile</button>
+          <button @click="showDeleteModal = true" class="danger" id="delete">
+            Delete Account
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+    <EditProfileModal :show="showEditModal" :user="user" @close="showEditModal = false" @save="updateProfile" />
+
+    <DeleteAccountModal :show="showDeleteModal" @close="showDeleteModal = false" @delete="deleteAccount" />
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from "vue"
+import axios from "axios"
+import SideBarComp from "../../components/SideBar.vue"
+import { useSidebar } from "@/composables/useSidebar"
+import { useRouter } from "vue-router"
+import { useUser } from "@/composables/useUser"
+import DeleteAccountModal from "../../components/ProfileModals/DeleteModal.vue"
+import EditProfileModal from "../../components/ProfileModals/EditModal.vue"
+import TopBar from "../../components/TopBar.vue"
+
+const router = useRouter()
+
+const { showSidebar, toggleSidebar, closeSidebar } = useSidebar()
+const { user, fetchUser, avatar, clearUser } = useUser()
+
+const showEditModal = ref(false)
+const showDeleteModal = ref(false)
+
+const successMessage = ref("")
+const errorMessage = ref("")
+
+const loading = ref(false)
+const selectedFile = ref(null)
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Profile
+|--------------------------------------------------------------------------
+*/
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Edit Modal
+|--------------------------------------------------------------------------
+*/
+const updateProfile = async (formData) => {
+  try {
+
+    const { data } = await axios.put("/api/profile/update", formData)
+
+    user.value.first_name = data.user.first_name
+    user.value.last_name = data.user.last_name
+    user.value.email = data.user.email
+
+    showEditModal.value = false
+    successMessage.value = "Profile updated!"
+
+  } catch (err) {
+
+    errorMessage.value = "Update failed."
+
+  }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Delete Modal
+|--------------------------------------------------------------------------
+*/
+const deleteAccount = async () => {
+
+  try {
+
+    await axios.delete("/api/profile/delete")
+
+    clearUser()
+
+    router.push("/")
+
+  } catch (err) {
+
+    errorMessage.value = "Account deletion failed."
+
+  }
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Computed
+|--------------------------------------------------------------------------
+*/
+
+
+
+const fullName = computed(() => {
+  if (!user.value) return ""
+  return user.value.full_name
+})
+
+const profileImageUrl = computed(() => avatar.value)
+
+const quizzesCount = computed(() => {
+  if (!user.value) return 0
+
+  return user.value.quizzes_taken || 0
+})
+
+const formattedDate = computed(() => {
+  if (!user.value) return ""
+
+  return user.value.created_at || ""
+})
+
+/*
+|--------------------------------------------------------------------------
+| Upload Profile Photo
+|--------------------------------------------------------------------------
+*/const preview = ref(null)
+
+const onFileChange = async (e) => {
+
+  const file = e.target.files[0]
+  if (!file) return
+
+  selectedFile.value = file
+
+  // preview
+  preview.value = URL.createObjectURL(file)
+
+  loading.value = true
+
+  try {
+
+    const formData = new FormData()
+    formData.append("photo", file)
+
+    const { data } = await axios.post("/api/profile/photo", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+
+    successMessage.value = "Profile updated!"
+
+    if (data.photo_url) {
+      user.value.profile_photo = data.photo_url
+    } else if (data.new_photo) {
+      user.value.profile_photo = `/storage/images/profiles/${data.new_photo}`
+    }
+
+  } catch (err) {
+    errorMessage.value = "Upload failed."
+  } finally {
+    loading.value = false
+    triggerAlertTimeout()
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Utilities
+|--------------------------------------------------------------------------
+*/
+
+const triggerAlertTimeout = () => {
+  setTimeout(() => {
+    successMessage.value = ""
+    errorMessage.value = ""
+  }, 5000)
+}
+/*
+|--------------------------------------------------------------------------
+| Lifecycle
+|--------------------------------------------------------------------------
+*/
+
+onMounted(async () => {
+  await fetchUser()
+})
+</script>
+
+<style scoped>
 /* === PROFILE CARD MAIN CONTAINER === */
 .profile-card {
   width: 450px;
@@ -188,7 +430,6 @@
 
 .modal-content h3 {
   margin-bottom: 1rem;
-  color: brown;
   font-weight: 700;
 }
 
@@ -269,3 +510,4 @@
     transform: translateY(0);
   }
 }
+</style>

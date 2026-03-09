@@ -38,7 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/records', [UserApiController::class, 'records']);
 
     // Profile
-    Route::get('/profile', [UserApiController::class, 'profile']);
     Route::put('/profile/update', [ProfileApiController::class, 'updateProfile']);
     Route::put('/profile/password', [ProfileApiController::class, 'updatePassword']);
     Route::post('/profile/photo', [ProfileApiController::class, 'uploadPhoto']);

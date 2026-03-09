@@ -65,69 +65,123 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.result-box {
-    margin: auto;
-    padding: 20px;
-    text-align: center;
-    max-width: 400px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+/* === PAGE CONTAINER === */
+.quiz-result-page {
+    min-height: 100vh;
+    background: #f5f5f8;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
-.result-box h2 {
-    color: #4b3fc2;
-    margin-bottom: 10px;
-}
-
-.result-box p {
-    color: #666;
-    margin-bottom: 20px;
-}
-
-.result-box button {
-    padding: 12px 24px;
-    background: #4b3fc2;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s;
-}
-
-.result-box button:hover {
-    background: #3a2d99;
-}
-
-/* Header and sidebar styles */
+/* === TOP BAR === */
 .top-bar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 15px 20px;
-    background: #fff;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    background-color: #4b3fc2;
+    padding: 12px 20px;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .menu-btn {
     cursor: pointer;
-    font-size: 24px;
-    background: none;
-    border: none;
-    color: #333;
+    font-size: 1.4rem;
 }
 
-.profile-img {
+.user-avatar.profile-img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    border: 2px solid #fff;
     object-fit: cover;
-    border: 1px solid #ccc;
 }
 
-.quiz-result-page {
-    min-height: 100vh;
-    background: #f5f5f5;
+/* === MAIN CONTAINER === */
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+}
+
+/* === RESULT BOX === */
+.result-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    max-width: 400px;
+    width: 100%;
+    animation: fadeIn 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.result-box h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #4b3fc2;
+}
+
+.result-box p {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* === BUTTON === */
+.result-box button {
+    background-color: #4b3fc2;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.result-box button:hover {
+    background-color: #3a2d99;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(75, 63, 194, 0.3);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 500px) {
+    .result-box {
+        padding: 30px 20px;
+    }
+
+    .result-box h2 {
+        font-size: 1.6rem;
+    }
+
+    .result-box p {
+        font-size: 1rem;
+    }
+
+    .top-bar {
+        padding: 10px 15px;
+    }
+}
+
+/* === ANIMATION === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>

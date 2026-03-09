@@ -37,17 +37,20 @@ class ProfileApiController extends Controller
         $user = Auth::guard('dasher')->user();
 
         $valid = $request->validate([
-            'fullName' => 'required|string|max:55',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:dasher|max:255',
+            'password' => 'nullable|string|confirmed|min:6',
         ]);
 
-        $fullName = explode(' ', $valid['fullName'], 2);
-        $user->first_name = $fullName[0];
-        $user->last_name = $fullName[1] ?? '';
+        $user->first_name = $valid['first_name'];
+        $user->last_name = $valid['last_name'] ?? '';
+        $user->email = $valid['email'];
+        $user->password = Hash::make($valid['password']);
         $user->save();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Profile updated successfully',
             'data' => $user
         ]);
     }

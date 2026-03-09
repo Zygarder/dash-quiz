@@ -94,7 +94,7 @@ class AdminController extends Controller
             'first_name' => $valid['first_name'],
             'last_name' => $valid['last_name'],
             'email' => $valid['email'],
-            'password' => Hash::make($valid['password']),
+            'password' => hash('sha256', $valid['password']),
         ]);
 
         Auth::guard('dasher')->login($dasher);

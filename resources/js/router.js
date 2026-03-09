@@ -6,10 +6,11 @@ import Records from './views/UserPages/RecordsPage.vue'
 import QuizPage from './views/UserPages/QuizPage.vue'
 import TakeQuizPage from './views/UserPages/TakeQuizPage.vue'
 import QuizResult from './views/UserPages/QuizResult.vue'
-import ForgotPage from './views/UserPages/ForgotPage.vue'
+
 // Landing Page
 import LoginPage from './views/LoginPage.vue'
 import RegisterPage from './views/RegisterPage.vue'
+import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'

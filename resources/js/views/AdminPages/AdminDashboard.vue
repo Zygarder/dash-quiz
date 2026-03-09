@@ -28,5 +28,7 @@ onMounted(fetchStats)
 </script>
 
 <style scoped>
-.admin-dashboard{padding:20px;}
+.admin-dashboard {
+  padding: 20px;
+}
 </style>

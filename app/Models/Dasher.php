@@ -30,7 +30,6 @@ class Dasher extends Authenticatable
 
     public function get_profile()
     {
-
         return $this->profile_photo
             ? asset('storage/images/profiles/' . $this->profile_photo)
             : asset('images/profiles/person.jpg'); // fallback

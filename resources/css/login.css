@@ -1,233 +1,168 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
-  header{
-  position: sticky;
-  top: 0;
-  z-index: 999;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: #fff;
-  color: #000;
+/* 1. The Top Bar / Header */
+.top-bar {
+    background-color: #4b3fc2;
+    color: #fff;
+    padding: 15px 20px;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Main Section Layout */
+/* 2. Main Layout Container */
 .container {
-  height: 100vh;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 0;
+    min-height: calc(100vh - 110px); /* Adjust for header/footer height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 40px;
 }
 
+/* 3. Left Text Section */
 .left-section {
-  flex: 1 1 50%;
-  min-width: 300px;
+    flex: 1 1 400px;
+    max-width: 500px;
 }
 
 .left-section h1 {
-  font-size: 2.5rem;
-  text-align: center;
-  font-weight: 800;
-  line-height: 1.2;
-  text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    font-size: clamp(2rem, 5vw, 3rem); /* Responsive font size */
+    text-align: left;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #2d2d2d;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Right Login Box */
-.right-section {
-  flex: 1 1 300px;
-  display: flex;
-  height: auto;
-  justify-content: center;
-  align-items: center;
-}
-
+/* 4. Login Box Card */
 .login-box {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  width: 100%;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 0.3s ease;
 }
 
-.login-box input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+/* 5. Inputs & Validation */
+input {
+    padding: 14px;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    outline: none;
+    background: #fdfdfd;
 }
 
+input:focus {
+    border-color: #4b3fc2;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(75, 63, 194, 0.1);
+}
+
+.invalid-input {
+    border-color: #ff4d4d !important;
+    background-color: #fffafa;
+}
+
+.error {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    margin-top: -8px;
+    font-weight: 500;
+}
+
+/* 6. Buttons */
 .login-btn {
-  background-color: #4b3fc2;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
+    background-color: #4b3fc2;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s;
+    margin-top: 10px;
 }
 
-.login-btn:hover {
-  background-color: #3a32a8;
+.login-btn:hover:not(:disabled) {
+    background-color: #3a32a8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 63, 194, 0.3);
 }
 
-.forgot {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #555;
-  text-decoration: none;
+.login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .register-btn {
-  background-color: #00a02b;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
+    background-color: #00a02b;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s;
 }
 
 .register-btn:hover {
-  background-color: #008822;
+    background-color: #008822;
 }
 
-/* Footer */
-footer {
-  width: 100%;
-  position: fixed;
-  left: 0;
-  text-align: center;
-  bottom: 0;
-  background-color: #4b3fc2;
-  color: #fff;
-  padding: 10px;
-  font-size: 0.85rem;
-}
-
-
-@media (max-width: 576px) {
-  .container {
-    height: 70vh;
-  }
-
-  .left-section h1 {
-    display: none;
-  }
-
-  .login-box {
-    padding: 30px;
-  }
-
-  .top-bar {
-    font-size: 0.8rem;
-    text-align: center;
-  }
-
-  footer {
-    font-size: 0.75rem;
-  }
-}
-
-/* Registration Box */
-.register-box {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 30px;
-  width: 100%;
-  max-width: 350px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.register-box h2 {
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.register-box input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 0.9rem;
-}
-
-.register-box button {
-  margin-top: 5px;
-}
-
+/* 7. Typography & Helpers */
 .small-text {
-  font-size: 0.8rem;
-  color: #444;
-  text-align: center;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin: 5px 0;
 }
 
-.small-text a {
-  color: #008822;
-  text-decoration: none;
-  font-weight: 600;
+.forgot {
+    color: #4b3fc2;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
 }
 
-
-
-/* Reset Password */
-.reset-box {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 30px;
-  width: 100%;
-  max-width: 340px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.forgot:hover {
+    text-decoration: underline;
 }
 
-.reset-box h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+/* 8. Footer Fix */
+footer {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fc;
+    border-top: 1px solid #eee;
+    color: #888;
+    font-size: 0.85rem;
 }
 
-.reset-box p {
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 15px;
-  line-height: 1.3;
-}
-
-.reset-box input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.reset-box button {
-  width: 100%;
-}
-
-.reset-box .small-text {
-  margin-top: 10px;
-  font-size: 0.8rem;
-}
-
-.reset-box .small-text a {
-  color: #00a02b;
-  text-decoration: none;
-  font-weight: 600;
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        text-align: center;
+        padding-top: 40px;
+    }
+    
+    .left-section {
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .left-section h1 {
+        text-align: center;
+    }
 }

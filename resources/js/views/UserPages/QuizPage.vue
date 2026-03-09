@@ -1,15 +1,6 @@
 <template>
     <div class="dash-quiz">
-        <SideBarComp :show="showSidebar" @close="closeSidebar" />
-
-        <header class="top-bar">
-            <div class="menu-btn" @click="toggleSidebar">&#9776;</div>
-            <p>CHOOSE YOUR QUIZ</p>
-
-            <router-link to="/profile">
-                <img :src="avatar" alt="DP" class="user-avatar profile-img">
-            </router-link>
-        </header>
+        <TopBar />
 
         <main class="container">
             <section class="challenge-container">
@@ -29,13 +20,11 @@
 </template>
 
 <script setup>
-import SideBarComp from "../../components/SideBar.vue"
-import { useSidebar } from "@/composables/useSidebar"
 import { useUser } from "@/composables/useUser"
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import TopBar from "../../components/TopBar.vue"
 
-const { showSidebar, toggleSidebar, closeSidebar } = useSidebar()
 const { user, fetchUser, avatar } = useUser()
 
 // quizzes data
@@ -59,36 +48,113 @@ onMounted(async () => {
 })
 
 </script>
-
 <style scoped>
-/* Scoped styles replace your <style> block and external CSS imports */
-.quiz-choice {
-    display: inline-block;
-    margin: 10px;
-    text-decoration: none;
+/* === DASH QUIZ LAYOUT === */
+.dash-quiz {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f8;
+  
 }
 
+/* === QUIZ SECTION CONTAINER === */
+.challenge-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.challenge-container h2 {
+  font-size: 1.8rem;
+  color: #2d2d2d;
+  margin-bottom: 30px;
+  font-weight: 800;
+  position: relative;
+  display: inline-block;
+  animation: fadeIn 1s ease;
+}
+
+/* Heading underline accent */
+.challenge-container h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #4b3fc2;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* === QUIZ GRID === */
 .quiz-container {
-    text-align: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* Add other top-bar styles from your style.css here */
+/* === QUIZ LINK WRAPPER === */
+.quiz-choice {
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.profile-img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #ccc;
+.quiz-choice:hover {
+  transform: translateY(-3px);
 }
 
-.menu-btn {
-    cursor: pointer;
-    font-size: 24px;
+/* === QUIZ CARD BUTTON === */
+.competency-btn {
+  background-color: #fff;
+  color: #3f2f87;
+  border: 2px solid #3f2f87;
+  padding: 30px 20px;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.quiz-choice:hover .competency-btn {
+  background-color: #3f2f87;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(63, 47, 135, 0.2);
+  transform: translateY(-3px);
+}
+
+/* === MOBILE ADJUSTMENTS === */
+@media (max-width: 600px) {
+  .quiz-container {
+    grid-template-columns: 1fr;
+  }
+
+  .challenge-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .competency-btn {
+    padding: 25px 15px;
+    font-size: 1rem;
+  }
+}
+
+/* === FADE IN ANIMATION === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
 use App\Models\QuizRecord;
+use App\Models\Dasher;
 use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends Controller
@@ -20,11 +21,10 @@ class UserApiController extends Controller
             ->get()
             ->map(function ($record) {
                 return [
-                    'all' => $record,
-                    'name' => $record->user->first_name . ' ' . $record->user->last_name,
+                    'name' => "{$record->user->first_name} {$record->user->last_name}",
                     'profile_photo' => $record->user->profile_photo
-                        ? '/storage/images/profiles/' . $record->user->profile_photo
-                        : null,
+                        ? $record->user->profile_photo
+                        : 'default.png',
                     'score' => $record->score,
                     'quiz_title' => $record->quiz->title,
                     'user_id' => $record->user_id
@@ -59,11 +59,9 @@ class UserApiController extends Controller
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
-                'full_name' => $user->first_name . ' ' . $user->last_name,
+                'full_name' => "{$user->first_name} {$user->last_name}",
                 'email' => $user->email,
-                'profile_photo' => $user->profile_photo
-                    ? '/storage/images/profiles/' . $user->profile_photo
-                    : null,
+                'profile_photo' => $user->profile_photo ?? 'default.png',
                 'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
                 'created_at' => $user->created_at->format('F j, Y')
             ]
@@ -93,12 +91,12 @@ class UserApiController extends Controller
         ]);
     }
 
-
-
     public function logout(Request $request)
     {
         // explicitly log out the dasher guard (API users are dashers)
         if (Auth::guard('dasher')->check()) {
+            $id = Auth::guard('dasher')->user()->id;
+            Dasher::where('id', $id)->update(['active_status' => 0]);
             Auth::guard('dasher')->logout();
         }
 
@@ -106,8 +104,5 @@ class UserApiController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'status' => 'success'
-        ]);
     }
 }

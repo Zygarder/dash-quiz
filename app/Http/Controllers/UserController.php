@@ -62,9 +62,9 @@ class UserController extends Controller
 
     public function LogoutUser(Request $request)
     {
-        Dasher::where('id', Auth::guard('dasher')
-            ->user()->id)
-            ->update(['active_status' => false]);
+        $id = Auth::guard('dasher')
+            ->user()->id;
+        Dasher::where('id', $id)->update(['active_status' => false]);
         Auth::guard('dasher')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
