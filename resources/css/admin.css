@@ -4,7 +4,7 @@ body {
     background-color: #f8f8f8;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
 }
 header{
     position:sticky;
@@ -137,6 +137,9 @@ button {
     overflow-y: auto;
     margin-left: 240px; /* Pushes content to the right so sidebar doesn't cover it */
     width: calc(100% - 240px);
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
 }
 
 .admin-stats {
@@ -197,6 +200,9 @@ button {
 /* === Users Table === */
 .admin-section {
     margin: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .section-title {
@@ -238,10 +244,12 @@ button {
 
 .quiz-table .quiz-table-header,
 .quiz-table .quiz-table-row {
+    width: 100;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 3fr 1fr;
     padding: 10px 15px;
     align-items: center;
+    
 }
 
 .quiz-table .quiz-table-header {
