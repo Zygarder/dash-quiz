@@ -5,10 +5,33 @@
  */
 
 import axios from 'axios';
+import router from './router'; // <--- ADD THIS IMPORT
 window.axios = axios;
 
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// This is the "magic" part for Sanctum
+axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common['Accept'] = 'application/json';
 
+axios.interceptors.response.use(
+    (response) => response, // If the request is successful, just return the response
+    (error) => {
+        // Check if the error is 401 (Unauthorized)
+        if (error.response && error.response.status === 401) {
+            // remove client flags so router guard stops allowing access
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userRole');
+
+            // Clear your local user state if you use a Store (Vuex/Pinia)
+            // userStore.logout(); 
+
+            // Redirect the user to the login page
+            router.push({ name: 'login' });
+        }
+        return Promise.reject(error);
+    }
+);
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

@@ -1,16 +1,20 @@
 {
+    "name": "dash-quiz",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "dev": "vite",
         "build": "vite build"
     },
     "devDependencies": {
-        "axios": "^1.1.2",
+        "@vitejs/plugin-vue": "^4.6.2",
+        "axios": "^1.13.6",
         "laravel-vite-plugin": "^0.7.2",
         "vite": "^4.0.0"
     },
     "dependencies": {
-        "@vitejs/plugin-vue": "^4.6.2",
-        "vue": "^3.5.29"
+        "@vitejs/plugin-vue": "^6.0.1",
+        "vue": "^3.5.18",
+        "vue-router": "^4.5.1"
     }
 }

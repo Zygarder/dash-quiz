@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\QuizRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,7 @@ class ProfileApiController extends Controller
     public function getProfile()
     {
         $user = Auth::guard('dasher')->user();
+        $quizzes_count = QuizRecord::where('user_id', $user->id)->count();
 
         return response()->json([
             'status' => 'success',
@@ -22,7 +24,9 @@ class ProfileApiController extends Controller
                 'last_name' => $user->last_name,
                 'full_name' => $user->first_name . ' ' . $user->last_name,
                 'email' => $user->email,
-                'profile_photo' => $user->profile_photo ? asset('storage/images/profiles/' . $user->profile_photo) : null
+                'profile_photo' => $user->profile_photo ? '/storage/images/profiles/' . $user->profile_photo : null,
+                'created_at' => $user->created_at->format('F j, Y'),
+                'quizzes_taken' => $quizzes_count
             ]
         ]);
     }
@@ -93,7 +97,8 @@ class ProfileApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Profile photo updated successfully',
-            'photo_url' => asset('storage/images/profiles/' . $filename)
+            'photo_url' => asset('storage/public/images/profiles/' . $filename),
+            'new_photo' => $filename
         ]);
     }
 }

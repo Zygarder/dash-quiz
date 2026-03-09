@@ -48,6 +48,53 @@
   font-size: 0.9rem;
 }
 
+/* === UPLOAD FORM === */
+.profile-header form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-label {
+  cursor: pointer;
+  background: #4b32a8;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.file-label:hover {
+  background: #3a2591;
+}
+
+.file-label input[type="file"] {
+  display: none;
+}
+
+.upload-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: #218838;
+}
+
+.upload-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
 /* === PROFILE DETAILS SECTION === */
 .profile-details {
   margin-top: 1rem;

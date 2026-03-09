@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  @vite(['resources/js/app.js'])
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dash Quiz |
     {{ auth()->guard('dasher')->user()->first_name . '-' . auth()->guard('dasher')->user()->last_name }}
@@ -117,12 +118,14 @@
       </thead>
       <tbody class="leaderboard-body"></tbody>
     </table>
-
   </main>
 
   <!-- Sidebar Toggle Script -->
   <script src="{{ asset('js/sidebar_function.js') }}"></script>
   <script src="{{ asset('js/leaderboard.js') }}"></script>
+  <script>
+
+  </script>
 </body>
 
 </html>

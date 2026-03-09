@@ -58,4 +58,4 @@ async function leaderBoard() {
 }
 leaderBoard()
 
-setInterval(leaderBoard, 6000);
+setInterval(leaderBoard, 60000);

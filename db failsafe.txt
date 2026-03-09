@@ -52,4 +52,14 @@ DB::insert("
     Hash::make('ralphpetallo')
 ]);
 
+DB::insert("
+    INSERT INTO dasher (first_name, last_name, email, password)
+    VALUES (?, ?, ?, ?)
+", [
+    'test',
+    'test',
+    'test@test.com',
+    Hash::make('testtest')
+]);
+
 // e change nalang base sa imo gusto sa imo admin info, pero ayaw kalimut migrate also check db
