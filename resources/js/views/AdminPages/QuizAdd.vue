@@ -201,37 +201,31 @@ const submitQuiz = async () => {
 };
 </script>
 <style scoped>
-/* Scoped styles for the form layout */
 .quiz-form-card {
     background: white;
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-
 .form-group {
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
-
 .form-group label {
     font-weight: 600;
     margin-bottom: 5px;
 }
-
 .form-group input {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
 }
-
 .form-divider {
     margin: 25px 0;
     border: 0;
     border-top: 1px solid #eee;
 }
-
 .question-block {
     background: #fdfdfd;
     border: 1px solid #eee;
@@ -239,7 +233,6 @@ const submitQuiz = async () => {
     border-radius: 8px;
     margin-bottom: 20px;
 }
-
 .question-meta {
     display: flex;
     justify-content: space-between;
@@ -247,27 +240,30 @@ const submitQuiz = async () => {
     font-weight: bold;
     color: #3f2ea3;
 }
-
 .question-input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
 }
-
 .options-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
-
 .option-item {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
+.option-item input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
 .delete-link {
     background: none;
     border: none;
@@ -275,17 +271,37 @@ const submitQuiz = async () => {
     cursor: pointer;
     font-size: 12px;
 }
-
 .save-btn {
     width: 100%;
     padding: 15px;
     font-size: 16px;
+    background: #3f2ea3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
 }
-
+.save-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
+.add-btn {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
 </style>
