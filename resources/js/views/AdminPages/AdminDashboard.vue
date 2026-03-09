@@ -85,7 +85,7 @@ const handleLogout = async () => {
     await axios.post('/api/logout');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userRole');
-    router.push('/login');
+    router.push('/');
   } catch (e) {
     console.error("Logout failed", e);
   }
