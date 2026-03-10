@@ -43,15 +43,13 @@
             </form>
         </div>
     </main>
+    
     <footer>
         <p>© 2025 Dash Quiz All Rights Reserved.</p>
     </footer>
 </template>
 
 <script setup>
-
-
-
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
@@ -130,6 +128,7 @@ const handleLogin = async () => {
     }
 };
 </script>
+
 <style scoped>
 /* === TOP BAR / HEADER === */
 .top-bar {
