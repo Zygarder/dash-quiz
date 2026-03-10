@@ -1,162 +1,108 @@
 <template>
-    <div class="admin-container-wrapper">
-        <header class="admin-header">
-            <h2>Dash Quiz Admin Dashboard</h2>
-            <a href="#" @click.prevent="handleLogout" class="logout-btn"
-                >Log Out</a
+    <section class="admin-section">
+        <div class="header-row">
+            <h3 class="section-title">Edit Quiz</h3>
+            <button
+                @click="$router.push('/admin/quizzes/manage')"
+                class="logout-btn"
+                style="background: #666"
             >
-        </header>
-
-        <div class="admin-container">
-            <aside class="admin-sidebar">
-                <h3 class="sidebar-title">Admin Menu</h3>
-                <nav>
-                    <ul>
-                        <li>
-                            <router-link to="/admin/dashboard"
-                                >Dashboard</router-link
-                            >
-                        </li>
-                        <li class="active">
-                            <router-link to="/admin/quizzes/manage"
-                                >Manage Quizzes</router-link
-                            >
-                        </li>
-                        <li>
-                            <router-link to="/admin/users"
-                                >Users Table</router-link
-                            >
-                        </li>
-                        <li>
-                            <router-link to="/admin/records"
-                                >Student Records</router-link
-                            >
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
-
-            <main class="admin-main">
-                <section class="admin-section">
-                    <div class="header-row">
-                        <h3 class="section-title">Edit Quiz</h3>
-                        <button
-                            @click="$router.push('/admin/quizzes/manage')"
-                            class="logout-btn"
-                            style="background: #666"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-
-                    <div
-                        v-if="initialLoading"
-                        style="text-align: center; padding: 50px"
-                    >
-                        <h3>Loading Quiz Data...</h3>
-                    </div>
-
-                    <div v-else class="quiz-form-card">
-                        <div class="form-group">
-                            <label>Quiz Name:</label>
-                            <input
-                                v-model="form.title"
-                                type="text"
-                                placeholder="e.g. Motherboard"
-                                required
-                            />
-                        </div>
-
-                        <div class="form-group">
-                            <label>Topic / Description:</label>
-                            <input
-                                v-model="form.description"
-                                type="text"
-                                placeholder="e.g. Parts of the Motherboard"
-                                required
-                            />
-                        </div>
-
-                        <hr class="form-divider" />
-
-                        <div class="questions-header">
-                            <h3>Questions</h3>
-                            <button
-                                type="button"
-                                @click="addQuestion"
-                                class="add-btn"
-                            >
-                                + Add Question
-                            </button>
-                        </div>
-
-                        <div
-                            v-for="(q, index) in form.questions"
-                            :key="index"
-                            class="question-block"
-                        >
-                            <div class="question-meta">
-                                <span>Question #{{ index + 1 }}</span>
-                                <button
-                                    type="button"
-                                    @click="removeQuestion(index)"
-                                    class="delete-link"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-
-                            <input
-                                v-model="q.text"
-                                type="text"
-                                placeholder="Enter your question here"
-                                class="question-input"
-                                required
-                            />
-
-                            <div class="options-grid">
-                                <div
-                                    v-for="(opt, optIndex) in 4"
-                                    :key="optIndex"
-                                    class="option-item"
-                                >
-                                    <input
-                                        type="radio"
-                                        :name="'correct_' + index"
-                                        :value="optIndex"
-                                        v-model="q.correct_option"
-                                        required
-                                    />
-                                    <input
-                                        v-model="q.options[optIndex]"
-                                        type="text"
-                                        :placeholder="
-                                            'Option ' + (optIndex + 1)
-                                        "
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-actions mt-4">
-                            <button
-                                @click="updateQuiz"
-                                class="add-btn save-btn"
-                                :disabled="saving"
-                            >
-                                {{
-                                    saving
-                                        ? "Saving Changes..."
-                                        : "Save Changes"
-                                }}
-                            </button>
-                        </div>
-                    </div>
-                </section>
-            </main>
+                Cancel
+            </button>
         </div>
-    </div>
+
+        <div v-if="initialLoading" style="text-align: center; padding: 50px">
+            <h3>Loading Quiz Data...</h3>
+        </div>
+
+        <div v-else class="quiz-form-card">
+            <div class="form-group">
+                <label>Quiz Name:</label>
+                <input
+                    v-model="form.title"
+                    type="text"
+                    placeholder="e.g. Motherboard"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Topic / Description:</label>
+                <input
+                    v-model="form.description"
+                    type="text"
+                    placeholder="e.g. Parts of the Motherboard"
+                    required
+                />
+            </div>
+
+            <hr class="form-divider" />
+
+            <div class="questions-header">
+                <h3>Questions</h3>
+                <button type="button" @click="addQuestion" class="add-btn">
+                    + Add Question
+                </button>
+            </div>
+
+            <div
+                v-for="(q, index) in form.questions"
+                :key="index"
+                class="question-block"
+            >
+                <div class="question-meta">
+                    <span>Question #{{ index + 1 }}</span>
+                    <button
+                        type="button"
+                        @click="removeQuestion(index)"
+                        class="delete-link"
+                    >
+                        Remove
+                    </button>
+                </div>
+
+                <input
+                    v-model="q.text"
+                    type="text"
+                    placeholder="Enter your question here"
+                    class="question-input"
+                    required
+                />
+
+                <div class="options-grid">
+                    <div
+                        v-for="(opt, optIndex) in 4"
+                        :key="optIndex"
+                        class="option-item"
+                    >
+                        <input
+                            type="radio"
+                            :name="'correct_' + index"
+                            :value="optIndex"
+                            v-model="q.correct_option"
+                            required
+                        />
+                        <input
+                            v-model="q.options[optIndex]"
+                            type="text"
+                            :placeholder="'Option ' + (optIndex + 1)"
+                            required
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions mt-4">
+                <button
+                    @click="updateQuiz"
+                    class="add-btn save-btn"
+                    :disabled="saving"
+                >
+                    {{ saving ? "Saving Changes..." : "Save Changes" }}
+                </button>
+            </div>
+        </div>
+    </section>
 </template>
 
 <script setup>
@@ -179,26 +125,28 @@ const form = ref({
 // Fetch data when component loads
 onMounted(async () => {
     try {
-        const response = await axios.get(`/api/admin/quizzes/${route.params.id}/edit`);
+        const response = await axios.get(
+            `/api/admin/quizzes/${route.params.id}/edit`
+        );
         const d = response.data;
 
         form.value.title = d.quiz.title;
         form.value.description = d.quiz.description;
-        
+
         // Map the questions and options perfectly!
-        form.value.questions = d.questions.map(q => {
-            
+        form.value.questions = d.questions.map((q) => {
             // Find which option matches the correct answer text
-            const correctIndex = q.options.findIndex(opt => opt.option_text === q.correct_answer_text);
+            const correctIndex = q.options.findIndex(
+                (opt) => opt.option_text === q.correct_answer_text
+            );
 
             return {
-                id: q.id, 
+                id: q.id,
                 text: q.question_text,
-                options: q.options.map(opt => opt.option_text), // Extract just the text strings
-                correct_option: correctIndex !== -1 ? correctIndex : 0 // Set the radio button!
+                options: q.options.map((opt) => opt.option_text), // Extract just the text strings
+                correct_option: correctIndex !== -1 ? correctIndex : 0, // Set the radio button!
             };
         });
-
     } catch (err) {
         console.error("Error fetching quiz data:", err);
         alert("Failed to load quiz data.");

@@ -21,6 +21,9 @@ const fetchUser = async () => {
     return user.value
 }
 
+/**
+ *  clears current auth user
+ */
 const clearUser = () => {
     user.value = null
 }

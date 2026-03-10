@@ -1,68 +1,45 @@
 <template>
-  <div>
-    <header class="admin-header">
-      <h2>Dash Quiz Admin Dashboard</h2>
-      <a href="#" @click.prevent="handleLogout" class="logout-btn">Log Out</a>
-    </header>
+  <section class="admin-section">
 
-    <div class="admin-container">
-      <aside class="admin-sidebar">
-        <h3 class="sidebar-title">Admin Menu</h3>
-        <nav>
-          <ul>
-            <li><router-link to="/admin/dashboard">Dashboard</router-link></li>
-            <li class="active"><router-link to="/admin/quizzes">Manage Quizzes</router-link></li>
-            <li><router-link to="/admin/users">Users Table</router-link></li>
-            <li><router-link to="/admin/records">Student Records</router-link></li>
-          </ul>
-        </nav>
-      </aside>
+<div v-if="successMessage" style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
+  {{ successMessage }}
+</div>
 
-      <main class="admin-main">
-        <section class="admin-section">
+<h3 class="section-title">Manage Quizzes</h3>
 
-          <div v-if="successMessage" style="padding:10px; background:lightgreen; margin-bottom:10px; border:1px solid green;">
-            {{ successMessage }}
-          </div>
+<button @click="goToAddQuiz" class="add-btn">+ New Quiz</button>
 
-          <h3 class="section-title">Manage Quizzes</h3>
-
-          <button @click="goToAddQuiz" class="add-btn">+ New Quiz</button>
-
-          <div class="quiz-table quiz-admin-table">
-            
-            <div class="quiz-table quiz-table-header">
-              <span>Quiz ID</span>
-              <span>Title</span>
-              <span>Description</span>
-              <span>Actions</span>
-            </div>
-
-            <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-table-row">
-              <span>{{ quiz.id }}</span>
-              <span>{{ quiz.title }}</span>
-              <span>{{ quiz.description }}</span>
-              
-              <span>
-                <button @click="goToEditQuiz(quiz.id)" class="action-btn edit">Edit</button>
-                
-                <button 
-                  class="action-btn delete"
-                  @click="deleteQuiz(quiz.id, quiz.title)">
-                  Delete
-                </button>
-              </span>
-            </div>
-
-            <div v-if="quizzes.length === 0" class="quiz-table-row" style="text-align: center; padding: 20px;">
-              No quizzes found.
-            </div>
-
-          </div>
-        </section>
-      </main>
-    </div>
+<div class="quiz-table quiz-admin-table">
+  
+  <div class="quiz-table quiz-table-header">
+    <span>Quiz ID</span>
+    <span>Title</span>
+    <span>Description</span>
+    <span>Actions</span>
   </div>
+
+  <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-table-row">
+    <span>{{ quiz.id }}</span>
+    <span>{{ quiz.title }}</span>
+    <span>{{ quiz.description }}</span>
+    
+    <span>
+      <button @click="goToEditQuiz(quiz.id)" class="action-btn edit">Edit</button>
+      
+      <button 
+        class="action-btn delete"
+        @click="deleteQuiz(quiz.id, quiz.title)">
+        Delete
+      </button>
+    </span>
+  </div>
+
+  <div v-if="quizzes.length === 0" class="quiz-table-row" style="text-align: center; padding: 20px;">
+    No quizzes found.
+  </div>
+
+</div>
+</section>
 </template>
 
 <script setup>

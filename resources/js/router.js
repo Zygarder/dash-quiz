@@ -13,6 +13,7 @@ import RegisterPage from './views/RegisterPage.vue'
 import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
+import AdminLayout from './views/AdminPages/AdminLayout.vue'
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
@@ -65,37 +66,44 @@ const routes = [
         component: QuizResult,
         meta: { requiresAuth: true }
     },
-    // Admin routes
+    // Admin Parent Route
     {
-        path: '/admin/dashboard',
-        component: AdminDashboard,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        path: '/admin',
+        component: AdminLayout, //load layout
+        meta: { requiresAuth: true, requiresAdmin: true }, //will be inherited
+        children: [
+            {
+                path: 'dashboard', 
+                component: AdminDashboard,
+                name: 'admin-dashboard',
+            },
+            {
+                path: 'users',
+                component: UsersTable,
+                name: 'admin-users',
+            },
+            {
+                path: 'records',
+                component: StudentRecords,
+                name: 'admin-records',
+            },
+            {
+                path: 'quizzes/create',
+                component: QuizAdd,
+                name: 'admin-q-add',
+            },
+            {
+                path: 'quizzes/:id/edit',
+                component: QuizEdit,
+                name: 'admin-q-edit',
+            },
+            {
+                path: 'quizzes/manage',
+                component: ManageQuestions,
+                name: 'manageQ',
+            }
+        ]
     },
-    {
-        path: '/admin/users',
-        component: UsersTable,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/records',
-        component: StudentRecords,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/create',
-        component: QuizAdd,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/:id/edit',
-        component: QuizEdit,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/manage',
-        component: ManageQuestions,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    }
 ]
 
 // 1. Create the router instance first
