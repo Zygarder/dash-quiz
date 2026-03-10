@@ -16,34 +16,34 @@
             <form class="login-box" @submit.prevent="handleLogin">
                 <input type="email" v-model.trim="email" placeholder="Email"
                     :class="{ 'invalid-input': errors.email }" />
-                <p v-if="errors.email" class="error">
+                <div v-if="errors.email" class="error">
                     {{ errors.email[0] }}
-                </p>
+                </div>
 
                 <input type="password" v-model.trim="password" autocomplete="off" placeholder="Password"
                     :class="{ 'invalid-input': errors.password }" />
-                <p v-if="errors.password" class="error">
+                <div v-if="errors.password" class="error">
                     {{ errors.password[0] }}
-                </p>
+                </div>
 
-                <p v-if="generalError" class="error">
+                <div v-if="generalError" class="error">
                     {{ generalError }}
-                </p>
+                </div>
 
                 <button type="submit" class="login-btn" :disabled="loading">
                     {{ loading ? 'Logging in...' : 'Log In' }}
                 </button>
 
-                <p class="small-text">
+                <div class="small-text">
                     Forgot password?
-                    <a @click="goForgot" class="forgot">click here</a>
-                </p>
+                    <router-link to="/forgot" class="forgot">click here</router-link>
+                </div>
 
                 <router-link class="register-btn" to="register">Register Now!</router-link>
             </form>
         </div>
     </main>
-    
+
     <footer>
         <p>© 2025 Dash Quiz All Rights Reserved.</p>
     </footer>
@@ -102,7 +102,7 @@ const handleLogin = async () => {
             if (response.data.role === 'admin') {
                 router.push('/admin/dashboard');
             } else {
-                router.push('/dashboard');
+                router.push('/home');
             }
         }
 

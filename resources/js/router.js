@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // User Pages
-import Dashboard from './views/UserPages/Dashboard.vue'
+import HomePage from './views/UserPages/HomePage.vue'
 import Profile from './views/UserPages/ProfilePage.vue'
 import Records from './views/UserPages/RecordsPage.vue'
 import QuizPage from './views/UserPages/QuizPage.vue'
@@ -13,7 +13,6 @@ import RegisterPage from './views/RegisterPage.vue'
 import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
-import AdminLayout from './views/AdminPages/AdminLayout.vue'
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
@@ -21,10 +20,11 @@ import QuizAdd from './views/AdminPages/QuizAdd.vue'
 import QuizEdit from './views/AdminPages/QuizEdit.vue'
 import ManageQuestions from './views/AdminPages/ManageQuestions.vue'
 
+
 const routes = [
     {
         path: "/",
-        name: 'login', // Added name so next({ name: 'login' }) works
+
         component: LoginPage,
     },
     {
@@ -36,8 +36,8 @@ const routes = [
         component: ForgotPage
     },
     {
-        path: '/dashboard',
-        component: Dashboard,
+        path: '/home',
+        component: HomePage,
         meta: { requiresAuth: true } // Added meta tag
     },
     {
@@ -49,7 +49,7 @@ const routes = [
         path: '/records',
         component: Records,
         meta: { requiresAuth: true } // Added meta tag
-    }, 
+    },
     {
         path: '/quizzes',
         component: QuizPage,
@@ -66,44 +66,37 @@ const routes = [
         component: QuizResult,
         meta: { requiresAuth: true }
     },
-    // Admin Parent Route
+    // Admin routes
     {
-        path: '/admin',
-        component: AdminLayout, //load layout
-        meta: { requiresAuth: true, requiresAdmin: true }, //will be inherited
-        children: [
-            {
-                path: 'dashboard', 
-                component: AdminDashboard,
-                name: 'admin-dashboard',
-            },
-            {
-                path: 'users',
-                component: UsersTable,
-                name: 'admin-users',
-            },
-            {
-                path: 'records',
-                component: StudentRecords,
-                name: 'admin-records',
-            },
-            {
-                path: 'quizzes/create',
-                component: QuizAdd,
-                name: 'admin-q-add',
-            },
-            {
-                path: 'quizzes/:id/edit',
-                component: QuizEdit,
-                name: 'admin-q-edit',
-            },
-            {
-                path: 'quizzes/manage',
-                component: ManageQuestions,
-                name: 'manageQ',
-            }
-        ]
+        path: '/admin/dashboard',
+        component: AdminDashboard,
+        meta: { requiresAuth: true, requiresAdmin: true }
     },
+    {
+        path: '/admin/users',
+        component: UsersTable,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/records',
+        component: StudentRecords,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/quizzes/create',
+        component: QuizAdd,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/quizzes/:id/edit',
+        component: QuizEdit,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/quizzes/manage',
+        component: ManageQuestions,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    }
 ]
 
 // 1. Create the router instance first
@@ -119,7 +112,7 @@ router.beforeEach((to, from, next) => {
     // If the route requires auth and user is NOT logged in, kick to login
     if (to.meta.requiresAuth && !isAuthenticated) {
         next({ name: 'login' });
-    } 
+    }
     // Prevent logged-in users from seeing the login page again
     else if (to.name === 'login' && isAuthenticated) {
         next({ path: '/dashboard' });
