@@ -27,7 +27,7 @@ import { useUser } from "@/composables/useUser"
 import { onMounted } from 'vue';
 
 const { showSidebar, toggleSidebar, closeSidebar } = useSidebar()
-const { user, fetchUser, avatar } = useUser()
+const { clearUser, fetchUser, avatar } = useUser()
 
 const route = useRoute()   // Access current path
 const router = useRouter() // For redirecting after logout
