@@ -23,6 +23,7 @@ import ManageQuestions from './views/AdminPages/ManageQuestions.vue'
 const routes = [
     {
         path: "/",
+        name: 'login', // Added name so next({ name: 'login' }) works
         component: LoginPage,
     },
     {
