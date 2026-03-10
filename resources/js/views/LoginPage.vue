@@ -53,7 +53,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
 import { useUser } from '@/composables/useUser';
 
 const email = ref('');
@@ -76,7 +75,7 @@ const handleLogin = async () => {
 
         //hashed before to prevent submitting plain text 
         if (password.value !== '') {
-            password.value = CryptoJS.SHA256(password.value).toString()
+            password.value = password.value
         }
 
         // 2. Perform Login

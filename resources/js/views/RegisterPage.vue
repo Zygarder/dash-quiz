@@ -48,7 +48,6 @@
 import axios from 'axios'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import CryptoJS from 'crypto-js'
 
 const router = useRouter()
 
@@ -75,8 +74,8 @@ const handleRegister = async () => {
         await axios.get('/sanctum/csrf-cookie')
 
         // hashed before sending, to prevent sending plain text
-        const hashed_password = CryptoJS.SHA256(form.password).toString()
-        const hashed_confirmation = CryptoJS.SHA256(form.password_confirmation).toString()
+        const hashed_password = form.password
+        const hashed_confirmation = form.password_confirmation
 
         // 3. Post to Register API
         const response = await axios.post('/api/register', {
