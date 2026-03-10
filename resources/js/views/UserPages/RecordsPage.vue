@@ -1,56 +1,57 @@
 <template>
-    <div class="records-page">
+  <div class="records-page">
 
-        <TopBar/>
+    <!-- Top Bar Component here -->
+    <TopBar />
 
-        <!-- Main Content -->
-        <main class="main-content">
+    <!-- Main Content -->
+    <main class="main-content">
 
-            <div class="records-container">
+      <div class="records-container">
 
-                <h3 class="records-title">Your Quiz History</h3>
+        <h3 class="records-title">Your Quiz History</h3>
 
-                <!-- Search Filter -->
-                <div class="filter-bar">
-                    <input type="text" v-model="searchQuery" placeholder="Search topic or score..." />
-                </div>
+        <!-- Search Filter -->
+        <div class="filter-bar">
+          <input type="text" v-model="searchQuery" placeholder="Search topic or score..." />
+        </div>
 
-                <!-- Table -->
-                <div class="table-wrapper">
-                    <table class="records-table">
+        <!-- Table -->
+        <div class="table-wrapper">
+          <table class="records-table">
 
-                        <thead>
-                            <tr>
-                                <th>Date Taken</th>
-                                <th>Topics</th>
-                                <th>Scores</th>
-                            </tr>
-                        </thead>
+            <thead>
+              <tr>
+                <th>Date Taken</th>
+                <th>Topics</th>
+                <th>Scores</th>
+              </tr>
+            </thead>
 
-                        <tbody>
+            <tbody>
 
-                            <tr v-for="record in filteredRecords">
+              <tr v-for="record in filteredRecords">
 
-                                <td>{{ record.created_at }}</td>
-                                <td>{{ record.quiz_title }}</td>
-                                <td>{{ record.score }} / 10</td>
+                <td>{{ record.created_at }}</td>
+                <td>{{ record.quiz_title }}</td>
+                <td>{{ record.score }} / 10</td>
 
-                            </tr>
+              </tr>
 
-                            <tr v-if="filteredRecords.length === 0">
-                                <td colspan="3">No records found.</td>
-                            </tr>
+              <tr v-if="filteredRecords.length === 0">
+                <td colspan="3">No records found.</td>
+              </tr>
 
-                        </tbody>
+            </tbody>
 
-                    </table>
-                </div>
+          </table>
+        </div>
 
-            </div>
+      </div>
 
-        </main>
+    </main>
 
-    </div>
+  </div>
 </template>
 
 <script setup>
@@ -72,12 +73,12 @@ const searchQuery = ref("")
 */
 
 const fetchRecords = async () => {
-    try {
-        const { data } = await axios.get("api/records")
-        records.value = data.records
-    } catch (err) {
-        console.error(err)
-    }
+  try {
+    const { data } = await axios.get("api/records")
+    records.value = data.result
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 /*
@@ -87,23 +88,13 @@ const fetchRecords = async () => {
 */
 
 const filteredRecords = computed(() => {
-    if (!searchQuery.value) return records.value
+  if (!searchQuery.value) return records.value
 
-    return records.value.filter(record =>
-        record.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        record.score.toString().includes(searchQuery.value)
-    )
+  return records.value.filter(record =>
+    record.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    record.score.toString().includes(searchQuery.value)
+  )
 })
-
-/*
-|--------------------------------------------------------------------------
-| Sidebar
-|--------------------------------------------------------------------------
-*/
-
-const toggleSidebar = () => {
-    showSidebar.value = !showSidebar.value
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -112,8 +103,8 @@ const toggleSidebar = () => {
 */
 
 onMounted(async () => {
-    await fetchUser()
-    fetchRecords()
+  await fetchUser()
+  fetchRecords()
 })
 </script>
 <style scoped>
@@ -259,6 +250,7 @@ onMounted(async () => {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
