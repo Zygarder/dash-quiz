@@ -1,47 +1,42 @@
-import { ref, computed, watch } from "vue"
+import { ref, computed } from "vue"
 import axios from "axios"
 
-// shared state
 const user = ref(null)
-let loading = false
+let isLoading = false
 
 const fetchUser = async () => {
 
-    loading = true
+    if (user.value || isLoading) return user.value
+
+    // sets true while getting data
+    isloading = true
 
     try {
         const { data } = await axios.get("/api/me")
-        user.value = data.data
+        user.value = data.results
     } catch (err) {
-        console.error("Failed to fetch user:", err)
+        console.error("Failed to fetch USER:", err)
     } finally {
-        loading = false
+        isLoading = false
     }
 
     return user.value
 }
 
-/**
- *  clears current auth user
- */
 const clearUser = () => {
     user.value = null
 }
 
-const avatar = computed(() => {
+const userAvatar = computed(() => {
     const photo = user.value?.profile_photo || "default.png"
     return `/storage/images/profiles/${photo}`
-})
-
-watch(() => avatar, (newAvatar) => {
-    avatar.value = newAvatar;
 })
 
 export function useUser() {
     return {
         user,
         fetchUser,
-        avatar,
+        userAvatar,
         clearUser
     }
 }
