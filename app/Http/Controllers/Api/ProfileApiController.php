@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\QuizRecord;
+use App\Models\Dasher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -37,48 +38,21 @@ class ProfileApiController extends Controller
         $user = Auth::guard('dasher')->user();
 
         $valid = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
             'email' => 'required|email|unique:dasher|max:255',
             'password' => 'nullable|string|confirmed|min:6',
         ]);
 
-        $user->first_name = $valid['first_name'];
-        $user->last_name = $valid['last_name'] ?? '';
+        $user->first_name = $valid['first_name'] ?? $user->first_name;
+        $user->last_name = $valid['last_name'] ?? $user->last_name;
         $user->email = $valid['email'];
-        $user->password = Hash::make($valid['password']);
+        $user->password = Hash::make($valid['password']) ?? $user->password;
         $user->save();
 
         return response()->json([
             'status' => 'success',
             'data' => $user
-        ]);
-    }
-
-    // Update password
-    public function updatePassword(Request $request)
-    {
-        $valid = $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:6',
-            'new_confirm_password' => 'required|same:new_password',
-        ]);
-
-        $user = Auth::guard('dasher')->user();
-
-        if (!Hash::check($valid['current_password'], $user->password)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Your current password is incorrect'
-            ], 422);
-        }
-
-        $user->password = Hash::make($valid['new_password']);
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Password updated successfully'
         ]);
     }
 
@@ -103,5 +77,14 @@ class ProfileApiController extends Controller
             'photo_url' => asset('storage/public/images/profiles/' . $filename),
             'new_photo' => $filename
         ]);
+    }
+
+    public function selfDeleteAccount()
+    {
+        $user_id = Auth::guard('dasher')->user()->id;
+
+        $user = Dasher::findOrFail($user_id);
+
+        $user->delete();
     }
 }

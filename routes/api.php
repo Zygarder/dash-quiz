@@ -20,7 +20,6 @@ Route::post('/register', [AdminApiController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
 
     // Matches your fetchUser() call: axios.get("/api/me")
-    // return the same structure as /api/profile for consistency
     Route::get('/me', [UserApiController::class, 'profile']);
 
     // Dashboard & Leaderboard
@@ -39,9 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Profile
     Route::put('/profile/update', [ProfileApiController::class, 'updateProfile']);
-    Route::put('/profile/password', [ProfileApiController::class, 'updatePassword']);
+    
     Route::post('/profile/photo', [ProfileApiController::class, 'uploadPhoto']);
-
+    // Self-Delete
+    Route::delete('/profile/delete', [ProfileApiController::class, 'selfDeleteAccount']);
     // Logout
     Route::post('/logout', [UserApiController::class, 'logout']);
 });
@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum', 'ability:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminApiController::class, 'dashboard']);
     Route::get('/admin/quizzes', [AdminApiController::class, 'allQuizzes']);
-    Route::get('/admin/quizzes/{id}/edit', [AdminApiController::class, 'editQuiz']); 
+    Route::get('/admin/quizzes/{id}/edit', [AdminApiController::class, 'editQuiz']);
     Route::put('/admin/quizzes/{id}', [AdminApiController::class, 'updateQuiz']);
     Route::post('/admin/quizzes/create', [AdminApiController::class, 'createQuiz']);
     Route::delete('/admin/quizzes/{id}', [AdminApiController::class, 'deleteQuiz']);
