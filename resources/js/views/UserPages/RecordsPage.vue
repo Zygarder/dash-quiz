@@ -1,25 +1,44 @@
 <template>
   <div class="records-page">
-
-    <!-- Top Bar Component here -->
     <TopBar />
 
-    <!-- Main Content -->
     <main class="main-content">
-
       <div class="records-container">
+        <h3 class="records-title">Performance Analytics</h3>
 
-        <h3 class="records-title">Your Quiz History</h3>
+        <div class="stats-grid" v-if="records.length > 0">
+          <div class="chart-card">
+            <h4>Score Distribution</h4>
+            <div class="chart-container">
+              <Doughnut :data="chartData" :options="chartOptions" />
+            </div>
+          </div>
 
-        <!-- Search Filter -->
+          <div class="stats-summary">
+            <div class="stat-box">
+              <span class="label">Average Score</span>
+              <span class="value">{{ averageScore }}%</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">Quizzes Taken</span>
+              <span class="value">{{ records.length }}</span>
+            </div>
+            <div class="stat-box">
+              <span class="label">Highest Score</span>
+              <span class="value">{{ maxScore }}/10</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="records-title sub-title">Detailed History</h3>
+
         <div class="filter-bar">
+          <i class="fas fa-search search-icon"></i>
           <input type="text" v-model="searchQuery" placeholder="Search topic or score..." />
         </div>
 
-        <!-- Table -->
         <div class="table-wrapper">
           <table class="records-table">
-
             <thead>
               <tr>
                 <th>Date Taken</th>
@@ -27,86 +46,117 @@
                 <th>Scores</th>
               </tr>
             </thead>
-
             <tbody>
-
-              <tr v-for="record in filteredRecords">
-
-                <td>{{ record.created_at }}</td>
-                <td>{{ record.quiz_title }}</td>
-                <td>{{ record.score }} / 10</td>
-
+              <tr v-for="record in filteredRecords" :key="record.id">
+                <td>{{ formatDate(record.created_at) }}</td>
+                <td>{{ record.quiz_description }}</td>
+                <td>
+                  <span :class="['score-badge', record.score >= 7 ? 'pass' : 'fail']">
+                    {{ record.score }} / 10
+                  </span>
+                </td>
               </tr>
-
               <tr v-if="filteredRecords.length === 0">
-                <td colspan="3">No records found.</td>
+                <td colspan="3" class="empty-msg">No records found.</td>
               </tr>
-
             </tbody>
-
           </table>
         </div>
-
       </div>
-
     </main>
-
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import axios from "axios"
-import SideBarComp from "@/components/SideBar.vue"
 import { useUser } from "@/composables/useUser"
 import TopBar from "../../components/TopBar.vue"
+import { Doughnut } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
 
-const { user, fetchUser, avatar } = useUser()
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
+
+const { fetchUser } = useUser()
 const records = ref([])
 const searchQuery = ref("")
 
-
 /*
 |--------------------------------------------------------------------------
-| Fetch Records
+| Analytics Calculations
 |--------------------------------------------------------------------------
 */
+const averageScore = computed(() => {
+  if (!records.value.length) return 0
+  const total = records.value.reduce((acc, curr) => acc + curr.score, 0)
+  return ((total / (records.value.length * 10)) * 100).toFixed(1)
+})
 
-const fetchRecords = async () => {
-  try {
-    const { data } = await axios.get("api/records")
-    records.value = data.result
-  } catch (err) {
-    console.error(err)
+const maxScore = computed(() => {
+  return records.value.length ? Math.max(...records.value.map(r => r.score)) : 0
+})
+
+const chartData = computed(() => {
+  const passed = records.value.filter(r => r.score >= 7).length
+  const failed = records.value.length - passed
+
+  return {
+    labels: ['Passed (7-10)', 'Needs Review (<7)'],
+    datasets: [{
+      backgroundColor: ['#4b32a8', '#ffccd5'],
+      hoverBackgroundColor: ['#3a2585', '#ffb3c1'],
+      data: [passed, failed],
+      borderWidth: 0,
+      hoverOffset: 10
+    }]
+  }
+})
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { position: 'bottom' }
   }
 }
 
 /*
 |--------------------------------------------------------------------------
-| Filter Records
+| Actions & Data Fetching
 |--------------------------------------------------------------------------
 */
+const fetchRecords = async () => {
+  try {
+    const { data } = await axios.get("api/records")
+    records.value = data.results
+  } catch (err) {
+    console.error('Failed to fetch records:', err)
+  }
+}
 
 const filteredRecords = computed(() => {
   if (!searchQuery.value) return records.value
-
+  const query = searchQuery.value.toLowerCase()
   return records.value.filter(record =>
-    record.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    record.score.toString().includes(searchQuery.value)
+    record.quiz_title.toLowerCase().includes(query) ||
+    record.score.toString().includes(query)
   )
 })
 
-/*
-|--------------------------------------------------------------------------
-| Lifecycle
-|--------------------------------------------------------------------------
-*/
+const formatDate = (dateStr) => {
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
 
 onMounted(async () => {
   await fetchUser()
   fetchRecords()
 })
 </script>
+
 <style scoped>
 /* === PAGE CONTAINER === */
 .records-page {
@@ -116,14 +166,12 @@ onMounted(async () => {
   font-family: "Inter", sans-serif;
 }
 
-/* === MAIN CONTENT === */
 .main-content {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 2rem auto;
   padding: 0 1rem;
 }
 
-/* === RECORDS CONTAINER === */
 .records-container {
   background: #ffffff;
   border-radius: 16px;
@@ -135,125 +183,130 @@ onMounted(async () => {
   gap: 20px;
 }
 
-/* === TITLE === */
-.records-title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #4b32a8;
-  text-align: center;
-  margin-bottom: 1rem;
+/* === ANALYTICS GRID === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  margin-bottom: 2rem;
 }
 
-/* === SEARCH FILTER === */
-.filter-bar {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.filter-bar input {
-  width: 100%;
-  max-width: 320px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 1.5px solid #ccc;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border 0.25s ease, box-shadow 0.25s ease;
-}
-
-.filter-bar input:focus {
-  border-color: #4b32a8;
-  box-shadow: 0 0 12px rgba(75, 50, 168, 0.25);
-}
-
-/* === TABLE WRAPPER === */
-.table-wrapper {
-  overflow-x: auto;
+.chart-card {
+  background: #fcfaff;
+  padding: 20px;
   border-radius: 12px;
   border: 1px solid #e3e0ff;
 }
 
-/* === TABLE STYLES === */
-.records-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.95rem;
+.chart-card h4 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #4b32a8;
 }
 
-.records-table th,
-.records-table td {
-  padding: 12px 16px;
+.chart-container {
+  height: 200px;
+  position: relative;
+}
+
+.stats-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-box {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border-left: 4px solid #4b32a8;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-box .label { color: #666; font-size: 0.9rem; }
+.stat-box .value { font-size: 1.2rem; font-weight: 800; color: #4b32a8; }
+
+/* === TABLE & SEARCH === */
+.records-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #4b32a8;
+  text-align: center;
+}
+
+.sub-title {
   text-align: left;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.filter-bar {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.filter-bar input {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border-radius: 10px;
+  border: 1.5px solid #ddd;
+  outline: none;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e3e0ff;
+  border-radius: 12px;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .records-table thead {
   background: #4b32a8;
-  color: #fff;
-  font-weight: 600;
-  border-radius: 12px 12px 0 0;
+  color: white;
 }
 
-.records-table tbody tr {
-  background: #fff;
-  transition: background 0.25s, transform 0.25s;
-  cursor: pointer;
+.records-table th, .records-table td {
+  padding: 14px;
+  text-align: left;
 }
 
-.records-table tbody tr:nth-child(even) {
-  background: #f8f6ff;
+.records-table tbody tr:nth-child(even) { background: #fcfaff; }
+.records-table tbody tr:hover { background: #f0eeff; }
+
+.score-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
-.records-table tbody tr:hover {
-  background: #e8e4ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(75, 50, 168, 0.1);
+.score-badge.pass { background: #e6ffed; color: #218838; }
+.score-badge.fail { background: #ffeeee; color: #dc3545; }
+
+.empty-msg { text-align: center; color: #888; font-style: italic; }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr; }
 }
 
-.records-table td {
-  border-bottom: 1px solid #e3e0ff;
-  vertical-align: middle;
-}
-
-/* === EMPTY STATE === */
-.records-table td[colspan] {
-  text-align: center;
-  font-style: italic;
-  color: #7d7d7d;
-  padding: 1rem 0;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 600px) {
-  .records-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .records-title {
-    font-size: 1.5rem;
-  }
-
-  .filter-bar input {
-    max-width: 100%;
-  }
-
-  .records-table th,
-  .records-table td {
-    padding: 10px 12px;
-  }
-}
-
-/* === ANIMATION === */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
