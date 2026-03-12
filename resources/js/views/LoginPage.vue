@@ -32,6 +32,7 @@
 
                 <button type="submit" class="login-btn" :disabled="loading">
                     {{ loading ? 'Logging in...' : 'Log In' }}
+                    
                 </button>
 
                 <div class="small-text">
@@ -39,7 +40,7 @@
                     <router-link to="/forgot" class="forgot">click here</router-link>
                 </div>
 
-                <router-link class="register-btn" to="register">Register Now!</router-link>
+                <router-link class="register-btn" to="/register">Register Now!</router-link>
             </form>
         </div>
     </main>
@@ -53,16 +54,14 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { useUser } from '@/composables/useUser';
 
 const email = ref('');
 const password = ref('');
-
 const loading = ref(false);
 const errors = ref({});
 const generalError = ref('');
+
 const router = useRouter();
-const { clearUser } = useUser();
 
 const handleLogin = async () => {
     loading.value = true;
@@ -70,34 +69,22 @@ const handleLogin = async () => {
     generalError.value = '';
 
     try {
-        // 1. Initialize CSRF protection 
+        // Initialize CSRF
         await axios.get('/sanctum/csrf-cookie');
 
-        //hashed before to prevent submitting plain text 
-        if (password.value !== '') {
-            password.value = password.value
-        }
-
-        // 2. Perform Login
+        // Perform login
         const response = await axios.post('/api/login', {
             email: email.value,
             password: password.value
         });
 
-        // 3. Success Logic
         if (response.status === 200 || response.status === 204) {
-
-            // --- THE CRITICAL UPDATE ---
-            // Set the flag that the router guard is looking for
+            // Successful login
             localStorage.setItem('isLoggedIn', 'true');
-            // store role returned by api for admin checks
             if (response.data.role) {
                 localStorage.setItem('userRole', response.data.role);
             }
 
-            // clear previous profile so next page will refetch
-            clearUser();
-            // redirect based on role
             if (response.data.role === 'admin') {
                 router.push('/admin/dashboard');
             } else {
@@ -106,21 +93,19 @@ const handleLogin = async () => {
         }
 
     } catch (err) {
-        if (err.response) {
-            const status = err.response.status;
-            const data = err.response.data;
+        // Reset local storage on failure
+        localStorage.removeItem('isLoggedIn');
 
-            if (status === 422) {
+        if (err.response) {
+            const { status, data } = err.response;
+            console.log(status)
+            if (status === 422 && data.errors) {
+                // Validation errors
                 errors.value = data.errors;
             } else if (status === 401 || status === 419) {
-                // If login fails, ensure the flag is cleared
-                localStorage.removeItem('isLoggedIn');
-                generalError.value = data.message || "Invalid credentials or session expired.";
-            } else {
-                generalError.value = "An unexpected server error occurred.";
+                // Wrong credentials or expired session
+                generalError.value = data.message || 'Invalid credentials or session expired.';
             }
-        } else {
-            generalError.value = "Cannot connect to server. Check your connection.";
         }
     } finally {
         loading.value = false;
