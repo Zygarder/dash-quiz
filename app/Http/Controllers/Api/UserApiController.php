@@ -7,102 +7,143 @@ use App\Models\Quiz;
 use Illuminate\Http\Request;
 use App\Models\QuizRecord;
 use App\Models\Dasher;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
 class UserApiController extends Controller
 {
-    // Leaderboard
+    // Get top users based on quiz scores
     public function leaderboard()
     {
+        // Fetch quiz records with related user and quiz
+        // whereHas('user') ensures the record still has a valid user
         $leaders = QuizRecord::with(['user', 'quiz'])
             ->whereHas('user')
-            ->orderByDesc('score')
-            ->limit(10)
+            ->orderByDesc('score') // highest scores first
+            ->limit(10) // show only top 10 users
             ->get()
             ->map(function ($record) {
+
                 return [
+                    // Combine first and last name for easier display
                     'name' => "{$record->user->first_name} {$record->user->last_name}",
+
+                    // If user has no photo, return default image
                     'profile_photo' => $record->user->profile_photo
                         ? $record->user->profile_photo
                         : 'default.png',
+
+                    // Score achieved in the quiz
                     'score' => $record->score,
+
+                    // Title of the quiz the score belongs to
                     'quiz_title' => $record->quiz->title,
+
+                    // User ID can be used by frontend for profile links
                     'user_id' => $record->user_id
                 ];
             });
 
         return response()->json([
             'status' => 'success',
-            'leaders' => $leaders
+            'results' => $leaders
         ]);
     }
 
-    // List of quizzes
+    // Get list of available quizzes
     public function quizzes()
     {
+        // Retrieve quiz list with only necessary fields
+        // Reduces response size and improves performance
         $quizzes = Quiz::all(['id', 'title', 'description']);
 
         return response()->json([
             'status' => 'success',
-            'quizzes' => $quizzes
+            'results' => $quizzes
         ]);
     }
 
-    // Logged-in user profile
+    // Get logged-in user's profile information
     public function profile()
     {
+        // Get authenticated user using the dasher guard
         $user = Auth::guard('dasher')->user();
 
         return response()->json([
             'status' => 'success',
-            'data' => [
+            'results' => [
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
+
+                // Full name for easier frontend display
                 'full_name' => "{$user->first_name} {$user->last_name}",
+
                 'email' => $user->email,
+
+                // If no profile photo exists, return default image
                 'profile_photo' => $user->profile_photo ?? 'default.png',
+
+                // Count number of quizzes the user has taken
                 'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
+
+                // Format account creation date
                 'created_at' => $user->created_at->format('F j, Y')
             ]
         ]);
     }
 
-    // User quiz records
+    // Get quiz history of the logged-in user
     public function records()
     {
+        // Get authenticated user's ID
         $userId = Auth::guard('dasher')->id();
 
-        $records = QuizRecord::where('user_id', $userId)->with(['quiz'])
-            ->orderByDesc('created_at')
+        // Fetch quiz records for this user
+        $records = QuizRecord::where('user_id', $userId)
+            ->with(['quiz']) // load quiz information
+            ->orderByDesc('created_at') // newest records first
             ->get()
             ->map(function ($record) {
+
                 return [
                     'quiz_id' => $record->quiz_id,
                     'score' => $record->score,
+
+                    // Include quiz details for frontend display
                     'quiz_title' => $record->quiz->title,
+                    'quiz_description' => $record->quiz->description,
+
+                    // Format record date
                     'created_at' => $record->created_at->format('Y-m-d')
                 ];
             });
 
         return response()->json([
-            'status' => 'success',
-            'records' => $records
+            'results' => $records
         ]);
     }
 
+    // Log out the authenticated user
     public function logout(Request $request)
     {
-        // explicitly log out the dasher guard (API users are dashers)
+        // Explicitly log out the user from the "dasher" guard
         if (Auth::guard('dasher')->check()) {
+
+            // Get current user's ID
             $id = Auth::guard('dasher')->user()->id;
+
+            // Mark user as offline by updating active_status
             Dasher::where('id', $id)->update(['active_status' => 0]);
+
+            // Log the user out
             Auth::guard('dasher')->logout();
         }
 
-        // invalidate session/csrf token regardless
+        // Invalidate the session to remove all session data
         $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
+        // Regenerate CSRF token for security
+        $request->session()->regenerateToken();
     }
 }
