@@ -7,30 +7,20 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('question_options', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
+        Schema::create('quiz_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('question_id');
-            $table->string('option_text');
-
-            // Foreign key to questions table
-            $table->foreign('question_id')
-                ->references('id')
-                ->on('questions')
-                ->onDelete('cascade'); // delete options if question is deleted
-        });
-        Schema::create('answers', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
-            $table->id();
-            $table->foreignId('question_id')->constrained('questions')->onDelete('cascade');
-            $table->text('answer_text');
-            $table->boolean('is_correct')->default(false);
+            // Now 'dasher' exists, so this won't fail
+            $table->foreignId('user_id')->constrained('dasher')->onDelete('cascade');
+            // IMPORTANT: Ensure the 'quizzes' migration file has a timestamp EARLIER than this file
+            $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
+            $table->integer('score')->default(0);
+            $table->integer('total_questions')->default(0);
+            $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('question_options');
-        Schema::dropIfExists('answers');
+        Schema::dropIfExists('quiz_records');
     }
 };
