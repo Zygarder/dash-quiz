@@ -22,9 +22,9 @@ import ManageQuestions from './views/AdminPages/ManageQuestions.vue'
 
 
 const routes = [
+
     {
         path: "/",
-
         component: LoginPage,
     },
     {
@@ -38,34 +38,35 @@ const routes = [
     {
         path: '/home',
         component: HomePage,
-        meta: { requiresAuth: true } // Added meta tag
+        meta: { requiresAuth: true, requiresStudent: true }
     },
     {
         path: '/profile',
         component: Profile,
-        meta: { requiresAuth: true } // Added meta tag
+        meta: { requiresAuth: true, requiresStudent: true }
     },
     {
         path: '/records',
         component: Records,
-        meta: { requiresAuth: true } // Added meta tag
+        meta: { requiresAuth: true, requiresStudent: true }
     },
     {
         path: '/quizzes',
         component: QuizPage,
-        meta: { requiresAuth: true } // Added meta tag
+        meta: { requiresAuth: true, requiresStudent: true }
     },
     {
         path: '/quiz/:quiz_id',
         name: 'quiz-start',
         component: TakeQuizPage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, requiresStudent: true }
     },
     {
         path: '/quiz-result',
         component: QuizResult,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, requiresStudent: true }
     },
+
     // Admin routes
     {
         path: '/admin/dashboard',
@@ -96,7 +97,14 @@ const routes = [
         path: '/admin/quizzes/manage',
         component: ManageQuestions,
         meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    // No Page Dound / 404 Error page, 
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('./views/404.vue')
     }
+
 ]
 
 // 1. Create the router instance first
@@ -105,31 +113,33 @@ const router = createRouter({
     routes
 })
 
-// 2. Attach the guard to the 'router' instance
+// Attach the guard to the 'router' instance
 router.beforeEach((to, from, next) => {
     const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true';
+    const userRole = localStorage.getItem('userRole');
 
-    // If the route requires auth and user is NOT logged in, kick to login
+    // 1. Unauthenticated users must go to Login
     if (to.meta.requiresAuth && !isAuthenticated) {
-        next({ name: 'login' });
+        return next({ path: '/' });
     }
-    // Prevent logged-in users from seeing the login page again
-    else if (to.name === 'login' && isAuthenticated) {
-        next({ path: '/dashboard' });
-    }
-    // Admin-only route check
-    else if (to.meta.requiresAdmin) {
-        const role = localStorage.getItem('userRole');
-        if (role !== 'admin') {
-            next({ path: '/' });
-        } else {
-            next();
-        }
-    }
-    else {
-        next();
-    }
-})
 
-// 3. Export the instance
+    // 2. Prevent logged-in users from seeing the Login/Register page
+    if ((to.path === '/' || to.path === '/register') && isAuthenticated) {
+        return next(userRole === 'admin' ? '/admin/dashboard' : '/home');
+    }
+
+    // 3. Admin Protection: Stop students from seeing Admin pages
+    if (to.meta.requiresAdmin && userRole !== 'admin') {
+        return next({ path: '/home' });
+    }
+
+    // 4. Student Protection: Stop admins from seeing Student pages
+    if (to.meta.requiresStudent && userRole === 'admin') {
+        return next({ path: '/admin/dashboard' });
+    }
+
+    // Default: Allow through
+    next();
+});
+
 export default router

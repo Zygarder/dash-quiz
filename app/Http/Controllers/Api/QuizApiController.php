@@ -4,31 +4,32 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
-use App\Models\Answer;
 use App\Models\Question;
-use App\Models\QuestionOption;
 use App\Models\QuizRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class QuizApiController extends Controller
 {
-    // Fetch quiz details & first question
-    public function getQuiz(Request $request)
+    // Get quiz with random questions and their options
+    public function getQuiz($id)
     {
-        $validated = $request->validate([
-            'quiz_id' => 'required|exists:quizzes,id'
-        ]);
+        // Find the quiz and eager load its questions and options
+        // eager loading prevents N+1 query problems
+        $quiz = Quiz::with('questions.options')->findOrFail($id);
 
-        $quiz = Quiz::with('questions.options')->findOrFail($validated['quiz_id']);
+        // Get random questions from the quiz
+        // whereHas('options') ensures the question actually has answer choices
+        // otherwise the frontend would receive questions without options
+        $questions = $quiz->questions()
+            ->whereHas('options')
+            ->inRandomOrder()
+            ->limit(10) // limit quiz to 10 questions
+            ->get();
 
-        // Take first 10 questions randomly
-        $questions = $quiz->questions()->inRandomOrder()->limit(10)->get();
-
-        // Option labels
+        // Labels used for options (A, B, C, D)
         $optionLabels = ['A', 'B', 'C', 'D'];
 
-        // Return quiz + questions with labeled options
         return response()->json([
             'status' => 'success',
             'quiz' => [
@@ -36,55 +37,81 @@ class QuizApiController extends Controller
                 'title' => $quiz->title,
                 'description' => $quiz->description,
                 'total_questions' => $questions->count(),
-                'questions' => $questions->map(function ($q, $index) use ($optionLabels) {
-                    $options = $q->options->shuffle(); // Randomize option order
+
+                // Transform questions into a clean API structure for the frontend
+                'questions' => $questions->values()->map(function ($q, $index) use ($optionLabels) {
+
+                    // Shuffle options so the correct answer is not always in the same position
+                    $options = $q->options->shuffle();
+
                     return [
                         'id' => $q->id,
                         'text' => $q->question_text,
-                        'question_number' => $index + 1,
+                        'question_number' => $index + 1, // used for displaying question order
+
+                        // Send options to frontend
                         'options' => $options->values()->map(function ($opt, $optIndex) use ($optionLabels) {
+
                             return [
                                 'id' => $opt->id,
                                 'text' => $opt->option_text,
+
+                                // Assign label (A, B, C, D) based on index
+                                // fallback using ASCII if there are more than 4 options
                                 'label' => $optionLabels[$optIndex] ?? chr(65 + $optIndex),
                             ];
-                        })
+
+                        })->toArray()
                     ];
-                })
+
+                })->toArray()
             ]
         ]);
     }
 
-    // Submit answer for a question
+    // Check if the submitted answer is correct
     public function submitAnswer(Request $request)
     {
+        // Validate incoming data
+        // ensures question and answer exist in the database
         $validated = $request->validate([
             'question_id' => 'required|exists:questions,id',
             'answer_id' => 'required|exists:question_options,id',
         ]);
 
-        $user = Auth::guard('dasher')->user();
-        $question = Question::findOrFail($validated['question_id']);
-        $correct = $question->correct_option_id == $validated['answer_id'];
+        // Load question with its options
+        $question = Question::with('options')->findOrFail($validated['question_id']);
 
-        // Return response with correctness and progress info
+        // Find the option selected by the user
+        $selectedOption = $question->options->firstWhere('id', $validated['answer_id']);
+
+        // Find the correct option from the question
+        $correctOption = $question->options->firstWhere('is_correct', true);
+
+        // Compare selected option with the correct option
+        $isCorrect = $selectedOption && $correctOption &&
+            $selectedOption->id === $correctOption->id;
+
+        // Return result to frontend
         return response()->json([
             'status' => 'success',
-            'correct' => $correct,
-            'correct_option_id' => $question->correct_option_id
+            'correct' => $isCorrect
         ]);
     }
 
-    // Store final quiz record
+    // Save the final quiz score for the user
     public function submitQuizResult(Request $request)
     {
+        // Validate submitted quiz result
         $validated = $request->validate([
             'quiz_id' => 'required|exists:quizzes,id',
             'score' => 'required|integer|min:0'
         ]);
 
+        // Get the authenticated user using the "dasher" guard
         $user = Auth::guard('dasher')->user();
 
+        // Store quiz result in database
         $record = QuizRecord::create([
             'user_id' => $user->id,
             'quiz_id' => $validated['quiz_id'],
@@ -92,50 +119,10 @@ class QuizApiController extends Controller
             'completed_at' => now()
         ]);
 
+        // Return stored record
         return response()->json([
             'status' => 'success',
             'record' => $record
-        ]);
-    }
-
-    // Get quiz progress and option statistics
-    public function getQuizProgress(Request $request)
-    {
-        $validated = $request->validate([
-            'quiz_id' => 'required|exists:quizzes,id'
-        ]);
-
-        $user = Auth::guard('dasher')->user();
-        $quiz = Quiz::with('questions.options')->findOrFail($validated['quiz_id']);
-
-        // Get user's previous answers for this quiz (if any)
-        $previousRecords = QuizRecord::where('user_id', $user->id)
-            ->where('quiz_id', $validated['quiz_id'])
-            ->get();
-
-        // Calculate option choice statistics (A, B, C, D)
-        $optionStats = [
-            'A' => 0,
-            'B' => 0,
-            'C' => 0,
-            'D' => 0
-        ];
-
-        $totalAnswers = 0;
-        foreach ($quiz->questions as $question) {
-            // This would need actual answer tracking - for now, return structure
-            // In a real implementation, you'd track user answers in a separate table
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'progress' => [
-                'total_questions' => $quiz->questions->count(),
-                'completed_quizzes' => $previousRecords->count(),
-                'best_score' => $previousRecords->max('score') ?? 0,
-                'option_statistics' => $optionStats,
-                'total_answers_tracked' => $totalAnswers
-            ]
         ]);
     }
 }
