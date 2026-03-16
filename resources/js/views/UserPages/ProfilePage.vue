@@ -13,11 +13,7 @@
         <div class="profile-header">
 
           <div class="avatar">
-            <img
-              :src="preview || profileImageUrl"
-              draggable="false"
-              @error="setDefaultAvatar"
-            />
+            <img :src="preview || profileImageUrl" draggable="false" @error="setDefaultAvatar" />
           </div>
 
           <h2>{{ user.first_name }}</h2>
@@ -54,16 +50,11 @@
 
         <div class="profile-buttons">
 
-          <button
-            id="edit-profile"
-            @click="showEditModal = true">
+          <button id="edit-profile" @click="showEditModal = true">
             Edit Profile
           </button>
 
-          <button
-            id="delete"
-            class="danger"
-            @click="showDeleteModal = true">
+          <button id="delete" class="danger" @click="showDeleteModal = true">
             Delete Account
           </button>
 
@@ -74,18 +65,9 @@
     </main>
 
     <!-- Modals -->
-    <EditProfileModal
-      :show="showEditModal"
-      :user="user"
-      @close="showEditModal = false"
-      @save="updateProfile"
-    />
+    <EditProfileModal :show="showEditModal" :user="user" @close="showEditModal = false" @save="updateProfile" />
 
-    <DeleteAccountModal
-      :show="showDeleteModal"
-      @close="showDeleteModal = false"
-      @delete="deleteAccount"
-    />
+    <DeleteAccountModal :show="showDeleteModal" @close="showDeleteModal = false" @deleted="handleDeleted" />
 
   </div>
 </template>
@@ -94,11 +76,10 @@
 import { ref, computed, onMounted } from "vue"
 import axios from "axios"
 import { useRouter } from "vue-router"
-
-import SideBarComp from "../../components/SideBar.vue"
-import TopBar from "../../components/TopBar.vue"
-import DeleteAccountModal from "../../components/ProfileModals/DeleteModal.vue"
-import EditProfileModal from "../../components/ProfileModals/EditModal.vue"
+import SideBarComp from "@/components/UserSide/SideBar.vue"
+import TopBar from "@/components/UserSide/TopBar.vue"
+import DeleteAccountModal from "@/components/ProfileModals/DeleteModal.vue"
+import EditProfileModal from "@/components/ProfileModals/EditModal.vue"
 
 import { useSidebar } from "@/composables/useSidebar"
 import { useUser } from "@/composables/useUser"
@@ -106,7 +87,7 @@ import { useUser } from "@/composables/useUser"
 const router = useRouter()
 
 const { showSidebar, closeSidebar } = useSidebar()
-const { user, fetchUser, avatar, clearUser } = useUser()
+const { user, fetchUser, userAvatar } = useUser()
 
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
@@ -117,6 +98,18 @@ const selectedFile = ref(null)
 const successMessage = ref("")
 const errorMessage = ref("")
 const loading = ref(false)
+
+
+/*
+|--------------------------------------------------------------------------
+| Handle after deletion
+|--------------------------------------------------------------------------
+*/
+const handleDeleted = () => {
+  showDeleteModal.value = false
+  router.push("/")
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -129,7 +122,8 @@ const fullName = computed(() => {
   return user.value.full_name
 })
 
-const profileImageUrl = computed(() => avatar.value)
+
+const profileImageUrl = computed(() => userAvatar.value)
 
 const quizzesCount = computed(() => {
   return user.value?.quizzes_taken || 0
@@ -164,16 +158,18 @@ const updateProfile = async (formData) => {
 
   try {
 
+    loading.value = true
+
+    // Get CSRF cookie (Laravel Sanctum)
     await axios.get("/sanctum/csrf-cookie")
 
     const { data } = await axios.put("/api/profile/update", formData)
 
-    if (data.user) {
-
-      user.value.first_name = data.user.first_name
-      user.value.last_name = data.user.last_name
-      user.value.email = data.user.email
-
+    // Update local user state
+    if (data.results && user.value) {
+      user.value.first_name = data.results.first_name
+      user.value.last_name = data.results.last_name
+      user.value.email = data.results.email
     }
 
     showEditModal.value = false
@@ -189,39 +185,25 @@ const updateProfile = async (formData) => {
 
       errorMessage.value = messages
 
+    } else if (err.response?.status === 401) {
+
+      errorMessage.value = "You are not authenticated."
+
     } else {
 
       errorMessage.value = "Update failed."
 
     }
 
-  }
+  } finally {
 
-}
-
-/*
-|--------------------------------------------------------------------------
-| Delete Account
-|--------------------------------------------------------------------------
-*/
-
-const deleteAccount = async () => {
-
-  try {
-
-    await axios.delete("/api/profile/delete")
-
-    clearUser()
-
-    router.push("/")
-
-  } catch {
-
-    errorMessage.value = "Account deletion failed."
+    loading.value = false
 
   }
 
 }
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -251,7 +233,7 @@ const onFileChange = async (e) => {
     successMessage.value = "Profile updated!"
 
     if (data.photo_url) {
-      user.value.profile_photo = data.photo_url
+      USER.value.profile_photo = data.photo_url
     }
 
   } catch {
@@ -273,16 +255,13 @@ const onFileChange = async (e) => {
 */
 
 onMounted(async () => {
-
   if (!user.value) {
     await fetchUser()
   }
-
 })
 </script>
 
 <style scoped>
-
 /* PAGE WRAPPER */
 .profile-page-wrapper {
   display: flex;
@@ -306,7 +285,7 @@ onMounted(async () => {
   max-width: 95%;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -318,7 +297,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap:10px;
+  gap: 10px;
   margin-bottom: 1.2rem;
 }
 
@@ -413,8 +392,15 @@ onMounted(async () => {
 
 /* ANIMATION */
 @keyframes fadeIn {
-  from { opacity:0; transform:translateY(6px); }
-  to { opacity:1; transform:translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* MOBILE */
@@ -430,5 +416,4 @@ onMounted(async () => {
   }
 
 }
-
 </style>

@@ -19,10 +19,9 @@
                         <th>Best Score</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <tr v-for="(leader, index) in leaders" :key="leader.user_id" :class="[
-                        { you: leader.user_id === USER?.id },
+                        { you: leader.user_id === user?.id },
                         index === 0 ? 'first-place' : ''
                     ]">
 
@@ -40,13 +39,13 @@
                         <td>
                             <div class="dash-user">
                                 <img :src="`/storage/images/profiles/${leader.profile_photo || 'default.png'}`"
-                                    class="dash-avatar" @error="setDefaultImage"  draggable="false"/>
+                                    class="dash-avatar" @error="setDefaultImage" draggable="false" />
 
                                 <span class="dash-name">
                                     <span v-if="index === 0">👑</span>
                                     {{ leader.name }}
 
-                                    <span v-if="leader.user_id === USER?.id" class="you-tag">
+                                    <span v-if="leader.user_id === user?.id" class="you-tag">
                                         (You)
                                     </span>
                                 </span>
@@ -83,29 +82,24 @@
 <script setup>
 import { ref, onMounted, computed } from "vue"
 import axios from "axios"
-import TopBar from "../../components/TopBar.vue"
-import { useUser, } from "../../composables/useUser.js"
+import TopBar from "@/components/UserSide/TopBar.vue"
+import { useUser } from "@/composables/useUser.js"
 
-const { USER, fetchUser } = useUser()
+const { user, fetchUser } = useUser()
 
 const leaders = ref([])
-
-
 
 const fetchLeaderboard = async () => {
     try {
         const { data } = await axios.get("/api/dashboard/leaderboard")
         leaders.value = data.results || []
-        console.log(USER.value)
     } catch (err) {
         console.error("Leaderboard fetch failed", err)
     }
 }
 
 const userRank = computed(() => {
-    const index = leaders.value.findIndex(
-        l => l.user_id === USER.value?.id
-    )
+    const index = leaders.value.findIndex(lead => lead.user_id === user.value?.id)
 
     return index !== -1 ? index + 1 : null
 })
@@ -226,7 +220,7 @@ onMounted(async () => {
     gap: 5px;
 }
 
-.dash-name span{
+.dash-name span {
     margin-top: -5px;
 }
 
@@ -234,7 +228,7 @@ onMounted(async () => {
     color: #28a745;
     font-weight: bold;
     font-size: 0.8rem;
-    padding-top:8.5px;
+    padding-top: 8.5px;
 }
 
 /* === SCORE BAR === */

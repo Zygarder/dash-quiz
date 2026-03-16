@@ -68,12 +68,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
-import axios from "axios"
-import { useUser } from "@/composables/useUser"
-import TopBar from "../../components/TopBar.vue"
-import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
+import { ref, computed, onMounted } from "vue"
+import { useUser } from "@/composables/useUser"
+import TopBar from "@/components/UserSide/TopBar.vue"
+import { Doughnut } from 'vue-chartjs'
+import axios from "axios"
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
 
