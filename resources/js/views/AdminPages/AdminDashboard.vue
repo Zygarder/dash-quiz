@@ -25,6 +25,7 @@
           
           <div v-if="!stats.logs || stats.logs.length === 0" class="logs-row logs-table-row">
             <span>No recent logs found.</span>
+            <button @click="handleLogout">LOG OUT</button>
           </div>
         </div>
       </section>

@@ -1,44 +1,85 @@
 <template>
-    <div class="take-quiz-page">
-        <main class="container">
-            <div v-if="loading" class="loading-container">
-                <p>Loading quiz...</p>
-            </div>
-            <div v-else-if="error" class="error-container">
-                <h2>Quiz Not Found</h2>
-                <p>{{ error }}</p>
-                <button @click="goBackToQuizzes" class="back-btn">Back to Quizzes</button>
-            </div>
-            <div v-else-if="questions.length" class="quiz-container">
-                <div class="quiz-header">
-                    <h2>{{ quiz.title }}</h2>
-                    <div class="quiz-stats">
-                        <span>Question {{ currentIndex + 1 }} of {{ questions.length }}</span>
+    <div class="quiz-wrapper">
+        <header class="quiz-navbar">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <button @click="confirmExit" class="btn-exit" title="Exit Quiz">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="title-stack">
+                        <h1 class="quiz-title">{{ quiz.title }}</h1>
+                        <span class="quiz-subtitle">Computer Systems Servicing</span>
                     </div>
                 </div>
 
-                <div class="progress-wrapper">
-                    <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+                <div class="nav-right">
+                    <div class="stat-item">
+                        <span class="stat-label">Progress</span>
+                        <span class="stat-value">{{ currentIndex + 1 }}/{{ questions.length }}</span>
+                    </div>
+                    <div class="v-divider"></div>
+                    <div class="stat-item timer">
+                        <span class="stat-label">Elapsed</span>
+                        <span class="stat-value font-mono">{{ formattedTime }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+            </div>
+        </header>
+
+        <main class="container">
+            <transition name="fade">
+                <div v-if="loading" class="state-card">
+                    <div class="loader"></div>
+                    <p>Preparing your questions...</p>
                 </div>
 
+                <div v-else-if="error" class="state-card error">
+                    <div class="icon">⚠️</div>
+                    <h2>Unable to load quiz</h2>
+                    <p>{{ error }}</p>
+                    <button @click="goBackToQuizzes" class="btn-primary">Return to Dashboard</button>
+                </div>
 
-                <div class="question-box">
-                    <h3>Q{{ currentQuestion.question_number }}. {{ currentQuestion.text }}</h3>
-                    <form @submit.prevent="submitAnswer">
-                        <div v-for="opt in currentQuestion.options" :key="opt.id" class="option">
-                            <input type="radio" :id="opt.id" v-model="selectedAnswer" :value="opt.id" />
-                            <label :for="opt.id">
-                                <span class="option-label">{{ opt.label }}.</span>
-                                {{ opt.text }}
-                            </label>
+                <div v-else-if="questions.length" class="active-quiz">
+                    <transition name="slide-fade" mode="out-in">
+                        <div class="question-card" :key="currentIndex">
+                            <h2 class="question-text">
+                                {{ currentQuestion.text }}
+                            </h2>
+
+                            <div class="options-grid">
+                                <div v-for="(option, index) in currentQuestion.options" :key="option.id"
+                                    class="option-item">
+                                    <input type="radio" :id="'opt-' + option.id" v-model="selectedAnswer"
+                                        :value="option.id" class="hidden-radio" />
+                                    <label :for="'opt-' + option.id" class="option-card">
+                                        <span class="option-index">{{ String.fromCharCode(65 + index) }}</span>
+                                        <span class="option-content">{{ option.text }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <footer class="action-bar">
+                                <button @click="submitAnswer" class="btn-submit" :disabled="!selectedAnswer">
+                                    <span>{{ currentIndex + 1 === questions.length ? 'Finish Quiz' : 'Continue'
+                                    }}</span>
+                                    <svg v-if="currentIndex + 1 !== questions.length" xmlns="http://www.w3.org/2000/svg"
+                                        width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14m-7-7 7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </footer>
                         </div>
-                        <button class="submit-btn" :disabled="!selectedAnswer">Next</button>
-                    </form>
+                    </transition>
                 </div>
-            </div>
-            <div v-else>
-                <p>No questions available for this quiz.</p>
-            </div>
+            </transition>
         </main>
     </div>
 </template>
@@ -53,313 +94,481 @@ const router = useRouter()
 
 const quiz = ref({ title: '', total_questions: 0 })
 const questions = ref([])
-const currentIndex = ref(0)
+// set current question number -> from localStorage save data, prevent from starting to one if refresh
+const currentIndex = ref(parseInt(localStorage.getItem('quiz_current_index')) || 0)
 const selectedAnswer = ref(null)
-const profileImage = ref('/images/profiles/person.jpg')
-const score = ref(0)
+const score = ref(parseInt(localStorage.getItem('quiz_score')) || 0)
 const loading = ref(true)
 const error = ref(null)
-const optionStats = ref({
-    'A': 0,
-    'B': 0,
-    'C': 0,
-    'D': 0
+
+// Computed property needs to be robust
+const currentQuestion = computed(() => {
+    return questions.value[currentIndex.value] || {
+        id: null,
+        text: '',
+        question_number: 0,
+        options: []
+    }
 })
 
-const currentQuestion = computed(() => questions.value[currentIndex.value] || {})
-const progress = computed(() => ((currentIndex.value) / questions.value.length) * 100)
-
-const getOptionPercentage = (label) => {
-    const total = Object.values(optionStats.value).reduce((sum, count) => sum + count, 0)
-    return total > 0 ? (optionStats.value[label] / total) * 100 : 0
-}
+// computed the progress bar
+const progress = computed(() => {
+    return questions.value.length > 0 ? ((currentIndex.value + 1) / questions.value.length) * 100 : 0
+})
 
 const fetchQuiz = async () => {
-    const quizId = route.params.quiz_id
-
-    // Validate quiz ID
-    if (!quizId || isNaN(quizId)) {
-        error.value = 'Invalid quiz ID provided.'
-        loading.value = false
-        return
-    }
-
     loading.value = true
     error.value = null
 
-    try {
-        const { data } = await axios.get('/api/quiz', { params: { quiz_id: quizId } })
-        quiz.value = data.quiz
-        questions.value = data.quiz.questions
+    // this will get the current ID in the url
+    const quizId = route.params.quiz_id
 
-        if (!questions.value.length) {
-            error.value = 'This quiz has no questions available.'
-        }
-    } catch (e) {
-        console.error('Failed to fetch quiz:', e)
-        if (e.response?.status === 422) {
-            error.value = 'Quiz not found or no longer available.'
+    //push back to quizzes page if no id
+    if (!quizId) {
+        error.value = 'No quiz ID in the URL.'
+        loading.value = false
+        router.push('/quizzes')
+    } else {
+        // sets the selected quiz
+        localStorage.setItem('quiz_id', quizId)
+    }
+
+    try {
+        const { data } = await axios.get(`/api/quiz/${quizId}`)
+
+        if (data.status === 'success' && data.quiz) {
+            const quizData = data.quiz
+            console.log(quizData)
+
+            quiz.value = {
+                title: quizData.title || 'Untitled Quiz',
+                description: quizData.description || '',
+                total_questions: quizData.total_questions || 0,
+            }
+
+
+            // CRITICAL FIX: Assign questions directly from the API source (quizData)
+            // Ensure we use .value for the ref
+            if (Array.isArray(quizData?.questions)) {
+                questions.value = quizData.questions
+            } else {
+                questions.value = []
+            }
+
+            console.log("Questions Loaded:", questions.value)
+            console.log("Options for Question 1:", questions.value[0]?.options)
+
+            if (questions.value.length === 0) {
+                error.value = 'This quiz has no questions available.'
+            }
         } else {
-            error.value = 'Failed to load quiz. Please try again.'
+            throw new Error('Quiz data not found')
         }
+
+    } catch (err) {
+        console.error('Fetch error:', err)
+        error.value = err.message || 'Could not load the quiz.'
     } finally {
         loading.value = false
     }
 }
 
+const timeElapsed = ref(0)
+let timerInterval = null
+
+// Start timer on mount
+onMounted(() => {
+    timerInterval = setInterval(() => {
+        timeElapsed.value++
+    }, 1000)
+    fetchQuiz()
+})
+
+// Format seconds to MM:SS -> minutes/seconds
+const formattedTime = computed(() => {
+    const mins = Math.floor(timeElapsed.value / 60)
+    const secs = timeElapsed.value % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+})
+
+// if confirmed, quiz progress will be deleted
+const confirmExit = () => {
+    if (confirm("Are you sure you want to quit? Your progress won't be saved.")) {
+        localStorage.removeItem('quiz_current_index')
+        localStorage.removeItem('quiz_score')
+        localStorage.removeItem('quizId')
+        router.push('/quizzes')
+    }
+}
+
 const submitAnswer = async () => {
-    if (selectedAnswer.value === null) return
+    // no selected answer yet
+    if (!selectedAnswer.value) return
 
     try {
-        const { data } = await axios.post('/api/quiz/answer', {
+
+        // send answer
+        const payload = {
             question_id: currentQuestion.value.id,
             answer_id: selectedAnswer.value
-        })
-
-        // Track option statistics
-        const selectedOption = currentQuestion.value.options.find(opt => opt.id === selectedAnswer.value)
-        if (selectedOption) {
-            optionStats.value[selectedOption.label]++
         }
 
+        const { data } = await axios.post('/api/quiz/answer', payload)
+
+        // add score if correct
         if (data.correct) {
             score.value++
+            // Sync score to storage
+            localStorage.setItem('quiz_score', score.value)
         }
 
+        // reset selected option
         selectedAnswer.value = null
-        currentIndex.value++
 
-        if (currentIndex.value >= questions.value.length) {
-            // Quiz complete, submit result
+        // Sync index to storage
+        localStorage.setItem('quiz_current_index', currentIndex.value)
+
+        //moves to next question
+        if (currentIndex.value < questions.value.length - 1) {
+            //incerement
+            currentIndex.value++
+
+        } else {
+            // go to result page if no more questions
             await submitQuizResult()
         }
-    } catch (e) {
-        console.error('Failed to submit answer:', e)
+
+        // console.log("Current Index:", currentIndex.value)
+        // console.log("Next Question:", questions.value[currentIndex.value])
+
+    } catch (err) {
+
+        console.error(err)
+        alert(err.response?.data?.message || "Failed to submit answer")
     }
+
 }
 
 const submitQuizResult = async () => {
     try {
         await axios.post('/api/quiz/result', {
             quiz_id: route.params.quiz_id,
-            score: score.value
+            score: score.value,
         })
-        // Redirect to result page with score and total questions
+        // redirect to result page
         router.push({
             path: '/quiz-result',
-            query: {
-                score: score.value,
-                total: questions.value.length
-            }
+            //query parameter in URI
+            query: { score: score.value, total: questions.value.length, id: route.params.quiz_id }
         })
-    } catch (e) {
-        console.error('Failed to submit quiz result:', e)
+
+        // CLEAR STORAGE HERE
+        localStorage.removeItem('quiz_current_index')
+        localStorage.removeItem('quiz_score')
+        localStorage.removeItem('quizId')
+    } catch (err) {
+        console.error('Result error:', err)
     }
 }
 
-const goBackToQuizzes = () => {
-    router.push('/quizzes')
-}
+//return to quizzes
+const goBackToQuizzes = () => router.push('/quizzes')
 
-onMounted(() => {
-    fetchQuiz()
-})
+onMounted(fetchQuiz)
 </script>
+
 <style scoped>
-/* ===== MAIN CONTAINER ===== */
-.take-quiz-page .container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 20px;
-    min-height: 70vh;
+/* Color Palette */
+:root {
+    --primary: #6366f1;
+    --primary-soft: #eef2ff;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --bg-page: #f8fafc;
+    --white: #ffffff;
+}
+
+.quiz-wrapper {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Navbar & Progress */
+.quiz-navbar {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    /* Blurred glass effect */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
     display: flex;
-    flex-direction: column;
-    gap: 25px;
-    font-family: 'Inter', sans-serif;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* ===== QUIZ HEADER ===== */
-.quiz-header {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.quiz-header h2 {
-    color: #4b3fc2;
-    font-weight: 800;
-    font-size: 2rem;
-    margin-bottom: 5px;
-}
-
-.quiz-stats {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* ===== PROGRESS BAR ===== */
-.progress-wrapper {
-    width: 100%;
-    background: #eee;
-    height: 10px;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #4b3fc2, #6c5ce7);
-    width: 0;
-    border-radius: 8px;
-    transition: width 0.4s ease;
-}
-
-/* ===== QUESTION BOX ===== */
-.question-box {
-    background: #fff;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-    margin-bottom: 20px;
+.quiz-info {
+    background: #000;
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
-.question-box h3 {
-    font-size: 1.25rem;
+/* Left Section */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.quiz-title {
+    font-size: 0.95rem;
     font-weight: 700;
-    color: #2d2d2d;
-    border: 1px solid #000;
-    padding: 10px;
-    margin-bottom: 5px;
-    text-align: center;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.2;
 }
 
-/* ===== OPTIONS AS BUTTONS ===== */
-.option {
+.btn-exit {
+    background: #f1f5f9;
+    border: none;
+    color: #64748b;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 10px 0;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.option input[type="radio"] {
+.quiz-subtitle {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Right Section */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.count-badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Slimmed Progress Bar */
+.progress-track {
+    width: 100%;
+    height: 3px;
+    background: transparent;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #6366f1;
+    transition: width 0.4s ease;
+}
+
+/* Main Layout */
+.container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 20px;
+}
+
+.question-text {
+    font-size: 1.75rem;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    background-color: #6366f1;
+    color: white;
+    border:1px black solid;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* Options Design */
+.options-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.stat-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.v-divider {
+    width: 1px;
+    height: 24px;
+    background: #e2e8f0;
+}
+
+.hidden-radio {
     display: none;
 }
 
-.option label {
-    display: block;
-    width: 100%;
-    padding: 15px 20px;
-    border-radius: 12px;
-    border: 2px solid #4b3fc2;
-    background: #fff;
-    color: #4b3fc2;
-    font-weight: 600;
+.option-card {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    background: var(--white);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: center;
 }
 
-.option input[type="radio"]:checked+label {
-    background: #4b3fc2;
-    color: #fff;
-    box-shadow: 0 8px 15px rgba(75, 63, 194, 0.3);
-    transform: translateY(-2px);
-}
-
-.option label:hover {
-    background: #f0f0ff;
-}
-
-/* ===== SUBMIT BUTTON CENTERED ===== */
-.submit-btn {
-    margin: 0 auto;
-    display: block;
-    background-color: #4b3fc2;
-    color: #fff;
-    border: none;
-    padding: 14px 30px;
-    border-radius: 12px;
+.option-index {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: var(--text-light);
+    border-radius: 8px;
     font-weight: 700;
-    cursor: pointer;
-    font-size: 1rem;
+    margin-right: 1rem;
     transition: all 0.2s ease;
 }
 
-.submit-btn:hover:not(:disabled) {
-    background-color: #3a2d99;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(75, 63, 194, 0.3);
+.option-content {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 500;
 }
 
-.submit-btn:disabled {
-    background-color: #ccc;
+.hidden-radio:checked+.option-card {
+    border-color: var(--primary);
+    background-color: var(--primary-soft);
+}
+
+.hidden-radio:checked+.option-card .option-index {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.option-card:hover:not(.hidden-radio:checked + label) {
+    border-color: #cbd5e1;
+    transform: translateX(4px);
+}
+
+/* Action Bar */
+.action-bar {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-submit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--text-dark);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-submit:disabled {
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
-/* ===== LOADING STATE ===== */
-.loading-container {
+.btn-submit:hover:not(:disabled) {
+    transform: scale(1.02);
+    color:#6366f1;
+}
+
+/* Transitions */
+.slide-fade-enter-active {
+    transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from {
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+.slide-fade-leave-to {
+    transform: translateY(-20px);
+    opacity: 0;
+}
+
+.state-card {
     text-align: center;
-    padding: 50px 20px;
-    font-size: 1.1rem;
-    color: #666;
+    padding: 4rem;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-/* ===== ERROR STATE ===== */
-.error-container {
-    background: #fff0f0;
-    border: 1px solid #f4cccc;
-    border-radius: 16px;
-    padding: 40px 25px;
-    text-align: center;
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--primary-soft);
+    border-bottom-color: var(--primary);
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+    margin-bottom: 1rem;
 }
 
-.error-container h2 {
-    color: #e74c3c;
-    font-weight: 700;
-    margin-bottom: 12px;
-}
-
-.error-container p {
-    color: #a94442;
-    margin-bottom: 20px;
-    font-size: 1rem;
-}
-
-.back-btn {
-    background-color: #4b3fc2;
-    color: #fff;
-    border: none;
-    padding: 12px 28px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-}
-
-.back-btn:hover {
-    background-color: #3a2d99;
-    transform: translateY(-1px);
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-    .question-box h3 {
-        font-size: 1.1rem;
-        
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
     }
 
-    .option label {
-        padding: 12px 16px;
-        font-size: 0.95rem;
-    }
-
-    .submit-btn {
-        padding: 12px 24px;
-        font-size: 0.95rem;
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>

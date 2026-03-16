@@ -18,6 +18,8 @@
       </div>
     </main>
   </div>
+
+
 </template>
 
 <script setup>
@@ -28,10 +30,10 @@ const loading = ref(false)
 const handleReset = async () => {
   loading.value = true
   try {
-    // placeholder - implement API call if available
+    // placeholder - implement API call if available  
     await fetch('/api/password/forgot', { method: 'POST', body: JSON.stringify({ email: email.value }) })
-  } catch (e) {
-    console.error(e)
+  } catch (error) {
+    console.error(error)
   } finally {
     loading.value = false
   }
@@ -40,11 +42,40 @@ const handleReset = async () => {
 
 <style scoped>
 .center-container {
-  display:flex;align-items:center;justify-content:center;min-height:80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
 }
-.top-bar{background:#4b3fc2;color:#fff;padding:10px;text-align:center;}
-.reset-box{max-width:400px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
-.reset-box input{width:100%;padding:8px;margin:5px 0;}
-.reset-box button{padding:8px 16px;margin-top:10px;}
-.small-text{margin-top:10px;font-size:0.9em;}
+
+.top-bar {
+  background: #4b3fc2;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+.reset-box {
+  max-width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reset-box input {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+}
+
+.reset-box button {
+  padding: 8px 16px;
+  margin-top: 10px;
+}
+
+.small-text {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
 </style>

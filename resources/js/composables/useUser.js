@@ -8,14 +8,14 @@ const fetchUser = async () => {
 
     if (user.value || isLoading) return user.value
 
-    // sets true while getting data
-    isloading = true
+    isLoading = true
 
     try {
         const { data } = await axios.get("/api/me")
         user.value = data.results
+
     } catch (err) {
-        console.error("Failed to fetch USER:", err)
+        console.error("Failed to fetch USER:", err.response || err.message)
     } finally {
         isLoading = false
     }

@@ -1,0 +1,9 @@
+Quiz Timer - not yet
+
+Randomized Questions - check
+
+Quiz History - check
+
+Leaderboard - check
+
+Analytics Dashboard - not yet

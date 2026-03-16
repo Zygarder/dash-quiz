@@ -6,14 +6,20 @@
     box-sizing: border-box;
 }
 
-/* unified avatar styling */
-.user-avatar,
-.top-avatar,
-.profile-img,
-.dash-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid #ccc;
+:root {
+  /* The "Professional" base */
+  --color-primary: #1e1b4b; 
+  
+  /* The "Violet" touch */
+  --color-accent: #8b5cf6;
+  --color-accent-soft: rgba(139, 92, 246, 0.1);
+  
+  /* Typography */
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  
+  /* Surfaces */
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --border-subtle: #f1f5f9;
 }
