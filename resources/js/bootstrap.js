@@ -1,56 +1,70 @@
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
+import axios from "axios"
+import router from "./router"
 
-import axios from 'axios';
-import router from './router'; // <--- ADD THIS IMPORT
-window.axios = axios;
-
-// This is the "magic" part for Sanctum
-axios.defaults.withCredentials = true;
-axios.defaults.withXSRFToken = true;
+// Global defaults
 axios.defaults.baseURL = "http://localhost:8000"
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['Accept'] = 'application/json';
+axios.defaults.withCredentials = true
+axios.defaults.withXSRFToken = true
+
+axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest"
+axios.defaults.headers.common["Accept"] = "application/json"
+
+
+/*
+|--------------------------------------------------------------------------
+| Axios Response Interceptor
+|--------------------------------------------------------------------------
+| Handles authentication errors globally.
+|
+| 419 = CSRF expired
+| 401 = Unauthenticated
+|
+*/
 
 axios.interceptors.response.use(
-    (response) => response, // If the request is successful, just return the response
-    (error) => {
-        // Check if the error is 401 (Unauthorized)
-        if (error.response && error.response.status === 401) {
-            // remove client flags so router guard stops allowing access
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('userRole');
 
-            // Clear your local user state if you use a Store (Vuex/Pinia)
-            // userStore.logout(); 
+    (response) => response,
 
-            // Redirect the user to the login page
-            router.push({ name: 'login' });
+    async (error) => {
+
+        // Prevent crash when response is undefined (CORS / network errors)
+        if (!error.response) {
+            console.error("Network or CORS error:", error.message)
+            return Promise.reject(error)
         }
-        return Promise.reject(error);
+
+        const { status, config } = error.response
+
+        if (status === 419 || status === 401) {
+
+            localStorage.removeItem("isLoggedIn")
+            localStorage.removeItem("userRole")
+
+            // Retry once if CSRF expired
+            if (status === 419 && !config._retry) {
+
+                config._retry = true
+
+                try {
+                    await axios.get("/sanctum/csrf-cookie")
+                    return axios(config)
+                } catch (csrfError) {
+                    return Promise.reject(csrfError)
+                }
+
+            }
+
+            // Redirect to login
+            if (router.currentRoute.value.path !== "/") {
+                router.push({ path: "/" })
+            }
+
+        }
+
+        return Promise.reject(error)
+
     }
-);
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
 
-// import Echo from 'laravel-echo';
+)
 
-// import Pusher from 'pusher-js';
-// window.Pusher = Pusher;
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: import.meta.env.VITE_PUSHER_APP_KEY,
-//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-//     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
-//     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
-//     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
-//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-//     enabledTransports: ['ws', 'wss'],
-// });
+export default axios
