@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\AdminApiController;
@@ -28,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Quizzes
     Route::get('/quizzes', [UserApiController::class, 'quizzes']);
-    Route::get('/quiz', [QuizApiController::class, 'getQuiz']);
+    Route::get('/quiz/{quiz_id}', [QuizApiController::class, 'getQuiz']);
     Route::get('/quiz/progress', [QuizApiController::class, 'getQuizProgress']);
     Route::post('/quiz/answer', [QuizApiController::class, 'submitAnswer']);
     Route::post('/quiz/result', [QuizApiController::class, 'submitQuizResult']);
@@ -38,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Profile
     Route::put('/profile/update', [ProfileApiController::class, 'updateProfile']);
-    
+
     Route::post('/profile/photo', [ProfileApiController::class, 'uploadPhoto']);
     // Self-Delete
     Route::delete('/profile/delete', [ProfileApiController::class, 'selfDeleteAccount']);
