@@ -19,7 +19,7 @@ class AdminApiController extends Controller
     public function logActivity($action, $description)
     {
         DB::table('activity_logs')->insert([
-            'admin_id' => Auth::guard('admin')->user()->id ?? 1, 
+            'admin_id' => Auth::guard('admin')->user()->id ?? 1,
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
@@ -31,10 +31,10 @@ class AdminApiController extends Controller
     ###############################################
     public function dashboard()
     {
-        $totalUsers = DB::table('dasher')->count(); 
+        $totalUsers = DB::table('dasher')->count();
         $totalQuizzes = DB::table('quizzes')->count();
         $activeCount = Dasher::where("active_status", '=', 1)->count();
-        
+
         // Grab the latest 20 logs
         $logs = DB::table('activity_logs')
             ->orderBy('created_at', 'desc')
@@ -63,10 +63,12 @@ class AdminApiController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
+        // get admin id
+        $id = Auth::guard('admin')->user()->id;
 
         //renegerate a session for admin
         if (Auth::guard('admin')->attempt($valid)) {
-
+            DB::update("UPDATE admin SET active_status = 1 WHERE id = ?", [$id]);
             $request->session()->regenerate();
 
             return response()->json([
@@ -77,9 +79,11 @@ class AdminApiController extends Controller
 
         //renegerate a session for user
         if (Auth::guard('dasher')->attempt($valid)) {
+            // get dasher id
             $id = Auth::guard('dasher')->user()->id;
 
             $request->session()->regenerate();
+            //set active_status = true
             DB::update("UPDATE dasher SET active_status = 1 WHERE id = ?", [$id]);
 
             return response()->json([
@@ -120,6 +124,47 @@ class AdminApiController extends Controller
             'data' => $dasher
         ], 201);
     }
+
+
+    ###############################################
+    # LOGOUT API
+    ###############################################
+    public function logout(Request $request)
+    {
+        // Explicitly log out the user from the "dasher" guard
+        if (Auth::guard('dasher')->check()) {
+
+            // Get current user's ID
+            $id = Auth::guard('dasher')->user()->id;
+
+            // Mark user as offline by updating active_status
+            Dasher::where('id', $id)->update(['active_status' => 0]);
+
+            // Log the user out
+            Auth::guard('dasher')->logout();
+        }
+
+        // Explicitly log out the admin from the "admin" guard
+        if (Auth::guard('admin')->check()) {
+
+            // Get current user's ID
+            $id = Auth::guard('admin')->user()->id;
+
+            // Mark admin as offline by updating active_status
+            Dasher::where('id', $id)->update(['active_status' => 0]);
+
+            // Log the admin out
+            Auth::guard('admin')->logout();
+        }
+
+        // Invalidate the session to remove all session data
+        $request->session()->invalidate();
+
+        // Regenerate CSRF token for security
+        $request->session()->regenerateToken();
+    }
+
+
 
     ###############################################
     # QUIZ MANAGEMENT APIs
@@ -266,12 +311,12 @@ class AdminApiController extends Controller
                 if (isset($qData['id'])) {
                     $questionId = $qData['id'];
                     DB::update("UPDATE questions SET question_text = ? WHERE id = ?", [
-                        $qData['text'], 
+                        $qData['text'],
                         $questionId
                     ]);
                 } else {
                     DB::insert("INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)", [
-                        $id, 
+                        $id,
                         $qData['text']
                     ]);
                     $questionId = DB::getPdo()->lastInsertId();
@@ -281,29 +326,29 @@ class AdminApiController extends Controller
                 $correctOptionIdForQuestionTable = null;
 
                 $existingOptions = DB::select("SELECT id FROM question_options WHERE question_id = ? ORDER BY id ASC", [$questionId]);
-                
+
                 DB::delete("DELETE FROM answers WHERE question_id = ?", [$questionId]);
 
                 foreach ($qData['options'] as $index => $optionText) {
                     if (isset($existingOptions[$index])) {
                         $optionId = $existingOptions[$index]->id;
                         DB::update("UPDATE question_options SET option_text = ? WHERE id = ?", [
-                            $optionText, 
+                            $optionText,
                             $optionId
                         ]);
                     } else {
                         DB::insert("INSERT INTO question_options (question_id, option_text) VALUES (?, ?)", [
-                            $questionId, 
+                            $questionId,
                             $optionText
                         ]);
                         $optionId = DB::getPdo()->lastInsertId();
                     }
 
                     $isCorrect = ($qData['correct_option'] == $index) ? 1 : 0;
-                    
+
                     DB::insert("INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)", [
-                        $questionId, 
-                        $optionText, 
+                        $questionId,
+                        $optionText,
                         $isCorrect
                     ]);
 
@@ -313,7 +358,7 @@ class AdminApiController extends Controller
                 }
 
                 DB::update("UPDATE questions SET correct_option_id = ? WHERE id = ?", [
-                    $correctOptionIdForQuestionTable, 
+                    $correctOptionIdForQuestionTable,
                     $questionId
                 ]);
             }
