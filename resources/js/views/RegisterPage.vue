@@ -74,11 +74,11 @@ const handleRegister = async () => {
         await axios.get('/sanctum/csrf-cookie')
 
         // 3. Post to Register API
-        const { data } = await axios.post('/api/register', form)
+        const response = await axios.post('/api/register',form)
 
         if (response.status === 422) {
             errors.value = response.errors
-        } else if (data) {
+        } else if (response.data) {
             // Success - redirect to login or dashboard
             router.push('/')
         } else {
