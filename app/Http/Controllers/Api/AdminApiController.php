@@ -63,11 +63,14 @@ class AdminApiController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
-        // get admin id
-        $id = Auth::guard('admin')->user()->id;
+
+
 
         //renegerate a session for admin
         if (Auth::guard('admin')->attempt($valid)) {
+
+            // get admin id
+            $id = Auth::guard('admin')->user()->id;
             DB::update("UPDATE admin SET active_status = 1 WHERE id = ?", [$id]);
             $request->session()->regenerate();
 
