@@ -73,22 +73,12 @@ const handleRegister = async () => {
         // 1. Get CSRF Cookie
         await axios.get('/sanctum/csrf-cookie')
 
-        // hashed before sending, to prevent sending plain text
-        const hashed_password = form.password
-        const hashed_confirmation = form.password_confirmation
-
         // 3. Post to Register API
-        const response = await axios.post('/api/register', {
-            'first_name': form.first_name,
-            'last_name': form.last_name,
-            'email': form.email,
-            'password': hashed_password,
-            'password_confirmation': hashed_confirmation
-        })
+        const { data } = await axios.post('/api/register', form)
 
         if (response.status === 422) {
             errors.value = response.errors
-        } else if (response.data) {
+        } else if (data) {
             // Success - redirect to login or dashboard
             router.push('/')
         } else {
