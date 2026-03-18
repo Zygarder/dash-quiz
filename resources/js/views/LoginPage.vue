@@ -106,23 +106,21 @@ const handleLogin = async () => {
   generalError.value = '';
 
   try {
-    // Initialize CSRF
-    await axios.get('/sanctum/csrf-cookie');
+    // Change this line
+    const response = await axios.post('/api/login', form);
+    const data = response.data; // This is your JSON body
 
-    // Perform login
-    const { data } = await axios.post('/api/login', form);
+    console.log(response.status); // Check the actual HTTP code
 
-    console.log(response)
-
-    if (data.status === 200 || data.status === 204) {
-      // Successful login
+    // Update this condition
+    if (response.status === 200 || response.status === 204) {
       localStorage.setItem('isLoggedIn', 'true');
-      
+
+      // Use data.role (from your JSON response)
       if (data.role) {
         localStorage.setItem('userRole', data.role);
       }
 
-      // check role to then redirect
       if (data.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
