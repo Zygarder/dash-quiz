@@ -123,27 +123,4 @@ class UserApiController extends Controller
             'results' => $records
         ]);
     }
-
-    // Log out the authenticated user
-    public function logout(Request $request)
-    {
-        // Explicitly log out the user from the "dasher" guard
-        if (Auth::guard('dasher')->check()) {
-
-            // Get current user's ID
-            $id = Auth::guard('dasher')->user()->id;
-
-            // Mark user as offline by updating active_status
-            Dasher::where('id', $id)->update(['active_status' => 0]);
-
-            // Log the user out
-            Auth::guard('dasher')->logout();
-        }
-
-        // Invalidate the session to remove all session data
-        $request->session()->invalidate();
-
-        // Regenerate CSRF token for security
-        $request->session()->regenerateToken();
-    }
 }

@@ -16,13 +16,14 @@
       <section class="hero-content">
         <div class="badge">V 1.0.1</div>
         <h1 class="main-heading">
-          Precision in <br/>
+          Precision in <br />
           <span class="text-gradient">Assessment.</span>
         </h1>
         <p class="sub-heading">
-          Empowering TVL-CSS students at Taft National High School with real-world NCII diagnostic tools and performance analytics.
+          Empowering TVL-CSS students at Taft National High School with real-world NCII diagnostic tools and performance
+          analytics.
         </p>
-        
+
         <div class="feature-list">
           <div class="feature-item">
             <div class="check">✓</div>
@@ -45,14 +46,8 @@
           <div class="form-group">
             <label for="email">School Email</label>
             <div class="input-wrapper">
-              <input 
-                id="email"
-                type="email" 
-                v-model.trim="email" 
-                placeholder="name@test.com"
-                autocomplete="username"
-                :class="{ 'error-border': errors.email }"
-              />
+              <input id="email" type="email" v-model.trim="form.email" placeholder="name@test.com"
+                autocomplete="username" :class="{ 'error-border': errors.email }" />
             </div>
             <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
           </div>
@@ -60,14 +55,8 @@
           <div class="form-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
-              <input 
-                id="password"
-                type="password" 
-                v-model.trim="password" 
-                placeholder="••••••••"
-                autocomplete="current-password"
-                :class="{ 'error-border': errors.password }"
-              />
+              <input id="password" type="password" v-model.trim="form.password" placeholder="••••••••"
+                autocomplete="current-password" :class="{ 'error-border': errors.password }" />
             </div>
             <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
           </div>
@@ -97,12 +86,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-const email = ref('');
-const password = ref('');
+const form = reactive({
+  email: '',
+  password: ''
+})
 const loading = ref(false);
 const errors = ref({});
 const generalError = ref('');
@@ -110,68 +101,64 @@ const generalError = ref('');
 const router = useRouter();
 
 const handleLogin = async () => {
-    loading.value = true;
-    errors.value = {};
-    generalError.value = '';
+  loading.value = true;
+  errors.value = {};
+  generalError.value = '';
 
-    try {
-        // Initialize CSRF
-        await axios.get('/sanctum/csrf-cookie')
-            .then(response => { console.log(response) })
-            .catch(error => console.log(error))
-        // Perform login
-        const response = await axios.post('/api/login', {
-            email: email.value,
-            password: password.value
-        });
+  try {
+    // Change this line
+    const response = await axios.post('/api/login', form);
+    const data = response.data; // This is your JSON body
 
+    console.log(response.status); // Check the actual HTTP code
 
+    // Update this condition
+    if (response.status === 200 || response.status === 204) {
+      localStorage.setItem('isLoggedIn', 'true');
 
-        if (response.status === 200 || response.status === 204) {
-            // Successful login
-            localStorage.setItem('isLoggedIn', 'true');
-            if (response.data.role) {
-                localStorage.setItem('userRole', response.data.role);
-            }
+      // Use data.role (from your JSON response)
+      if (data.role) {
+        localStorage.setItem('userRole', data.role);
+      }
 
-            if (response.data.role === 'admin') {
-                router.push('/admin/dashboard');
-            } else {
-                router.push('/home');
-            }
-        }
-
-    } catch (err) {
-        // Reset local storage on failure
-        localStorage.removeItem('isLoggedIn');
-
-        if (err.response) {
-            const { status, data } = err.response;
-            console.log(status)
-            if (status === 422 && data.errors) {
-                // Validation errors
-                errors.value = data.errors;
-            } else if (status === 401 || status === 419) {
-                // Wrong credentials or expired session
-                generalError.value = data.message || 'Invalid credentials or session expired.';
-                console.log(data.message)
-            }
-        }
-    } finally {
-        loading.value = false;
+      if (data.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/home');
+      }
     }
+
+  } catch (err) {
+    // Reset local storage on failure
+    localStorage.removeItem('isLoggedIn');
+
+    if (err.response) {
+      const { status, data } = err.response;
+      console.log(status)
+      if (status === 422 && data.errors) {
+        // Validation errors
+        errors.value = data.errors;
+      } else if (status === 401 || status === 419) {
+        // Wrong credentials or expired session
+        generalError.value = data.message || 'Invalid credentials or session expired.';
+        console.log(data.message)
+      }
+    }
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
 <style scoped>
 /* Color Palette Variables */
 :root {
-  --v-deep: #2e1065;      
-  --v-main: #4c1d95;      
-  --v-accent: #8b5cf6;    
-  --v-bg: #f5f3ff;        
-  --text-h: #1e1b4b;      
-  --text-p: #475569;      
+  --v-deep: #2e1065;
+  --v-main: #4c1d95;
+  --v-accent: #8b5cf6;
+  --v-bg: #f5f3ff;
+  --text-h: #1e1b4b;
+  --text-p: #475569;
 }
 
 .auth-wrapper {
@@ -227,7 +214,9 @@ const handleLogin = async () => {
   letter-spacing: -0.5px;
 }
 
-.brand-name span { color: #8b5cf6; }
+.brand-name span {
+  color: #8b5cf6;
+}
 
 .header-links {
   font-size: 0.75rem;
@@ -307,9 +296,9 @@ const handleLogin = async () => {
   font-size: 1rem;
 }
 
-.check { 
-  color: #8b5cf6; 
-  font-weight: 900; 
+.check {
+  color: #8b5cf6;
+  font-weight: 900;
   background: #f5f3ff;
   width: 24px;
   height: 24px;
@@ -340,7 +329,11 @@ const handleLogin = async () => {
   letter-spacing: -0.02em;
 }
 
-.card-intro p { color: #64748b; margin-top: 6px; font-weight: 500; }
+.card-intro p {
+  color: #64748b;
+  margin-top: 6px;
+  font-weight: 500;
+}
 
 .form-group {
   margin-bottom: 1.75rem;
@@ -373,7 +366,10 @@ input:focus {
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
 }
 
-.error-border { border-color: #ef4444 !important; background-color: #fef2f2; }
+.error-border {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2;
+}
 
 .error-text {
   font-size: 0.75rem;
@@ -404,7 +400,9 @@ input:focus {
   box-shadow: 0 12px 20px -5px rgba(76, 29, 149, 0.25);
 }
 
-.btn-submit:active { transform: translateY(0); }
+.btn-submit:active {
+  transform: translateY(0);
+}
 
 .form-footer {
   margin-top: 2.5rem;
@@ -418,7 +416,9 @@ input:focus {
   transition: color 0.2s;
 }
 
-.v-link:hover { color: #4c1d95; }
+.v-link:hover {
+  color: #4c1d95;
+}
 
 .separator {
   margin: 1.75rem 0;
@@ -429,14 +429,17 @@ input:focus {
   font-weight: 800;
 }
 
-.separator::before, .separator::after {
+.separator::before,
+.separator::after {
   content: "";
   flex: 1;
   height: 1px;
   background: #f1f5f9;
 }
 
-.separator span { padding: 0 12px; }
+.separator span {
+  padding: 0 12px;
+}
 
 .btn-secondary {
   display: block;
@@ -465,25 +468,58 @@ input:focus {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 1024px) {
-  .auth-container { gap: 2rem; }
-  .main-heading { font-size: 3.5rem; }
+  .auth-container {
+    gap: 2rem;
+  }
+
+  .main-heading {
+    font-size: 3.5rem;
+  }
 }
 
 @media (max-width: 900px) {
-  .auth-container { grid-template-columns: 1fr; padding-top: 2rem; }
-  .hero-content { text-align: center; }
-  .sub-heading { margin: 0 auto 3rem; }
-  .feature-list { align-items: center; margin-bottom: 3rem; }
-  .login-card { padding: 2.5rem; }
+  .auth-container {
+    grid-template-columns: 1fr;
+    padding-top: 2rem;
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+
+  .sub-heading {
+    margin: 0 auto 3rem;
+  }
+
+  .feature-list {
+    align-items: center;
+    margin-bottom: 3rem;
+  }
+
+  .login-card {
+    padding: 2.5rem;
+  }
 }
 </style>

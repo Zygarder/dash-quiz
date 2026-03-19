@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Self-Delete
     Route::delete('/profile/delete', [ProfileApiController::class, 'selfDeleteAccount']);
     // Logout
-    Route::post('/logout', [UserApiController::class, 'logout']);
+    Route::post('/logout', [AdminApiController::class, 'logout']);
 });
 
 /*

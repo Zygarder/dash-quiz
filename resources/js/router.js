@@ -14,6 +14,7 @@ import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
+import AdminLayout from './views/AdminPages/AdminLayout.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
 import QuizAdd from './views/AdminPages/QuizAdd.vue'
@@ -69,34 +70,39 @@ const routes = [
 
     // Admin routes
     {
-        path: '/admin/dashboard',
-        component: AdminDashboard,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/users',
-        component: UsersTable,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/records',
-        component: StudentRecords,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/create',
-        component: QuizAdd,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/:id/edit',
-        component: QuizEdit,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/quizzes/manage',
-        component: ManageQuestions,
-        meta: { requiresAuth: true, requiresAdmin: true }
+        path: '/admin',
+        component: AdminLayout,
+        meta: { requiresAuth: true, requiresAdmin: true },
+        children: [
+            {
+                path: '/', // /admin
+                component: AdminDashboard
+            },
+            {
+                path: 'dashboard', // /admin/dashboard
+                component: AdminDashboard
+            },
+            {
+                path: 'users',
+                component: UsersTable
+            },
+            {
+                path: 'records',
+                component: StudentRecords
+            },
+            {
+                path: 'quizzes/create',
+                component: QuizAdd
+            },
+            {
+                path: 'quizzes/:id/edit',
+                component: QuizEdit
+            },
+            {
+                path: 'quizzes/manage',
+                component: ManageQuestions
+            }
+        ]
     },
     // No Page Dound / 404 Error page, 
     {
