@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import axios from 'axios'
 
 const users = ref([])
@@ -105,7 +105,7 @@ const fetchUsers = async () => {
     users.value = response.data.data || response.data
   } catch (error) {
     console.error('Error fetching users:', error)
-    alert('Failed to load users.')
+    //alert('Failed to load users.')<-for some reason sige ra mo tunga ya man tana ako nag open sa tab
   } finally {
     loading.value = false
   }
@@ -193,7 +193,13 @@ const sortBy = (key) => {
 
 onMounted(() => {
   fetchUsers()
-  setInterval(fetchUsers, 5000) // auto refresh every 5 seconds
+  setInterval(fetchUsers, 30000) // auto refresh every 30 seconds
+})
+let pollingInterval;
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+  }
 })
 </script>
 

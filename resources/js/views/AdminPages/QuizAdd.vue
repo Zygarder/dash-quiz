@@ -144,10 +144,11 @@ const submitQuiz = async () => {
         alert("Quiz created successfully!");
         router.push("/admin/quizzes/manage");
     } catch (e) {
-        console.error("Submission Error:", e.response?.data);
+        console.error("Submission Error:", e.response?.data||console.error("Backend Crash Details:", exactError));
         alert(
             "Validation Error: Ensure all fields are filled and you have at least 10 questions."
         );
+        
     } finally {
         loading.value = false;
     }

@@ -58,7 +58,7 @@
             <td class="quiz-title">{{ rec.quiz ? rec.quiz.title : 'Deleted Quiz' }}</td>
             <td class="text-center">
               <span class="score-badge" :class="getScoreClass(rec)">
-                {{ rec.score }} / {{ rec.total_questions || '?' }}
+                {{ rec.score }} / 10
               </span>
             </td>
             <td class="date-col">{{ formatDate(rec.created_at) }}</td>
