@@ -12,7 +12,7 @@ class CreateAdmin extends Command
     protected $signature = 'make:admin';
 
     // use 'php artisan' to terminal, and find command on make:
-    protected $description = 'Creates a new administrator user via the terminal';
+    protected $description = 'Creates a new administrator via the terminal';
 
     public function handle()
     {

@@ -51,6 +51,7 @@ const handleDelete = async () => {
         isSubmitting.value = false
     }
 }
+
 </script>
 
 <style scoped>

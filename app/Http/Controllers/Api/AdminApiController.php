@@ -64,8 +64,6 @@ class AdminApiController extends Controller
             'password' => 'required'
         ]);
 
-
-
         //renegerate a session for admin
         if (Auth::guard('admin')->attempt($valid)) {
 
