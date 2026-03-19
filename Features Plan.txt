@@ -1,4 +1,4 @@
-Quiz Timer - not yet
+Quiz Timer - check
 
 Randomized Questions - check
 
@@ -6,4 +6,4 @@ Quiz History - check
 
 Leaderboard - check
 
-Analytics Dashboard - not yet
+Analytics Dashboard - check
