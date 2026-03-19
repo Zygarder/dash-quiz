@@ -14,7 +14,7 @@ import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
-import AdminLayout from './views/AdminPages/AdminLayout.vue'
+import AdminLayout from './views/AdminPages/DRYLayout/AdminLayout.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
 import QuizAdd from './views/AdminPages/QuizAdd.vue'
