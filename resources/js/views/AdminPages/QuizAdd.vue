@@ -3,9 +3,9 @@
         <div class="header-row">
             <h3 class="section-title">Create New Quiz</h3>
             <button
-                @click="$router.push('/admin/quizzes')"
+                @click="$router.push('/admin/quizzes/manage')"
                 class="logout-btn"
-                style="background: #666"
+                style="background: #555"
             >
                 Cancel
             </button>
