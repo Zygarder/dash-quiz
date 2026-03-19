@@ -38,7 +38,7 @@
             </form>
         </div>
     </main>
-
+    <!--free comment for documentation purposes only, nakalimot ko pag apil sa commit-->
     <footer>
         © 2025 Dash Quiz All Rights Reserved.
     </footer>
