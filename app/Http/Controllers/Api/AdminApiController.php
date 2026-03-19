@@ -34,21 +34,35 @@ class AdminApiController extends Controller
         $totalUsers = DB::table('dasher')->count();
         $totalQuizzes = DB::table('quizzes')->count();
         $activeCount = Dasher::where("active_status", '=', 1)->count();
+        $topDashers = DB::table('dasher')
+            ->join('quiz_records', 'dasher.id', '=', 'quiz_records.user_id') 
+            ->select(
+                'dasher.id', 
+                'dasher.first_name', 
+                'dasher.last_name',
+                // This does the exact math: (Total Score / (Attempts * 10)) * 100
+                DB::raw('ROUND((SUM(quiz_records.score) / (COUNT(quiz_records.id) * 10)) * 100, 1) as average_score')
+            )
+            ->groupBy('dasher.id', 'dasher.first_name', 'dasher.last_name')
+            ->orderByDesc('average_score')
+            ->limit(100)
+            ->get();
 
-        // Grab the latest 20 logs
+        // logs
         $logs = DB::table('activity_logs')
             ->orderBy('created_at', 'desc')
             ->limit(20)
             ->get();
 
-        // Return perfectly formatted JSON for Vue
+        
         return response()->json([
             'status' => 'success',
             'data' => [
                 'total_users' => $totalUsers,
                 'total_quizzes' => $totalQuizzes,
                 'active_users' => $activeCount,
-                'logs' => $logs
+                'logs' => $logs,
+                'top_users' => $topDashers 
             ]
         ], 200);
     }
@@ -181,81 +195,80 @@ class AdminApiController extends Controller
     }
 
     public function createQuiz(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'questions' => 'required|array|min:10', 
-        'questions.*.text' => 'required|string',
-        'questions.*.options' => 'required|array|size:4',
-        'questions.*.options.*' => 'required|string', 
-        'questions.*.correct_option' => 'required|integer|min:0|max:3',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // 1. Create the Quiz
-        DB::insert("INSERT INTO quizzes (title, description) VALUES (?, ?)", [
-            $request->title,
-            $request->description
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'questions' => 'required|array|min:10',
+            'questions.*.text' => 'required|string',
+            'questions.*.options' => 'required|array|size:4',
+            'questions.*.options.*' => 'required|string',
+            'questions.*.correct_option' => 'required|integer|min:0|max:3',
         ]);
 
-        $quiz_id = DB::getPdo()->lastInsertId();
+        DB::beginTransaction();
 
-        // 2. Loop through and create Questions
-        foreach ($request->questions as $q) {
-            DB::insert("INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)", [
-                $quiz_id,
-                $q['text']
+        try {
+            // 1. Create the Quiz
+            DB::insert("INSERT INTO quizzes (title, description) VALUES (?, ?)", [
+                $request->title,
+                $request->description
             ]);
 
-            $question_id = DB::getPdo()->lastInsertId();
-            $correctOptionId = null;
+            $quiz_id = DB::getPdo()->lastInsertId();
 
-           // 3. Loop through and create Options
-           foreach ($q['options'] as $i => $optText) {
-                
-            // Figure out if this specific option is the correct one (1 for true, 0 for false)
-            $isCorrect = ($i == $q['correct_option']) ? 1 : 0;
+            // 2. Loop through and create Questions
+            foreach ($request->questions as $q) {
+                DB::insert("INSERT INTO questions (quiz_id, question_text) VALUES (?, ?)", [
+                    $quiz_id,
+                    $q['text']
+                ]);
 
-            // FIXED: Insert BOTH the text and the is_correct flag into question_options
-            DB::insert("INSERT INTO question_options (question_id, option_text, is_correct) VALUES (?, ?, ?)", [
-                $question_id,
-                $optText,
-                $isCorrect
-            ]);
-            
-            // (Optional) If you still need data in the answers table for other features, 
-            // you can leave the answers insert here. Otherwise, you can safely delete it!
-            DB::insert("INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)", [
-                $question_id,
-                $optText,
-                $isCorrect
-            ]);
+                $question_id = DB::getPdo()->lastInsertId();
+                $correctOptionId = null;
+
+                // 3. Loop through and create Options
+                foreach ($q['options'] as $i => $optText) {
+
+                    // Figure out if this specific option is the correct one (1 for true, 0 for false)
+                    $isCorrect = ($i == $q['correct_option']) ? 1 : 0;
+
+                    // FIXED: Insert BOTH the text and the is_correct flag into question_options
+                    DB::insert("INSERT INTO question_options (question_id, option_text, is_correct) VALUES (?, ?, ?)", [
+                        $question_id,
+                        $optText,
+                        $isCorrect
+                    ]);
+
+                    // (Optional) If you still need data in the answers table for other features, 
+                    // you can leave the answers insert here. Otherwise, you can safely delete it!
+                    DB::insert("INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)", [
+                        $question_id,
+                        $optText,
+                        $isCorrect
+                    ]);
+                }
+            }
+
+            // Log the activity
+            $this->logActivity('New Quiz!', "Quiz '{$request->title}' was created");
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Quiz created successfully',
+                'quiz_id' => $quiz_id
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create quiz',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        }
-
-        // Log the activity
-        $this->logActivity('New Quiz!', "Quiz '{$request->title}' was created");
-
-        DB::commit();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Quiz created successfully',
-            'quiz_id' => $quiz_id
-        ], 201);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Failed to create quiz',
-            'error' => $e->getMessage()
-        ], 500);
     }
-}
 
     ###############################################
     # EDIT QUIZ (API Fetch)
@@ -291,7 +304,6 @@ class AdminApiController extends Controller
                 'quiz' => $quiz,
                 'questions' => $questions
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -392,7 +404,6 @@ class AdminApiController extends Controller
 
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Quiz updated successfully!'], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Failed to update: ' . $e->getMessage()], 500);

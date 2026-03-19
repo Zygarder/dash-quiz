@@ -36,17 +36,23 @@
 
         <!-- Leaderboard -->
         <section class="leaderboard">
-          <h3 class="section-title">Top Dashers</h3>
+          <h3 class="section-title">Top 100 Dashers (Avg. Performance)</h3>
 
-          <div v-if="stats.top_users?.length">
-            <div v-for="user in stats.top_users" :key="user.id" class="leader-row">
-              <span>{{ user.first_name }} {{ user.last_name }}</span>
-              <strong>{{ user.total_score }}</strong>
+          <div v-if="stats.top_users?.length" class="leaderboard-list">
+            <div v-for="(dasher, index) in stats.top_users" :key="dasher.id" class="leader-row">
+              <div class="user-info">
+                <span class="rank-badge" :class="{'top-3': index < 3}">
+                  #{{ index + 1 }}
+                </span>
+                <span class="leader-name">{{ dasher.first_name }} {{ dasher.last_name }}</span>
+              </div>
+              
+              <strong class="avg-score">{{ dasher.average_score }}%</strong>
             </div>
           </div>
 
           <div v-else class="empty-state">
-            No leaderboard data.
+            No leaderboard data yet.
           </div>
         </section>
       </div>
@@ -299,13 +305,23 @@ onMounted(() => {
 
 /* ===== Grid Sections ===== */
 .chart-section,
-.leaderboard,
 .admin-details {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
   border: 1px solid #f1f5f9;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Leaderboard gets its own elevated card styling */
+.leaderboard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 2px solid #e0e7ff; 
+  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.08); 
+  display: flex;
+  flex-direction: column;
 }
 
 /* 2-column layout */
@@ -324,23 +340,112 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
+/* Leaderboard specific header */
+.leaderboard h3.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  margin: -1.5rem -1.5rem 1rem -1.5rem; 
+  border-bottom: 1px solid #e2e8f0; 
+  border-radius: 16px 16px 0 0; 
+  color: #1e1b4b;
+}
+
+.leaderboard h3.section-title::after {
+  content: 'Top 100';
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #ede9fe;
+  color: #4c1d95;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* ===== Chart ===== */
 .chart-section canvas {
   max-height: 200px;
 }
 
 
-/* ===== Leaderboard ===== */
+/* ===== Leaderboard Specifics ===== */
+.leaderboard-list {
+  max-height: 350px; 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Natural spacing between rows */
+  padding-right: 5px;
+}
+
+/* Scrollbar styling for the list */
+.leaderboard-list::-webkit-scrollbar {
+  width: 6px;
+}
+.leaderboard-list::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Row styling */
 .leader-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.9rem 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #f1f5f9; 
+  border-radius: 10px;
   font-size: 0.9rem;
+  transition: 0.2s;
 }
 
-.leader-row strong {
-  color: #7c3aed;
+.leader-row:hover {
+  border-color: #d1d5db;
+  transform: translateX(3px);
+  background-color: #f9fafb;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.leader-name {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+}
+
+/* Highlight the top 3 players */
+.rank-badge.top-3 {
+  background: #fef08a;
+  color: #854d0e;
+  border-color: #fde047;
+}
+
+.avg-score {
+  color: #166534; 
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 /* ===== Logs ===== */
@@ -392,12 +497,7 @@ onMounted(() => {
 
 /* ===== Animation ===== */
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

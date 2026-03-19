@@ -95,49 +95,57 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* Scoped ensures these styles don't bleed out into other pages */
-.top-bar {
-    background-color: #4b3fc2;
-    color: #fff;
-    padding: 10px 20px;
-    text-align: center;
-}
-
+/* Base typography applied to the container */
 .center-container {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     min-height: 80vh;
+    font-family: 'Inter', sans-serif; /* Modern Font */
 }
 
+/* Original Top Bar Colors */
+.top-bar {
+    background-color: #4b3fc2; 
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+}
+
+/* Restored proportions with the new fade-in animation */
 .register-box {
     background-color: #fff;
-    padding: 20px 40px;
+    padding: 20px 40px; 
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 350px;
+    max-width: 350px; 
     display: flex;
     flex-direction: column;
     gap: 5px;
+    animation: fadeIn 0.6s ease-out; /* Smooth entrance */
 }
 
 .register-box h2 {
-    color: #3f2f87;
+    color: #3f2f87; 
     text-align: center;
     margin-bottom: 15px;
+    font-weight: 800; /* Bolder, modern weight */
 }
 
 .register-box input {
-    padding: 10px 5px;
+    padding: 10px 15px; 
     margin: 8px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 13px;
-    text-indent: 10px;
+    font-family: 'Inter', sans-serif;
     width: 100%;
     box-sizing: border-box;
+    transition: all 0.2s ease; /* Smooth border transition */
 }
 
 .register-box input:focus {
@@ -147,24 +155,33 @@ const handleRegister = async () => {
 }
 
 .register-btn {
-    padding: 10px 5px;
+    padding: 12px 5px; 
     width: 100%;
     background-color: #4b3fc2;
     color: #fff;
-    font-weight: bold;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.5s ease-out;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Modern button physics */
     margin-top: 10px;
 }
 
-.register-btn:hover {
+/* Added the 'lift' animation on hover */
+.register-btn:hover:not(:disabled) {
     background-color: #3f2ea3;
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 15px rgba(75, 63, 194, 0.3); 
+}
+
+.register-btn:active {
+    transform: translateY(0);
 }
 
 .register-btn:disabled {
     background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .error {
@@ -172,27 +189,35 @@ const handleRegister = async () => {
     font-size: 12px;
     margin-top: -5px;
     margin-bottom: 5px;
+    font-weight: 600;
 }
 
 .invalid-input {
     border: 1px solid red !important;
+    background-color: #fef2f2; /* Kept the subtle red background for errors */
 }
-
 
 .small-text {
     text-align: center;
     margin-top: 15px;
     font-size: 0.85rem;
     color: #999;
+    font-family: 'Inter', sans-serif;
 }
 
 .small-text a {
     color: #4b3fc2;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
+    transition: color 0.2s;
 }
 
+.small-text a:hover {
+    color: #3f2ea3;
+}
+
+/* Original Fixed Footer */
 footer {
     width: 100%;
     position: fixed;
@@ -202,6 +227,15 @@ footer {
     color: #fff;
     text-align: center;
     padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* The Entrance Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 576px) {
