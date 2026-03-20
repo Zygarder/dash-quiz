@@ -29,9 +29,7 @@ class UserApiController extends Controller
                     'name' => "{$record->user->first_name} {$record->user->last_name}",
 
                     // If user has no photo, return default image
-                    'profile_photo' => $record->user->profile_photo
-                        ? $record->user->profile_photo
-                        : 'default.png',
+                    'profile_photo' => $record->user->profile_photo,
 
                     // Score achieved in the quiz
                     'score' => $record->score,
