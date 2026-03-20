@@ -474,7 +474,7 @@ class AdminApiController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => QuizRecord::all()
+            'data' => QuizRecord::with(['quiz', 'user'])->get()
         ], 200);
     }
 }
