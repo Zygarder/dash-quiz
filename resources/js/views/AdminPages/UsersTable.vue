@@ -30,10 +30,6 @@
       <table class="styled-table">
         <thead>
           <tr>
-            <th @click="sortBy('id')">
-              Dasher ID
-              <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
             <th @click="sortBy('first_name')">
               First Name
               <span v-if="sortKey === 'first_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
@@ -58,7 +54,6 @@
             <td colspan="6" class="empty-state">No users found.</td>
           </tr>
           <tr v-for="user in paginatedUsers" :key="user.id">
-            <td><strong>#{{ user.id }}</strong></td>
             <td>{{ user.first_name }}</td>
             <td>{{ user.last_name }}</td>
             <td>{{ user.email }}</td>
@@ -136,7 +131,7 @@ const editUser = (user) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

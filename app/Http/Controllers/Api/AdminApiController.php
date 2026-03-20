@@ -18,8 +18,9 @@ class AdminApiController extends Controller
     ###############################################
     public function logActivity($action, $description)
     {
+        // insert log
         DB::table('activity_logs')->insert([
-            'admin_id' => Auth::guard('admin')->user()->id ?? 1,
+            'admin_id' => Auth::guard('admin')->user()->id,
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
@@ -35,17 +36,17 @@ class AdminApiController extends Controller
         $totalQuizzes = DB::table('quizzes')->count();
         $activeCount = Dasher::where("active_status", '=', 1)->count();
         $topDashers = DB::table('dasher')
-            ->join('quiz_records', 'dasher.id', '=', 'quiz_records.user_id') 
+            ->join('quiz_records', 'dasher.id', '=', 'quiz_records.user_id')
             ->select(
-                'dasher.id', 
-                'dasher.first_name', 
+                'dasher.id',
+                'dasher.first_name',
                 'dasher.last_name',
                 // This does the exact math: (Total Score / (Attempts * 10)) * 100
                 DB::raw('ROUND((SUM(quiz_records.score) / (COUNT(quiz_records.id) * 10)) * 100, 1) as average_score')
             )
             ->groupBy('dasher.id', 'dasher.first_name', 'dasher.last_name')
             ->orderByDesc('average_score')
-            ->limit(100)
+            ->limit(10)
             ->get();
 
         // logs
@@ -54,7 +55,9 @@ class AdminApiController extends Controller
             ->limit(20)
             ->get();
 
-        
+        $admin_name = Auth::guard('admin')->user()->first_name;
+
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -62,7 +65,8 @@ class AdminApiController extends Controller
                 'total_quizzes' => $totalQuizzes,
                 'active_users' => $activeCount,
                 'logs' => $logs,
-                'top_users' => $topDashers 
+                'admin_name' => $admin_name,
+                'top_users' => $topDashers
             ]
         ], 200);
     }
@@ -426,7 +430,7 @@ class AdminApiController extends Controller
         $quiz->delete();
 
         // <-- LOG ACTIVITY HERE (Quiz Deletion)
-        $this->logActivity('Deletion', "Quiz '{$quizTitle}' (ID: $id) was deleted");
+        $this->logActivity('Deletion', "Quiz '{$quizTitle}' (ID: $id) was deleted by");
 
         return response()->json([
             'status' => 'success',
@@ -447,7 +451,7 @@ class AdminApiController extends Controller
 
     public function deleteUser($id)
     {
-        $user = Dasher::find($id);
+        $user = Dasher::findOrFail($id);
 
         if (!$user) {
             return response()->json([
@@ -456,10 +460,11 @@ class AdminApiController extends Controller
             ], 404);
         }
 
-        $user->delete();
-
         // <-- LOG ACTIVITY HERE (User Deletion)
-        $this->logActivity('User Deletion', "Dasher ID {$id} was deleted");
+        $this->logActivity('User Deletion', "User ID {$id} named {$user->first_name} was deleted");
+
+        $user->delete();
+        
 
         return response()->json([
             'status' => 'success',
