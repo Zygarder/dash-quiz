@@ -67,7 +67,10 @@
 
           <button type="submit" class="btn-submit" :disabled="loading">
             <span v-if="!loading">Continue to Dashboard</span>
-            <span v-else class="loader-dots">Authenticating...</span>
+            <span v-else class="loader-dots">
+              <span v-if="loading">
+              <i class="fas fa-spinner fa-spin"></i></span>
+              Logging...</span>
           </button>
 
           <div class="form-footer">
