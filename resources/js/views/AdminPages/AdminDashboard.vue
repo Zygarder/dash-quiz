@@ -3,83 +3,111 @@
 
     <!-- 🔔 Notification -->
     <div v-if="notification" class="notification">
+      <i class="fas fa-bell"></i>
       {{ notification }}
     </div>
 
     <!-- Contents -->
     <div v-if="stats">
+
       <!-- 📊 Cards -->
       <section class="admin-stats">
+
         <div class="admin-card">
+          <i class="fas fa-users"></i>
           <h4>Total Users</h4>
           <p>{{ stats.total_users }}</p>
         </div>
 
         <div class="admin-card">
+          <i class="fas fa-file-alt"></i>
           <h4>Total Quizzes</h4>
           <p>{{ stats.total_quizzes }}</p>
         </div>
 
         <div class="admin-card">
+          <i class="fas fa-user-check"></i>
           <h4>Active Users</h4>
           <p>{{ stats.active_users }}</p>
         </div>
+
       </section>
 
       <div class="chart-leaderboard-grid">
       
         <!-- Chart -->
         <section class="chart-section">
-          <h3 class="section-title">System Analytics</h3>
+          <h3 class="section-title">
+            <i class="fas fa-chart-bar"></i> System Analytics
+          </h3>
           <canvas ref="chartCanvas"></canvas>
         </section>
 
         <!-- Leaderboard -->
         <section class="leaderboard">
-          <h3 class="section-title">Top 100 Dashers (Avg. Performance)</h3>
+          <h3 class="section-title">
+            <i class="fas fa-trophy"></i> Top 10 Dashers
+          </h3>
 
           <div v-if="stats.top_users?.length" class="leaderboard-list">
             <div v-for="(dasher, index) in stats.top_users" :key="dasher.id" class="leader-row">
-              <div class="user-info">
-                <span class="rank-badge" :class="{'top-3': index < 3}">
-                  #{{ index + 1 }}
-                </span>
-                <span class="leader-name">{{ dasher.first_name }} {{ dasher.last_name }}</span>
-              </div>
               
-              <strong class="avg-score">{{ dasher.average_score }}%</strong>
+              <div class="user-info">
+                <span class="rank-badge" :class="{ 'top-3': index < 3 }">
+                  <i v-if="index === 0" class="fas fa-crown"></i>
+                  <span v-else>#{{ index + 1 }}</span>
+                </span>
+
+                <span class="leader-name">
+                  {{ dasher.first_name }} {{ dasher.last_name }}
+                </span>
+              </div>
+
+              <strong class="avg-score">
+                <i class="fas fa-star"></i> {{ dasher.average_score }}%
+              </strong>
+
             </div>
           </div>
 
           <div v-else class="empty-state">
+            <i class="fas fa-box-open"></i>
             No leaderboard data yet.
           </div>
         </section>
       </div>
 
-      <!-- 📅 Logs Filter -->
+      <!-- 📅 Logs -->
       <section class="admin-details">
         <div class="logs-table">
 
           <div class="logs-header">
-            Recent Activity
+            <span><i class="fas fa-clock"></i> Recent Activity</span>
 
             <div class="filter-buttons">
-              <button @click="filterType = 'today'">Today</button>
-              <button @click="filterType = 'week'">This Week</button>
+              <button @click="filterType = 'today'">
+                <i class="fas fa-calendar-day"></i> Today
+              </button>
+              <button @click="filterType = 'week'">
+                <i class="fas fa-calendar-week"></i> Week
+              </button>
             </div>
           </div>
 
           <div v-if="filteredLogs.length">
             <div v-for="log in filteredLogs" :key="log.id" class="logs-row">
-              <span>{{ log.description }}</span>
+              <span>
+                <i class="fas fa-circle-dot"></i>
+                {{ log.description }} by admin: {{ log.admin_id }}
+              </span>   
               <small>{{ formatDate(log.created_at) }}</small>
             </div>
           </div>
 
           <div v-else class="logs-row empty">
-            No logs found.
+            <i class="fas fa-inbox"></i> No logs found.
           </div>
+
         </div>
       </section>
     </div>
@@ -89,6 +117,7 @@
       <div class="spinner"></div>
       <h3>Loading dashboard...</h3>
     </div>
+
   </div>
 </template>
 
@@ -197,7 +226,7 @@ const renderChart = () => {
   })
 }
 
-// 📅 Filter Logs
+// Filter Logs
 const filteredLogs = computed(() => {
   if (!stats.value?.logs) return []
 
@@ -227,7 +256,7 @@ const formatDate = (date) => {
 
 onMounted(() => {
   fetchStats() // get data
-  setInterval(fetchStats, 10000) // re fetch
+  setInterval(fetchStats, 10000) // re fetch every 1 min
 })
 </script>
 
@@ -354,7 +383,7 @@ onMounted(() => {
 }
 
 .leaderboard h3.section-title::after {
-  content: 'Top 100';
+  content: 'Top 10';
   font-size: 0.75rem;
   font-weight: 700;
   background: #ede9fe;
