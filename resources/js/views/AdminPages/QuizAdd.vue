@@ -2,11 +2,7 @@
     <section class="admin-section">
         <div class="header-row">
             <h3 class="section-title">Create New Quiz</h3>
-            <button
-                @click="$router.push('/admin/quizzes/manage')"
-                class="logout-btn"
-                style="background: #555"
-            >
+            <button @click="$router.push('/admin/quizzes/manage')" class="logout-btn" style="background: #555">
                 Cancel
             </button>
         </div>
@@ -14,85 +10,52 @@
         <div class="quiz-form-card">
             <div class="form-group">
                 <label>Quiz Name:</label>
-                <input
-                    v-model="form.title"
-                    type="text"
-                    placeholder="e.g. Motherboard"
-                    required
-                />
+                <input v-model="form.title" type="text" placeholder="e.g. Motherboard" required />
             </div>
 
             <div class="form-group">
                 <label>Topic / Description:</label>
-                <input
-                    v-model="form.description"
-                    type="text"
-                    placeholder="e.g. Parts of the Motherboard"
-                    required
-                />
+                <input v-model="form.description" type="text" placeholder="e.g. Parts of the Motherboard" required />
             </div>
 
             <hr class="form-divider" />
 
             <div class="questions-header">
-                <h3>Questions</h3>
-                <button type="button" @click="addQuestion" class="add-btn">
-                    + Add Question
-                </button>
+                <h3 style="margin-bottom: 3%;">Questions</h3>
+
             </div>
 
-            <div
-                v-for="(q, index) in form.questions"
-                :key="index"
-                class="question-block"
-            >
+            <div v-for="(q, index) in form.questions" :key="index" class="question-block">
                 <div class="question-meta">
-                    <span>Question #{{ index + 1 }}</span>
-                    <button
-                        type="button"
-                        @click="removeQuestion(index)"
-                        class="delete-link"
-                    >
+                    <span># {{ index + 1 }}</span>
+                    <button type="button" @click="removeQuestion(index)" class="delete-link">
                         Remove
                     </button>
                 </div>
 
-                <input
-                    v-model="q.text"
-                    type="text"
-                    placeholder="Enter your question here"
-                    class="question-input"
-                />
+                <input v-model="q.text" type="text" placeholder="Enter your question here" class="question-input" />
 
                 <div class="options-grid">
-                    <div
-                        v-for="(opt, optIndex) in 4"
-                        :key="optIndex"
-                        class="option-item"
-                    >
-                        <input
-                            type="radio"
-                            :name="'correct_' + index"
-                            :value="optIndex"
-                            v-model="q.correct_option"
-                        />
-                        <input
-                            v-model="q.options[optIndex]"
-                            type="text"
-                            :placeholder="'Option ' + (optIndex + 1)"
-                        />
+                    <div v-for="(opt, optIndex) in ['A', 'B', 'C', 'D']" :key="optIndex" class="option-item">
+                        <label for="opt">
+                            <input type="radio" id="opt" class="correct_answer" :name="'correct_' + index"
+                                :value="optIndex" v-model="q.correct_option" />
+                        </label>
+
+                        <input v-model="q.options[optIndex]" type="text" :placeholder="'Option ' + (opt)" />
+
                     </div>
                 </div>
-            </div>
+
+            </div><button type="button" @click="addQuestion" class="add-btn">
+                + Add New Question
+            </button>
 
             <div class="form-actions">
-                <button
-                    @click="submitQuiz"
-                    class="add-btn save-btn"
-                    :disabled="loading"
-                >
+                <button @click="submitQuiz" class="add-btn save-btn" :disabled="loading">
                     {{ loading ? "Saving..." : "Save Quiz" }}
                 </button>
+
             </div>
         </div>
     </section>
@@ -144,11 +107,11 @@ const submitQuiz = async () => {
         alert("Quiz created successfully!");
         router.push("/admin/quizzes/manage");
     } catch (e) {
-        console.error("Submission Error:", e.response?.data||console.error("Backend Crash Details:", exactError));
+        console.error("Submission Error:", e.response?.data || console.error("Backend Crash Details:", exactError));
         alert(
             "Validation Error: Ensure all fields are filled and you have at least 10 questions."
         );
-        
+
     } finally {
         loading.value = false;
     }
@@ -161,25 +124,30 @@ const submitQuiz = async () => {
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .form-group {
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
+
 .form-group label {
     font-weight: 600;
     margin-bottom: 5px;
 }
+
 .form-group input {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+
 .form-divider {
     margin: 25px 0;
     border: 0;
     border-top: 1px solid #eee;
 }
+
 .question-block {
     background: #fdfdfd;
     border: 1px solid #eee;
@@ -187,6 +155,7 @@ const submitQuiz = async () => {
     border-radius: 8px;
     margin-bottom: 20px;
 }
+
 .question-meta {
     display: flex;
     justify-content: space-between;
@@ -194,6 +163,7 @@ const submitQuiz = async () => {
     font-weight: bold;
     color: #3f2ea3;
 }
+
 .question-input {
     width: 100%;
     padding: 10px;
@@ -202,22 +172,53 @@ const submitQuiz = async () => {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 .options-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
+
 .option-item {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
+.option-item .correct_answer {
+    accent-color: green;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 2px solid maroon;
+    border-radius: 50%;
+    outline: none;
+    background-color: white;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* This makes the "click" visible */
+.option-item .correct_answer:checked {
+    background-color: lightgreen;
+    border-color: green;
+    /* Optional: creates a white inner dot */
+}
+
+/* This applies ONLY when it is NOT checked */
+.option-item .correct_answer:not(:checked) {
+    background-color: brown;
+    /* light gray bg */
+}
+
 .option-item input[type="text"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
 .delete-link {
     background: none;
     border: none;
@@ -225,6 +226,7 @@ const submitQuiz = async () => {
     cursor: pointer;
     font-size: 12px;
 }
+
 .save-btn {
     width: 100%;
     padding: 15px;
@@ -235,16 +237,19 @@ const submitQuiz = async () => {
     border-radius: 6px;
     cursor: pointer;
 }
+
 .save-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
+
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
+
 .add-btn {
     background: #333;
     color: white;

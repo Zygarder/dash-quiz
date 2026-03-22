@@ -75,7 +75,7 @@
                         :key="optIndex"
                         class="option-item"
                     >
-                        <input
+                        <input class="correct_answer"
                             type="radio"
                             :name="'correct_' + index"
                             :value="optIndex"

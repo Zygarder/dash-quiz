@@ -4,7 +4,7 @@
     <!-- Success Alert -->
     <transition name="slide-fade">
       <div v-if="successMessage" class="alert-success">
-        <span class="alert-icon">✓</span>
+        <i class="fas fa-check-circle alert-icon"></i>
         {{ successMessage }}
       </div>
     </transition>
@@ -12,63 +12,91 @@
     <!-- Header -->
     <div class="header-row">
       <div>
-        <h3 class="section-title">Manage Quizzes</h3>
-        <p class="section-subtitle">Create, edit, or remove academic challenges</p>
+        <h3 class="section-title">
+          <i class="fas fa-file-alt"></i>
+          Manage Quizzes
+        </h3>
+        <p class="section-subtitle">
+          Create, edit, or remove academic challenges
+        </p>
       </div>
 
       <button @click="goToAddQuiz" class="add-btn">
-        <span class="plus-icon">+</span> New Quiz
+        <i class="fas fa-plus"></i>
+        <div>New Quiz</div>
       </button>
     </div>
 
     <!-- 🔄 Loading -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
-      <h3>Loading Quizzes...</h3>
+      <h3>
+        Loading Quizzes...
+      </h3>
     </div>
 
     <!-- Table -->
     <div v-else class="table-card">
 
-      <!-- Table Header (Clickable Sort) -->
+      <!-- Table Header -->
       <div class="table-header">
         <span class="col-id" @click="sortBy('id')">
-          ID
-          <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+          <i class="fas fa-hashtag"></i> ID
+          <span v-if="sortKey === 'id'">
+            {{ sortOrder === 'asc' ? '▲' : '▼' }}
+          </span>
         </span>
 
         <span class="col-title" @click="sortBy('title')">
-          Title
-          <span v-if="sortKey === 'title'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+          <i class="fas fa-heading"></i> Title
+          <span v-if="sortKey === 'title'">
+            {{ sortOrder === 'asc' ? '▲' : '▼' }}
+          </span>
         </span>
 
-        <span class="col-desc">Description</span>
-        <span class="col-actions">Actions</span>
+        <span class="col-desc">
+          <i class="fas fa-align-left"></i> Description
+        </span>
+
+        <span class="col-actions">
+          <i class="fas fa-cogs"></i> Actions
+        </span>
       </div>
 
       <!-- Rows -->
       <div v-if="sortedQuizzes.length > 0">
         <div v-for="quiz in sortedQuizzes" :key="quiz.id" class="table-row">
-          <span class="col-id quiz-id">#{{ quiz.id }}</span>
-          <span class="col-title quiz-name">{{ quiz.title }}</span>
+
+          <span class="col-id quiz-id">
+            <i class="fas fa-hashtag"></i> {{ quiz.id }}
+          </span>
+
+          <span class="col-title quiz-name">
+            <i class="fas fa-file"></i> {{ quiz.title }}
+          </span>
+
           <span class="col-desc desc-text">
             {{ quiz.description || 'No description provided.' }}
           </span>
 
           <div class="col-actions actions-group">
             <button @click="goToEditQuiz(quiz.id)" class="btn-icon edit">
-              Edit
+              <i class="fas fa-pen"></i> Edit
             </button>
+
             <button @click="deleteQuiz(quiz.id, quiz.title)" class="btn-icon delete">
-              Delete
+              <i class="fas fa-trash"></i> Delete
             </button>
           </div>
+
         </div>
       </div>
 
       <!-- Empty -->
       <div v-else class="empty-state">
-        <div class="empty-icon">📝</div>
+        <div class="empty-icon">
+          <i class="fas fa-inbox"></i>
+        </div>
         <p>No quizzes found. Start by creating your first one!</p>
       </div>
 
@@ -91,13 +119,19 @@ const successMessage = ref('')
 const sortKey = ref('id')
 const sortOrder = ref('asc')
 
-// Fetch
-const fetchQuizzes = async () => {
+const fetchQuizzes = async (retry = 0) => {
   try {
     const { data } = await axios.get('/api/admin/quizzes')
     quizzes.value = data.data || data
+
   } catch (e) {
-    console.error("Failed to fetch quizzes", e)
+
+    if (e.response?.status === 429 && retry < 3) {
+      setTimeout(() => fetchQuizzes(retry + 1), 1000)
+    } else {
+      console.error("Failed to fetch quizzes", e)
+    }
+
   } finally {
     loading.value = false
   }
@@ -148,12 +182,7 @@ const deleteQuiz = async (id, title) => {
   }
 }
 
-onMounted(() => {
-  fetchQuizzes()
-
-  // optional auto-refresh like users page
-  setInterval(fetchQuizzes, 5000)
-})
+onMounted(fetchQuizzes)
 </script>
 
 <style scoped>
@@ -373,7 +402,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

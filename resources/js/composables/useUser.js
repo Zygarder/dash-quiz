@@ -1,7 +1,7 @@
 import { ref, computed } from "vue"
 import axios from "axios"
 
-const user = ref(null)
+const user = ref('')
 let isLoading = false
 
 const fetchUser = async () => {
@@ -19,13 +19,13 @@ const fetchUser = async () => {
     } finally {
         isLoading = false
     }
-
-    return user.value
 }
+const userFullName = computed(() => `${user.value.first_name} ${user.value.last_name}`)
 
 const clearUser = () => {
     user.value = null
 }
+
 
 const userAvatar = computed(() => {
     const photo = user.value?.profile_photo || "default.png"
@@ -35,6 +35,7 @@ const userAvatar = computed(() => {
 export function useUser() {
     return {
         user,
+        userFullName,
         fetchUser,
         userAvatar,
         clearUser

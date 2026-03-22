@@ -33,7 +33,7 @@
 
           <div class="detail-row">
             <span>Full Name:</span>
-            <b>{{ fullName }}</b>
+            <b>{{ userFullName }}</b>
           </div>
 
           <div class="detail-row">
@@ -87,7 +87,7 @@ import { useUser } from "@/composables/useUser"
 const router = useRouter()
 
 const { showSidebar, closeSidebar } = useSidebar()
-const { user, fetchUser, userAvatar } = useUser()
+const { userFullName, fetchUser, userAvatar, user } = useUser()
 
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
@@ -99,7 +99,6 @@ const successMessage = ref("")
 const errorMessage = ref("")
 const loading = ref(false)
 
-
 /*
 |--------------------------------------------------------------------------
 | Handle after deletion
@@ -109,20 +108,11 @@ const handleDeleted = () => {
   showDeleteModal.value = false
   router.push("/")
 }
-
-
 /*
 |--------------------------------------------------------------------------
 | Profile Computed
 |--------------------------------------------------------------------------
 */
-
-const fullName = computed(() => {
-  if (!user.value) return ""
-  return user.value.full_name
-})
-
-
 const profileImageUrl = computed(() => userAvatar.value)
 
 const quizzesCount = computed(() => {
@@ -233,7 +223,7 @@ const onFileChange = async (e) => {
     successMessage.value = "Profile updated!"
 
     if (data.photo_url) {
-      USER.value.profile_photo = data.photo_url
+      user.value.profile_photo = data.photo_url
     }
 
   } catch {

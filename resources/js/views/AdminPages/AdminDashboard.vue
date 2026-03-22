@@ -1,18 +1,13 @@
 <template>
   <div class="dashboard-wrapper">
-
-    <!-- 🔔 Notification -->
+    <!-- Notification -->
     <div v-if="notification" class="notification">
-      <i class="fas fa-bell"></i>
-      {{ notification }}
+      <i class="fas fa-bell"></i> {{ notification }}
     </div>
 
-    <!-- Contents -->
     <div v-if="stats">
-
-      <!-- 📊 Cards -->
+      <!-- Cards -->
       <section class="admin-stats">
-
         <div class="admin-card">
           <i class="fas fa-users"></i>
           <h4>Total Users</h4>
@@ -30,233 +25,176 @@
           <h4>Active Users</h4>
           <p>{{ stats.active_users }}</p>
         </div>
-
       </section>
 
+      <!-- Chart + Leaderboard -->
       <div class="chart-leaderboard-grid">
-      
-        <!-- Chart -->
         <section class="chart-section">
-          <h3 class="section-title">
-            <i class="fas fa-chart-bar"></i> System Analytics
-          </h3>
+          <h3 class="section-title"><i class="fas fa-chart-bar"></i> System Analytics</h3>
           <canvas ref="chartCanvas"></canvas>
         </section>
 
-        <!-- Leaderboard -->
         <section class="leaderboard">
-          <h3 class="section-title">
-            <i class="fas fa-trophy"></i> Top 10 Dashers
-          </h3>
+          <h3 class="section-title"><i class="fas fa-trophy"></i> Top 10 Dashers</h3>
 
           <div v-if="stats.top_users?.length" class="leaderboard-list">
-            <div v-for="(dasher, index) in stats.top_users" :key="dasher.id" class="leader-row">
-              
+            <div v-for="(user, index) in stats.top_users" :key="user.id" class="leader-row">
               <div class="user-info">
                 <span class="rank-badge" :class="{ 'top-3': index < 3 }">
                   <i v-if="index === 0" class="fas fa-crown"></i>
                   <span v-else>#{{ index + 1 }}</span>
                 </span>
-
-                <span class="leader-name">
-                  {{ dasher.first_name }} {{ dasher.last_name }}
-                </span>
+                <span class="leader-name">{{ user.first_name }} {{ user.last_name }}</span>
               </div>
-
-              <strong class="avg-score">
-                <i class="fas fa-star"></i> {{ dasher.average_score }}%
-              </strong>
-
+              <strong class="avg-score"><i class="fas fa-star"></i> {{ user.average_score }}%</strong>
             </div>
           </div>
 
-          <div v-else class="empty-state">
-            <i class="fas fa-box-open"></i>
-            No leaderboard data yet.
-          </div>
+          <div v-else class="empty-state">No leaderboard data yet.</div>
         </section>
       </div>
 
-      <!-- 📅 Logs -->
+      <!-- Logs -->
       <section class="admin-details">
         <div class="logs-table">
-
           <div class="logs-header">
             <span><i class="fas fa-clock"></i> Recent Activity</span>
-
             <div class="filter-buttons">
-              <button @click="filterType = 'today'">
-                <i class="fas fa-calendar-day"></i> Today
-              </button>
-              <button @click="filterType = 'week'">
-                <i class="fas fa-calendar-week"></i> Week
-              </button>
+              <button :class="{ active: filterType === 'today' }" @click="filterType = 'today'">Today</button>
+              <button :class="{ active: filterType === 'week' }" @click="filterType = 'week'">Week</button>
             </div>
           </div>
 
           <div v-if="filteredLogs.length">
             <div v-for="log in filteredLogs" :key="log.id" class="logs-row">
-              <span>
-                <i class="fas fa-circle-dot"></i>
-                {{ log.description }} by admin: {{ log.admin_id }}
-              </span>   
-              <small>{{ formatDate(log.created_at) }}</small>
+              <div class="logs-icon" :class="getLogType(log.type)"><i :class="getLogIcon(log.type)"></i></div>
+              <div class="logs-content">
+                <p>{{ log.description }}</p>
+                <small>{{ formatDate(log.created_at) }} • Admin #{{ log.admin_id }}</small>
+              </div>
             </div>
           </div>
 
-          <div v-else class="logs-row empty">
-            <i class="fas fa-inbox"></i> No logs found.
-          </div>
-
+          <div v-else class="empty"><i class="fas fa-inbox"></i> No logs found.</div>
         </div>
       </section>
     </div>
 
-    <!-- 🔄 Loading -->
+    <!-- Loading -->
     <div v-else class="loading-state">
       <div class="spinner"></div>
       <h3>Loading dashboard...</h3>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue'
-import axios from 'axios'
-import Chart from 'chart.js/auto'
+import { ref, computed, nextTick, onMounted } from "vue"
+import Chart from "chart.js/auto"
+import axios from "axios"
 
+// --- State Management ---
 const stats = ref(null)
 const chartCanvas = ref(null)
 let chartInstance = null
 
-const filterType = ref('today')
-const notification = ref('')
-let lastUserCount = 0
+const notification = ref("")
+const filterType = ref("today")
 
-// Fetch data
-const fetchStats = async () => {
-  try {
-    const { data } = await axios.get('/api/admin/dashboard')
-    const newData = data.data || data
-
-    // 🔔 Detect new users
-    if (stats.value && newData.total_users > lastUserCount) {
-      notification.value = "🎉 New user registered!"
-      setTimeout(() => notification.value = '', 3000)
-    }
-
-    stats.value = newData
-    lastUserCount = newData.total_users
-
-    await nextTick()
-    renderChart()
-
-  } catch (e) {
-    console.error("Dashboard error:", e)
-  }
-}
-
-// 📊 Chart.js (Separated Bars - Clean)
-const renderChart = () => {
-  if (!chartCanvas.value) return
-
-  if (chartInstance) {
-    chartInstance.destroy()
-  }
-
-  chartInstance = new Chart(chartCanvas.value, {
-    type: 'bar',
-    data: {
-      labels: ['Overview'], // single group
-
-      datasets: [
-        {
-          label: 'Total Users',
-          data: [stats.value.total_users],
-          backgroundColor: '#3b82f6',
-        },
-        {
-          label: 'Total Quizzes',
-          data: [stats.value.total_quizzes],
-          backgroundColor: '#8b5cf6',
-        },
-        {
-          label: 'Active Users',
-          data: [stats.value.active_users],
-          backgroundColor: '#22c55e',
-        }
-      ]
-    },
-
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-
-      plugins: {
-        legend: {
-          display: true,
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'rect',
-            padding: 15
-          }
-        },
-
-        tooltip: {
-          backgroundColor: '#1e293b',
-          titleColor: '#fff',
-          bodyColor: '#e2e8f0',
-          cornerRadius: 8
-        }
-      },
-
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { display: true } // cleaner (no "Overview" text)
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: '#f1f5f9' },
-          ticks: { color: '#64748b' }
-        }
-      }
-    }
-  })
-}
-
-// Filter Logs
+// --- Computed & Utilities ---
 const filteredLogs = computed(() => {
   if (!stats.value?.logs) return []
-
   const now = new Date()
-
   return stats.value.logs.filter(log => {
     const logDate = new Date(log.created_at)
-
-    if (filterType.value === 'today') {
-      return logDate.toDateString() === now.toDateString()
-    }
-
-    if (filterType.value === 'week') {
+    if (filterType.value === "today") return logDate.toDateString() === now.toDateString()
+    if (filterType.value === "week") {
       const weekAgo = new Date()
       weekAgo.setDate(now.getDate() - 7)
       return logDate >= weekAgo
     }
-
     return true
   })
 })
 
-// Format date
-const formatDate = (date) => {
-  return new Date(date).toLocaleString()
+const formatDate = (date) => new Date(date).toLocaleString()
+
+const getLogIcon = (type) => {
+  switch (type) {
+    case "delete": return "fas fa-trash"
+    case "create": return "fas fa-plus"
+    case "update": return "fas fa-edit"
+    default: return "fas fa-info-circle"
+  }
 }
 
+const getLogType = (type) => ({
+  "log-delete": type === "delete",
+  "log-create": type === "create",
+  "log-update": type === "update",
+})
+
+// --- Chart.js Logic ---
+const renderChart = () => {
+  if (!chartCanvas.value || !stats.value) return
+  if (chartInstance) chartInstance.destroy()
+
+  chartInstance = new Chart(chartCanvas.value, {
+    type: "bar",
+    data: {
+      labels: ["System Stats"],
+      datasets: [
+        { label: "Total Users", data: [stats.value.total_users], backgroundColor: "#3b82f6" },
+        { label: "Total Quizzes", data: [stats.value.total_quizzes], backgroundColor: "#8b5cf6" },
+        { label: "Active Users", data: [stats.value.active_users], backgroundColor: "#22c55e" },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } }
+    }
+  })
+}
+
+// --- Data Fetching (The "Turn On" Request) ---
+const fetchInitialData = async () => {
+  try {
+    // Note: Ensure this URL matches your actual Laravel API route
+    const response = await axios.get('/api/admin/stats')
+    stats.value = response.data
+
+    await nextTick()
+    renderChart()
+  } catch (err) {
+    console.error("Could not load initial stats:", err)
+  }
+}
+
+// --- Lifecycle & Real-time Listeners ---
 onMounted(() => {
-  fetchStats() // get data
-  setInterval(fetchStats, 10000) // re fetch every 1 min
+  // 1. Get current data immediately via Axios
+  fetchInitialData()
+
+  // 2. Listen for future updates via Laravel Echo
+  if (window.Echo) {
+    window.Echo.channel('dashboard')
+      .listen('StatsUpdated', async (e) => {
+        console.log("Real-time update received:", e)
+        stats.value = e.stats
+        await nextTick()
+        renderChart()
+      })
+      .listen('NewLog', (e) => {
+        if (stats.value?.logs) {
+          stats.value.logs.unshift(e.log)
+          notification.value = "New activity detected!"
+          setTimeout(() => notification.value = "", 3000)
+        }
+      })
+  } else {
+    console.error("Echo is not defined. Check your Echo configuration.")
+  }
 })
 </script>
 
@@ -347,8 +285,8 @@ onMounted(() => {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  border: 2px solid #e0e7ff; 
-  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.08); 
+  border: 2px solid #e0e7ff;
+  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.08);
   display: flex;
   flex-direction: column;
 }
@@ -366,32 +304,22 @@ onMounted(() => {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 1rem;
+}
+
+.section-title div {
+  font-size: 10px;
 }
 
 /* Leaderboard specific header */
 .leaderboard h3.section-title {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   background: #f8fafc;
   padding: 1rem 1.5rem;
-  margin: -1.5rem -1.5rem 1rem -1.5rem; 
-  border-bottom: 1px solid #e2e8f0; 
-  border-radius: 16px 16px 0 0; 
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 16px 16px 0 0;
   color: #1e1b4b;
-}
-
-.leaderboard h3.section-title::after {
-  content: 'Top 10';
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: #ede9fe;
-  color: #4c1d95;
-  padding: 4px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* ===== Chart ===== */
@@ -402,11 +330,12 @@ onMounted(() => {
 
 /* ===== Leaderboard Specifics ===== */
 .leaderboard-list {
-  max-height: 350px; 
+  max-height: 350px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Natural spacing between rows */
+  gap: 8px;
+  /* Natural spacing between rows */
   padding-right: 5px;
 }
 
@@ -414,6 +343,7 @@ onMounted(() => {
 .leaderboard-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .leaderboard-list::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 4px;
@@ -426,7 +356,7 @@ onMounted(() => {
   align-items: center;
   padding: 1rem;
   background: #ffffff;
-  border: 1px solid #f1f5f9; 
+  border: 1px solid #f1f5f9;
   border-radius: 10px;
   font-size: 0.9rem;
   transition: 0.2s;
@@ -471,7 +401,7 @@ onMounted(() => {
 }
 
 .avg-score {
-  color: #166534; 
+  color: #166534;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   font-size: 1rem;
   font-weight: 700;
@@ -479,16 +409,22 @@ onMounted(() => {
 
 /* ===== Logs ===== */
 .logs-header {
-  display: flex;
-  justify-content: space-between;
+  display: flex-end;
+  justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
   font-weight: 600;
 }
 
 .logs-row {
+  border-bottom: 1px solid black;
+  align-items: center;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+}
+
+.logs-row span {
+
   padding: 0.9rem 0.5rem;
   border-bottom: 1px solid #f8fafc;
   font-size: 0.9rem;
@@ -498,9 +434,10 @@ onMounted(() => {
   color: #94a3b8;
 }
 
-.logs-row.empty {
-  justify-content: center;
+.empty {
+  text-align: center;
   color: #94a3b8;
+
 }
 
 /* ===== Filter Buttons ===== */
@@ -526,7 +463,12 @@ onMounted(() => {
 
 /* ===== Animation ===== */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

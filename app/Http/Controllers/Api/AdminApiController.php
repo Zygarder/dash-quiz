@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+
 use App\Http\Controllers\Controller;
 use App\Models\Dasher;
 use App\Models\QuizRecord;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
+use App\Events\StatsUpdated;
+use App\Events\NewLogCreated;
 class AdminApiController extends Controller
 {
     ###############################################
@@ -41,7 +44,6 @@ class AdminApiController extends Controller
                 'dasher.id',
                 'dasher.first_name',
                 'dasher.last_name',
-                // This does the exact math: (Total Score / (Attempts * 10)) * 100
                 DB::raw('ROUND((SUM(quiz_records.score) / (COUNT(quiz_records.id) * 10)) * 100, 1) as average_score')
             )
             ->groupBy('dasher.id', 'dasher.first_name', 'dasher.last_name')
@@ -49,7 +51,6 @@ class AdminApiController extends Controller
             ->limit(10)
             ->get();
 
-        // logs
         $logs = DB::table('activity_logs')
             ->orderBy('created_at', 'desc')
             ->limit(20)
@@ -57,17 +58,27 @@ class AdminApiController extends Controller
 
         $admin_name = Auth::guard('admin')->user()->first_name;
 
+        // 🌐 Prepare stats payload
+        $stats = [
+            'total_users' => $totalUsers,
+            'total_quizzes' => $totalQuizzes,
+            'active_users' => $activeCount,
+            'logs' => $logs,
+            'admin_name' => $admin_name,
+            'top_users' => $topDashers
+        ];
+
+        // 🔥 Broadcast stats update
+        broadcast(new StatsUpdated($stats));
+
+        // Optionally broadcast each new log (if you want real-time logs separately)
+        foreach ($logs as $log) {
+            broadcast(new NewLogCreated($log));
+        }
 
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'total_users' => $totalUsers,
-                'total_quizzes' => $totalQuizzes,
-                'active_users' => $activeCount,
-                'logs' => $logs,
-                'admin_name' => $admin_name,
-                'top_users' => $topDashers
-            ]
+            'data' => $stats
         ], 200);
     }
 
@@ -464,7 +475,7 @@ class AdminApiController extends Controller
         $this->logActivity('User Deletion', "User ID {$id} named {$user->first_name} was deleted");
 
         $user->delete();
-        
+
 
         return response()->json([
             'status' => 'success',

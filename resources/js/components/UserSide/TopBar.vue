@@ -11,7 +11,7 @@
                 </button>
 
                 <div class="header-right">
-
+                    <span>{{ userFullName }}</span>
                     <!-- Avatar (when not on profile page) -->
                     <router-link v-if="route.path !== '/profile'" to="/profile" class="avatar-wrapper"
                         title="Go to profile">
@@ -42,11 +42,11 @@ import { useRoute, useRouter } from "vue-router"
 import { useSidebar } from "@/composables/useSidebar"
 import SideBarComp from "@/components/UserSide/SideBar.vue"
 import { useUser } from "@/composables/useUser"
-import { onMounted, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import axios from "axios"
 
 const { showSidebar, toggleSidebar, closeSidebar } = useSidebar()
-const { clearUser, fetchUser, userAvatar } = useUser()
+const { clearUser, fetchUser, userAvatar, userFullName } = useUser()
 
 const route = useRoute()
 const router = useRouter()
@@ -71,6 +71,7 @@ const handleLogout = async () => {
 
         await axios.post("/api/logout")
 
+        // remove data from local
         localStorage.removeItem("isLoggedIn")
         localStorage.removeItem("userRole")
 

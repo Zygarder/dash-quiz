@@ -1,45 +1,83 @@
 <template>
-    <div class="admin-container-wrapper">
-        <aside class="admin-sidebar">
-            <div class="logo-section">
-                <div class="logo-hexagon">S</div>
-                <h2 class="logo-text">Dash Quiz</h2>
-            </div>
+  <div class="admin-container-wrapper">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" :class="{ open: isSidebarOpen }">
+      
+      <div class="logo-section">
+        <div class="logo-hexagon">DQ</div>
+        <h2 class="logo-text">Dash Quiz</h2>
+      </div>
 
-            <nav class="nav-container">
-                <ul>
-                    <li><router-link to="/admin/dashboard" active-class="active">📊 Dashboard</router-link></li>
-                    <li><router-link to="/admin/quizzes/manage" active-class="active">📝 Quizzes</router-link></li>
-                    <li><router-link to="/admin/users" active-class="active">👤 Users</router-link></li>
-                    <li><router-link to="/admin/records" active-class="active">⚙️ Records</router-link></li>
-                </ul>
-            </nav>
+      <nav class="nav-container">
+        <ul>
+          <li>
+            <router-link to="/admin/dashboard" active-class="active">
+              <i class="fas fa-chart-line"></i>
+              <span class="link-text">Dashboard</span>
+            </router-link>
+          </li>
 
-            <div class="sidebar-footer">
-                <button @click="handleLogout" class="logout-btn">Log Out</button>
-            </div>
-        </aside>
+          <li>
+            <router-link to="/admin/quizzes/manage" active-class="active">
+              <i class="fas fa-file-alt"></i>
+              <span class="link-text">Quizzes</span>
+            </router-link>
+          </li>
 
-        <div class="main-content-wrapper">
-            <header class="admin-header">
-                <h2 class="header-title">Admin Dashboard</h2>
-                <div class="admin-user-info">
-                    <span>Admin</span>
-                    <div class="status-dot"></div>
-                </div>
-            </header>
+          <li>
+            <router-link to="/admin/users" active-class="active">
+              <i class="fas fa-user"></i>
+              <span class="link-text">Users</span>
+            </router-link>
+          </li>
 
-            <main class="admin-main">
-                <div class="content-view">
-                    <router-view />
-                </div>
-            </main>
+          <li>
+            <router-link to="/admin/records" active-class="active">
+              <i class="fas fa-database"></i>
+              <span class="link-text">Records</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
 
-            <footer class="admin-footer">
-                <p>&copy; 2026 Dash Quiz. All rights reserved.</p>
-            </footer>
+      <div class="sidebar-footer">
+        <button @click="handleLogout" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="link-text">Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content-wrapper">
+      
+      <header class="admin-header">
+        <button class="menu-toggle" @click="isSidebarOpen = !isSidebarOpen">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <h2 class="header-title">Admin Dashboard</h2>
+
+        <div class="admin-user-info">
+          <i class="fas fa-user-circle"></i>
+          <span>Admin</span>
+          <div class="status-dot"></div>
         </div>
+      </header>
+
+      <main class="admin-main">
+        <div class="content-view">
+          <router-view />
+        </div>
+      </main>
+
+      <footer class="admin-footer">
+        <p>&copy; 2026 Dash Quiz. All rights reserved.</p>
+      </footer>
+
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -48,7 +86,7 @@ import { useUser } from '@/composables/useUser'
 import { ref } from 'vue';
 
 const { clearUser } = useUser();
-
+const isSidebarOpen = ref(false) // for side bar
 const loggingOut = ref(false)
 
 const handleLogout = async () => {
@@ -250,5 +288,87 @@ const handleLogout = async () => {
     /* Red on hover for logout */
     color: white;
     border-color: #ef4444;
+}
+
+/* ===== TOGGLE BUTTON ===== */
+.menu-toggle {
+    display: none;
+    font-size: 1.3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1e1b4b;
+}
+
+/* ===== MEDIUM SCREEN (Tablet) ===== */
+@media (max-width: 1024px) {
+    .admin-sidebar {
+        width: 80px;
+        padding: 1rem 0.5rem;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .admin-sidebar a {
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .admin-sidebar a span {
+        display: none;
+        /* if you wrap text later */
+    }
+
+    .main-content-wrapper {
+        margin-left: 80px;
+    }
+}
+
+/* ===== SMALL SCREEN (Mobile) ===== */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .admin-sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 220px;
+        height: 100vh;
+        z-index: 1000;
+        transition: 0.3s ease;
+    }
+
+    .admin-sidebar.open {
+        left: 0;
+    }
+
+    .main-content-wrapper {
+        margin-left: 0;
+    }
+
+    /* Optional dark overlay */
+    .admin-sidebar.open::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 220px;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.link-text {
+    transition: 0.3s;
+}
+
+@media (max-width: 1024px) {
+    .link-text {
+        display: none;
+    }
 }
 </style>

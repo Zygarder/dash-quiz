@@ -139,7 +139,7 @@
       <div class="profile-details">
         <div class="detail-row">
           <span>Full Name:</span>
-          <b id="fullName">{{ $fullname }}</b>
+          <b id="fullName">{{ $userFullName }}</b>
         </div>
 
         <div class="detail-row">

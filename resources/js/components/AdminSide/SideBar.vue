@@ -6,7 +6,7 @@
         </div>
 
         <h3 class="sidebar-title">Admin Menu</h3>
-        
+
         <nav class="nav-container">
             <ul>
                 <li>
@@ -34,7 +34,7 @@
 
         <div class="sidebar-footer">
             <button @click="handleLogout" class="logout-btn">Log Out</button>
-            
+
             <div class="illustration-box">
                 <img src="https://cdn-icons-png.flaticon.com/512/6840/6840478.png" alt="Admin Illustration" />
             </div>
@@ -55,7 +55,8 @@ const handleLogout = () => {
 <style scoped>
 .admin-sidebar {
     width: 280px;
-    background-color: #ffffff; /* White background like the image */
+    background-color: #ffffff;
+    /* White background like the image */
     height: 100vh;
     padding: 2.5rem 1.5rem;
     display: flex;
@@ -73,7 +74,8 @@ const handleLogout = () => {
 .logo-hexagon {
     width: 55px;
     height: 55px;
-    background-color: #a3e635; /* Lime Green */
+    background-color: #a3e635;
+    /* Lime Green */
     margin: 0 auto 10px;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     display: flex;
@@ -85,7 +87,8 @@ const handleLogout = () => {
 }
 
 .logo-text {
-    color: #ff4d4d; /* Red text from image */
+    color: #ff4d4d;
+    /* Red text from image */
     font-size: 1.1rem;
     font-weight: 800;
     margin: 0;
@@ -166,7 +169,8 @@ const handleLogout = () => {
 }
 
 .illustration-box {
-    background-color: #ecfccb; /* Very light green circle */
+    background-color: #ecfccb;
+    /* Very light green circle */
     width: 120px;
     height: 120px;
     border-radius: 50%;

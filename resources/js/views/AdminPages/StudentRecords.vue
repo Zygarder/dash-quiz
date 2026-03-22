@@ -5,12 +5,7 @@
     <div class="header-row">
       <h3 class="section-title">Dasher Records</h3>
       <p class="section-subtitle">Viewing all completed quiz attempts</p>
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="Search by dasher or quiz..."
-        class="search-input"
-      />
+      <input type="text" v-model="searchQuery" placeholder="Search by dasher or quiz..." class="search-input" />
     </div>
 
     <!-- Loading State -->
@@ -26,10 +21,6 @@
       <table class="styled-table">
         <thead>
           <tr>
-            <th @click="sortBy('id')">
-              ID
-              <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
             <th @click="sortBy('user_name')">
               Dasher Name
               <span v-if="sortKey === 'user_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
@@ -53,8 +44,8 @@
             <td colspan="5" class="empty-state">No student records found.</td>
           </tr>
           <tr v-for="rec in paginatedRecords" :key="rec.id">
-            <td class="record-id">#{{ rec.id }}</td>
-            <td class="user-name">{{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'ID: ' + rec.user_id }}</td>
+            <td class="user-name">{{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'ID: ' + rec.user_id }}
+            </td>
             <td class="quiz-title">{{ rec.quiz ? rec.quiz.title : 'Deleted Quiz' }}</td>
             <td class="text-center">
               <span class="score-badge" :class="getScoreClass(rec)">
@@ -93,12 +84,17 @@ const sortOrder = ref('asc')
 const searchQuery = ref('')
 
 // Fetch records
-const fetchRecords = async () => {
+const fetchRecords = async (reply = 0) => {
   try {
     const response = await axios.get('/api/admin/records')
     records.value = response.data.data || response.data
+
   } catch (error) {
-    console.error('Error fetching records:', error)
+    if (error.response?.status === 429 && retry < 3) {
+      setTimeout(() => fetchQuizzes(retry + 1), 1000)
+    } else {
+      console.error("Failed to fetch quizzes", error)
+    }
   } finally {
     loading.value = false
   }
@@ -108,7 +104,7 @@ const fetchRecords = async () => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString('en-US', {
     day: '2-digit', month: 'short', year: 'numeric'
   }).replace(/ /g, '/')
 }
@@ -278,10 +274,25 @@ onMounted(fetchRecords)
   font-weight: 700;
 }
 
-.score-high { background: #dcfce7; color: #166534; }
-.score-mid { background: #fef9c3; color: #854d0e; }
-.score-low { background: #fee2e2; color: #991b1b; }
-.neutral { background: #f1f5f9; color: #475569; }
+.score-high {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.score-mid {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.score-low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
 
 /* Loading State */
 .loading-state {
@@ -303,7 +314,15 @@ onMounted(fetchRecords)
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 .empty-state {
   text-align: center;
@@ -320,6 +339,7 @@ onMounted(fetchRecords)
   margin-top: 1rem;
   gap: 12px;
 }
+
 .pagination button {
   padding: 6px 12px;
   border-radius: 8px;
@@ -327,6 +347,7 @@ onMounted(fetchRecords)
   background: white;
   cursor: pointer;
 }
+
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;

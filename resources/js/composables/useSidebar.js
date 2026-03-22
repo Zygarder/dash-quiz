@@ -12,6 +12,8 @@ export function useSidebar() {
     showSidebar.value = false
   }
 
+ 
+
   return {
     showSidebar,
     toggleSidebar,

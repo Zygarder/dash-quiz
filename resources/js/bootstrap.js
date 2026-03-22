@@ -9,7 +9,6 @@ axios.defaults.withXSRFToken = true
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest"
 axios.defaults.headers.common["Accept"] = "application/json"
 
-
 /*
 |--------------------------------------------------------------------------
 | Axios Response Interceptor
