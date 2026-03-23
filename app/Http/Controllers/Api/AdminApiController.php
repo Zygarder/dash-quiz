@@ -128,6 +128,15 @@ class AdminApiController extends Controller
             'last_name' => 'required|string|max:50',
             'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
+        ], [ 
+            // custom error messages
+            'first_name' => 'Enter your first name',
+            'last_name' => 'Enter your last name',
+            'email' => 'Email is required',
+            'email.unique' => 'Email is already been in use',
+            'password' => 'Enter your password',
+            'password.confirmed' => 'Please, confirm your password',
+
         ]);
 
         $dasher = Dasher::create([
@@ -464,7 +473,7 @@ class AdminApiController extends Controller
         $this->logActivity('User Deletion', "User ID {$id} named {$user->first_name} was deleted");
 
         $user->delete();
-        
+
 
         return response()->json([
             'status' => 'success',
