@@ -88,18 +88,20 @@ class AdminApiController extends Controller
 
     public function login(Request $request)
     {
+        // validate 
         $valid = $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        //renegerate a session for admin
+        // admin login
         if (Auth::guard('admin')->attempt($valid)) {
 
-            // get admin id
-            $id = Auth::guard('admin')->user()->id;
-            DB::update("UPDATE admin SET active_status = 1 WHERE id = ?", [$id]);
             $request->session()->regenerate();
+
+            Auth::guard('admin')->user()->update([
+                'active_status' => 1
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -107,14 +109,14 @@ class AdminApiController extends Controller
             ], 200);
         }
 
-        //renegerate a session for user
+        // dasher login
         if (Auth::guard('dasher')->attempt($valid)) {
-            // get dasher id
-            $id = Auth::guard('dasher')->user()->id;
 
             $request->session()->regenerate();
-            //set active_status = true
-            DB::update("UPDATE dasher SET active_status = 1 WHERE id = ?", [$id]);
+            
+            Auth::guard('dasher')->user()->update([
+                'active_status' => 1
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -122,9 +124,10 @@ class AdminApiController extends Controller
             ], 200);
         }
 
+        // If both fail
         return response()->json([
             'status' => 'error',
-            'message' => 'Invalid credentials'
+            'message' => 'Invalid email or password.'
         ], 401);
     }
 
@@ -139,7 +142,7 @@ class AdminApiController extends Controller
             'last_name' => 'required|string|max:50',
             'email' => 'required|email|unique:dasher,email',
             'password' => 'required|string|confirmed|min:6',
-        ], [ 
+        ], [
             // custom error messages
             'first_name' => 'Enter your first name',
             'last_name' => 'Enter your last name',
