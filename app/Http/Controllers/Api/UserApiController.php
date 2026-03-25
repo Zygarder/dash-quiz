@@ -44,7 +44,7 @@ class UserApiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'results' => $leaders
+            'data' => $leaders
         ]);
     }
 
@@ -61,34 +61,66 @@ class UserApiController extends Controller
         ]);
     }
 
-    // Get logged-in user's profile information
+    // Get logged-in user or admin profile information
+    // I did this because its better way, than re designing the database structure 
     public function profile()
     {
         // Get authenticated user using the dasher guard
-        $user = Auth::guard('dasher')->user();
+        if (Auth::guard('dasher')->check()) {
+            $user = Auth::guard('dasher')->user();
 
-        return response()->json([
-            'status' => 'success',
-            'results' => [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
+            return response()->json([
+                'status' => 'success',
+                'results' => [
+                    'id' => $user->id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
 
-                // Full name for easier frontend display
-                'full_name' => "{$user->first_name} {$user->last_name}",
+                    // Full name for easier frontend display
+                    'full_name' => "{$user->first_name} {$user->last_name}",
 
-                'email' => $user->email,
+                    'email' => $user->email,
 
-                // If no profile photo exists, return default image
-                'profile_photo' => $user->profile_photo ?? 'default.png',
+                    // If no profile photo exists, return default image
+                    'profile_photo' => $user->profile_photo ?? 'default.png',
 
-                // Count number of quizzes the user has taken
-                'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
+                    // Count number of quizzes the user has taken
+                    'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
 
-                // Format account creation date
-                'created_at' => $user->created_at->format('F j, Y')
-            ]
-        ]);
+                    // Format account creation date
+                    'created_at' => $user->created_at->format('F j, Y')
+                ]
+            ]);
+        } else if (Auth::guard('admin')->check()) {
+            $admin = Auth::guard('admin')->user();
+
+            return response()->json([
+                'status' => 'success',
+                'results' => [
+                    'id' => $admin->id,
+                    'first_name' => $admin->first_name,
+                    'last_name' => $admin->last_name,
+
+                    // Full name for easier frontend display
+                    'full_name' => "{$admin->first_name} {$admin->last_name}",
+
+                    'email' => $admin->email,
+
+                    // If no profile photo exists, return default image
+                    'profile_photo' => $admin->profile_photo ?? 'default.png',
+
+                    // Count number of quizzes the user has taken
+                    'quizzes_taken' => QuizRecord::where('user_id', $admin->id)->count(),
+
+                    // Format account creation date
+                    'created_at' => $admin->created_at->format('F j, Y')
+                ]
+            ]);
+        }
+
+
+
+
     }
 
     // Get quiz history of the logged-in user
