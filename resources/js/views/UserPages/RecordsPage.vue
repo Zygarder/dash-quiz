@@ -1,6 +1,5 @@
 <template>
   <div class="records-page">
-    <TopBar />
 
     <main class="main-content">
       <div class="records-container">
@@ -71,7 +70,6 @@
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
 import { ref, computed, onMounted } from "vue"
 import { useUser } from "@/composables/useUser"
-import TopBar from "@/components/UserSide/TopBar.vue"
 import { Doughnut } from 'vue-chartjs'
 import axios from "axios"
 

@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // User Pages
-import HomePage from './views/UserPages/HomePage.vue'
-import Profile from './views/UserPages/ProfilePage.vue'
-import Records from './views/UserPages/RecordsPage.vue'
-import QuizPage from './views/UserPages/QuizPage.vue'
+import HomePage from './views/UserPages/testHome.vue'
+import Profile from './views/UserPages/testProfilePage.vue'
+import Records from './views/UserPages/testRecords.vue'
+import QuizPage from './views/UserPages/testQuizPage.vue'
 import TakeQuizPage from './views/UserPages/TakeQuizPage.vue'
 import QuizResult from './views/UserPages/QuizResult.vue'
+
+import UserLayout from './views/UserPages/UserLayout.vue'
 
 // Landing Page
 import LoginPage from './views/LoginPage.vue'
@@ -14,7 +16,7 @@ import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
-import AdminLayout from './views/AdminPages/DRYLayout/AdminLayout.vue'
+import AdminLayout from './views/AdminPages/AdminLayout.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
 import QuizAdd from './views/AdminPages/QuizAdd.vue'
@@ -22,8 +24,34 @@ import QuizEdit from './views/AdminPages/QuizEdit.vue'
 import ManageQuestions from './views/AdminPages/ManageQuestions.vue'
 
 
-const routes = [
 
+const routes = [
+    {
+        path: "/test-dashboard",
+        component: UserLayout,
+        children: [
+            {
+                path: '/home',
+                component: HomePage,
+                meta: { requiresAuth: true, requiresStudent: true }
+            }, {
+                path: '/records',
+                component: Records,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+            {
+                path: '/quizzes',
+                component: QuizPage,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+            {
+                path: '/profile',
+                component: Profile,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+
+        ]
+    },
     {
         path: "/",
         component: LoginPage,
@@ -36,26 +64,9 @@ const routes = [
         path: "/forgot",
         component: ForgotPage
     },
-    {
-        path: '/home',
-        component: HomePage,
-        meta: { requiresAuth: true, requiresStudent: true }
-    },
-    {
-        path: '/profile',
-        component: Profile,
-        meta: { requiresAuth: true, requiresStudent: true }
-    },
-    {
-        path: '/records',
-        component: Records,
-        meta: { requiresAuth: true, requiresStudent: true }
-    },
-    {
-        path: '/quizzes',
-        component: QuizPage,
-        meta: { requiresAuth: true, requiresStudent: true }
-    },
+    ,
+
+
     {
         path: '/quiz/:quiz_id',
         name: 'quiz-start',

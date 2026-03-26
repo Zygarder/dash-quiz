@@ -11,9 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
-use App\Events\StatsUpdated;
-use App\Events\NewLogCreated;
 class AdminApiController extends Controller
 {
     ###############################################
@@ -58,7 +55,7 @@ class AdminApiController extends Controller
 
         $admin_name = Auth::guard('admin')->user()->first_name;
 
-        // 🌐 Prepare stats payload
+        // Prepare stats payload
         $stats = [
             'total_users' => $totalUsers,
             'total_quizzes' => $totalQuizzes,
@@ -67,14 +64,6 @@ class AdminApiController extends Controller
             'admin_name' => $admin_name,
             'top_users' => $topDashers
         ];
-
-        // 🔥 Broadcast stats update
-        broadcast(new StatsUpdated($stats));
-
-        // Optionally broadcast each new log (if you want real-time logs separately)
-        foreach ($logs as $log) {
-            broadcast(new NewLogCreated($log));
-        }
 
         return response()->json([
             'status' => 'success',
@@ -113,7 +102,7 @@ class AdminApiController extends Controller
         if (Auth::guard('dasher')->attempt($valid)) {
 
             $request->session()->regenerate();
-            
+
             Auth::guard('dasher')->user()->update([
                 'active_status' => 1
             ]);
@@ -166,7 +155,6 @@ class AdminApiController extends Controller
             'data' => $dasher
         ], 201);
     }
-
 
     ###############################################
     # LOGOUT API
@@ -378,7 +366,6 @@ class AdminApiController extends Controller
                 }
 
                 $receivedQuestionIds[] = $questionId;
-                $correctOptionIdForQuestionTable = null;
 
                 $existingOptions = DB::select("SELECT id FROM question_options WHERE question_id = ? ORDER BY id ASC", [$questionId]);
 
@@ -411,11 +398,6 @@ class AdminApiController extends Controller
                         $correctOptionIdForQuestionTable = $optionId;
                     }
                 }
-
-                DB::update("UPDATE questions SET correct_option_id = ? WHERE id = ?", [
-                    $correctOptionIdForQuestionTable,
-                    $questionId
-                ]);
             }
 
             if (!empty($receivedQuestionIds)) {

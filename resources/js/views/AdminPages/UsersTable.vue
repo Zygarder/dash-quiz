@@ -1,79 +1,99 @@
 <template>
-  <section class="admin-section">
+  <div class="dashboard-wrapper">
+    <section class="admin-section">
 
-    <!-- Success Message -->
-    <div v-if="successMessage" class="alert-success">
-      {{ successMessage }}
-    </div>
+      <!-- Success Message -->
+      <transition name="fade">
+        <div v-if="successMessage" class="alert-success">
+          {{ successMessage }}
+        </div>
+      </transition>
 
-    <!-- Header + Search -->
-    <div class="header-row">
-      <h3 class="section-title">Registered Dashers</h3>
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="Search by name or email..."
-        class="search-input"
-      />
-    </div>
+      <!-- Header -->
+      <div class="header-row">
+        <div>
+          <h3 class="section-title">Registered Dashers</h3>
+          <p class="section-subtitle">Manage all user accounts</p>
+        </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="table-card">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <h3>Loading Dashers...</h3>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search by name or email..."
+          class="search-input"
+        />
       </div>
-    </div>
 
-    <!-- Users Table -->
-    <div v-else class="table-card">
-      <table class="styled-table">
-        <thead>
-          <tr>
-            <th @click="sortBy('first_name')">
-              First Name
-              <span v-if="sortKey === 'first_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('last_name')">
-              Last Name
-              <span v-if="sortKey === 'last_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('email')">
-              Email
-              <span v-if="sortKey === 'email'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('created_at')">
-              Date Registered
-              <span v-if="sortKey === 'created_at'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="paginatedUsers.length === 0">
-            <td colspan="6" class="empty-state">No users found.</td>
-          </tr>
-          <tr v-for="user in paginatedUsers" :key="user.id">
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ formatDate(user.created_at) }}</td>
-            <td class="actions-col">
-              <button @click="editUser(user)" class="action-btn edit-btn">Edit</button>
-              <button @click="confirmDelete(user.id)" class="action-btn delete-btn">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Pagination -->
-      <div class="pagination" v-if="totalPages > 1">
-        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+      <!-- Loading -->
+      <div v-if="loading" class="table-card">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading records...</p>
+        </div>
       </div>
-    </div>
-  </section>
+
+      <!-- Table -->
+      <div v-else class="table-card">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th @click="sortBy('first_name')">
+                First Name
+                <span v-if="sortKey === 'first_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
+
+              <th @click="sortBy('last_name')">
+                Last Name
+                <span v-if="sortKey === 'last_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
+
+              <th @click="sortBy('email')">
+                Email
+                <span v-if="sortKey === 'email'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
+
+              <th @click="sortBy('created_at')">
+                Date Registered
+                <span v-if="sortKey === 'created_at'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
+
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-if="paginatedUsers.length === 0">
+              <td colspan="5" class="empty-state">No users found.</td>
+            </tr>
+
+            <tr v-for="user in paginatedUsers" :key="user.id">
+              <td class="name">{{ user.first_name }}</td>
+              <td class="name">{{ user.last_name }}</td>
+              <td class="email">{{ user.email }}</td>
+              <td>{{ formatDate(user.created_at) }}</td>
+
+              <td class="actions-col">
+                <button @click="editUser(user)" class="btn edit">
+                  Edit
+                </button>
+                <button @click="confirmDelete(user.id)" class="btn delete">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination" v-if="totalPages > 1">
+          <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+        </div>
+      </div>
+
+    </section>
+  </div>
 </template>
 
 <script setup>
@@ -100,64 +120,60 @@ const fetchUsers = async () => {
     users.value = response.data.data || response.data
   } catch (error) {
     console.error('Error fetching users:', error)
-    //alert('Failed to load users.')<-for some reason sige ra mo tunga ya man tana ako nag open sa tab
   } finally {
     loading.value = false
   }
 }
 
-// Delete user
+// Delete
 const confirmDelete = async (id) => {
-  if (window.confirm(`Are you sure you want to remove Dasher ID: ${id}?`)) {
-    try {
-      await axios.delete(`/api/admin/users/${id}`)
-      successMessage.value = `Dasher ID: ${id} was successfully removed.`
-      await fetchUsers()
-      setTimeout(() => (successMessage.value = ''), 3000)
-    } catch (error) {
-      console.error('Error deleting user:', error)
-      alert('Failed to delete user.')
-    }
+  if (!confirm(`Delete user ID: ${id}?`)) return
+
+  try {
+    await axios.delete(`/api/admin/users/${id}`)
+    successMessage.value = `User ${id} removed.`
+
+    await fetchUsers()
+
+    setTimeout(() => successMessage.value = '', 2500)
+  } catch (error) {
+    alert('Delete failed.')
   }
 }
 
-// Edit user
+// Edit
 const editUser = (user) => {
-  // You can open a modal or navigate to edit page
-  alert(`Edit Dasher ID: ${user.id} - implement your modal or route here.`)
+  alert(`Edit user ${user.id}`)
 }
 
 // Format date
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric',
+    year: 'numeric'
   }).replace(/ /g, '/')
 }
 
-// Computed: filtered + sorted users
+// Filter + Sort
 const filteredUsers = computed(() => {
-  let filtered = users.value.filter(
-    (u) =>
-      u.first_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      u.last_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+  let filtered = users.value.filter(u =>
+    u.first_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    u.last_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 
   filtered.sort((a, b) => {
-    let valA = a[sortKey.value] || ''
-    let valB = b[sortKey.value] || ''
+    let A = a[sortKey.value] || ''
+    let B = b[sortKey.value] || ''
 
     if (sortKey.value === 'created_at') {
-      valA = new Date(valA)
-      valB = new Date(valB)
+      A = new Date(A)
+      B = new Date(B)
     }
 
-    if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1
-    if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1
+    if (A < B) return sortOrder.value === 'asc' ? -1 : 1
+    if (A > B) return sortOrder.value === 'asc' ? 1 : -1
     return 0
   })
 
@@ -166,17 +182,19 @@ const filteredUsers = computed(() => {
 
 // Pagination
 const totalPages = computed(() => Math.ceil(filteredUsers.value.length / perPage))
+
 const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * perPage
   return filteredUsers.value.slice(start, start + perPage)
 })
 
-// Watch currentPage to stay in bounds
 watch([filteredUsers, currentPage], () => {
-  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value || 1
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = totalPages.value || 1
+  }
 })
 
-// Sorting
+// Sort
 const sortBy = (key) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -186,173 +204,195 @@ const sortBy = (key) => {
   }
 }
 
+// Lifecycle
+let interval
+
 onMounted(() => {
   fetchUsers()
-  setInterval(fetchUsers, 30000) // auto refresh every 30 seconds
+  interval = setInterval(fetchUsers, 30000)
 })
-let pollingInterval;
+
 onUnmounted(() => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval)
-  }
+  clearInterval(interval)
 })
 </script>
 
 <style scoped>
-/* Section wrapper */
-.admin-section {
-  padding: 1.2rem;
+/* ===== Wrapper ===== */
+.dashboard-wrapper {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
-/* Header */
+/* ===== Section ===== */
+.admin-section {
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* ===== Header ===== */
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
   font-size: 1.4rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-/* Search input */
-.search-input {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
+.section-subtitle {
   font-size: 0.85rem;
-  width: 220px;
+  color: #64748b;
 }
 
-/* Success Alert */
-.alert-success {
-  background: #dcfce7;
-  color: #166534;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+/* ===== Search ===== */
+.search-input {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  width: 230px;
 }
 
-/* Loading State */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 150px;
-  gap: 12px;
-  color: #4c1d95;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f5f3ff;
-  border-top: 4px solid #8b5cf6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* Card container */
+/* ===== Card ===== */
 .table-card {
   background: white;
   border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  overflow-x: auto;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  overflow: hidden;
 }
 
-/* Table */
+/* ===== Table ===== */
 .styled-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
 }
 
 .styled-table th {
-  text-align: left;
-  padding: 12px;
-  font-weight: 600;
-  color: #334155;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
 }
 
 .styled-table td {
-  padding: 12px;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 1rem;
+  border-bottom: 1px solid #f8fafc;
+  font-size: 0.9rem;
 }
 
-.styled-table tbody tr:hover {
+.styled-table tr:hover {
   background: #f9fafb;
 }
 
-.actions-col button {
-  margin-right: 6px;
+/* ===== Cells ===== */
+.name {
+  font-weight: 500;
+  color: #1e293b;
 }
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 1.5rem;
-  color: #94a3b8;
+.email {
+  color: #4c1d95;
 }
 
-/* Action button */
-.action-btn {
+/* ===== Buttons ===== */
+.actions-col {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
   padding: 6px 12px;
   border-radius: 8px;
   border: none;
+  font-size: 0.75rem;
   cursor: pointer;
-  font-size: 0.8rem;
   transition: 0.2s;
 }
 
-.edit-btn {
-  background: #dbeafe;
-  color: #1e40af;
+.btn.edit {
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
-.edit-btn:hover {
-  background: #3b82f6;
+.btn.edit:hover {
+  background: #4c1d95;
   color: white;
 }
 
-.delete-btn {
+.btn.delete {
   background: #fee2e2;
-  color: #b91c1c;
+  color: #991b1b;
 }
 
-.delete-btn:hover {
+.btn.delete:hover {
   background: #ef4444;
   color: white;
 }
 
-/* Pagination */
+/* ===== States ===== */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+/* ===== Loading ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+}
+
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #e0e7ff;
+  border-top: 3px solid #6366f1;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Pagination ===== */
 .pagination {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-  gap: 12px;
+  gap: 10px;
+  padding: 1rem;
 }
 
 .pagination button {
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
   background: white;
   cursor: pointer;
 }
 
 .pagination button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+}
+
+/* ===== Animation ===== */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

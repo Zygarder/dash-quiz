@@ -89,11 +89,11 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted } from "vue"
+import { ref, computed, nextTick, onMounted, onUnmounted } from "vue"
 import Chart from "chart.js/auto"
 import axios from "axios"
 
-// --- State Management ---
+// --- State ---
 const stats = ref(null)
 const chartCanvas = ref(null)
 let chartInstance = null
@@ -101,22 +101,31 @@ let chartInstance = null
 const notification = ref("")
 const filterType = ref("today")
 
-// --- Computed & Utilities ---
+let interval = null // for auto-refresh
+
+// --- Computed ---
 const filteredLogs = computed(() => {
   if (!stats.value?.logs) return []
   const now = new Date()
+
   return stats.value.logs.filter(log => {
     const logDate = new Date(log.created_at)
-    if (filterType.value === "today") return logDate.toDateString() === now.toDateString()
+
+    if (filterType.value === "today") {
+      return logDate.toDateString() === now.toDateString()
+    }
+
     if (filterType.value === "week") {
       const weekAgo = new Date()
       weekAgo.setDate(now.getDate() - 7)
       return logDate >= weekAgo
     }
+
     return true
   })
 })
 
+// --- Utils ---
 const formatDate = (date) => new Date(date).toLocaleString()
 
 const getLogIcon = (type) => {
@@ -134,192 +143,163 @@ const getLogType = (type) => ({
   "log-update": type === "update",
 })
 
-// --- Chart.js Logic ---
+// --- Chart ---
 const renderChart = () => {
   if (!chartCanvas.value || !stats.value) return
-  if (chartInstance) chartInstance.destroy()
+
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
 
   chartInstance = new Chart(chartCanvas.value, {
     type: "bar",
     data: {
       labels: ["System Stats"],
       datasets: [
-        { label: "Total Users", data: [stats.value.total_users], backgroundColor: "#3b82f6" },
-        { label: "Total Quizzes", data: [stats.value.total_quizzes], backgroundColor: "#8b5cf6" },
-        { label: "Active Users", data: [stats.value.active_users], backgroundColor: "#22c55e" },
+        { label: "Total Users", data: [stats.value.total_users] },
+        { label: "Total Quizzes", data: [stats.value.total_quizzes] },
+        { label: "Active Users", data: [stats.value.active_users] },
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: true } }
     }
   })
 }
 
-// --- Data Fetching (The "Turn On" Request) ---
-const fetchInitialData = async () => {
+// --- Fetch Data ---
+const fetchStats = async (showNotif = false) => {
   try {
-    // Note: Ensure this URL matches your actual Laravel API route
-    const response = await axios.get('/api/admin/stats')
-    stats.value = response.data
+    const response = await axios.get('/api/admin/dashboard')
+
+    // Optional: detect updates
+    if (showNotif && stats.value) {
+      notification.value = "Dashboard updated!"
+      setTimeout(() => notification.value = "", 2000)
+    }
+
+    stats.value = response.data.data
 
     await nextTick()
     renderChart()
+
   } catch (err) {
-    console.error("Could not load initial stats:", err)
+    console.error("Error fetching stats:", err)
   }
+  
 }
 
-// --- Lifecycle & Real-time Listeners ---
+// --- Lifecycle ---
 onMounted(() => {
-  // 1. Get current data immediately via Axios
-  fetchInitialData()
+  // initial load
+  fetchStats()
 
-  // 2. Listen for future updates via Laravel Echo
-  if (window.Echo) {
-    window.Echo.channel('dashboard')
-      .listen('StatsUpdated', async (e) => {
-        console.log("Real-time update received:", e)
-        stats.value = e.stats
-        await nextTick()
-        renderChart()
-      })
-      .listen('NewLog', (e) => {
-        if (stats.value?.logs) {
-          stats.value.logs.unshift(e.log)
-          notification.value = "New activity detected!"
-          setTimeout(() => notification.value = "", 3000)
-        }
-      })
-  } else {
-    console.error("Echo is not defined. Check your Echo configuration.")
-  }
+  interval = setInterval(() => {
+    fetchStats(true)
+  }, 3000)
+})
+
+// cleanup
+onUnmounted(() => {
+  if (interval) clearInterval(interval)
 })
 </script>
 
 <style scoped>
 /* ===== Layout ===== */
 .dashboard-wrapper {
-  padding: 2rem;
+  padding: 1.5rem;
   background: #f8fafc;
   min-height: 100vh;
 }
 
-/* ===== Notification (Top Right Floating) ===== */
+/* ===== Notification ===== */
 .notification {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #dcfce7;
-  color: #166534;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  z-index: 999;
+  top: 16px;
+  right: 16px;
+  z-index: 99;
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
-/* ===== Loader ===== */
+/* ===== Loading ===== */
 .loading-state {
   text-align: center;
-  padding: 6rem;
-  color: #4c1d95;
+  padding: 5rem;
+  color: #64748b;
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #ede9fe;
-  border-top: 5px solid #7c3aed;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #6366f1;
   border-radius: 50%;
   margin: 0 auto 1rem;
   animation: spin 1s linear infinite;
 }
 
-/* ===== Stats Cards ===== */
+/* ===== Stats ===== */
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .admin-card {
-  background: white;
-  padding: 1.8rem;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  background: #fff;
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   transition: 0.2s;
 }
 
 .admin-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .admin-card h4 {
-  color: #64748b;
-  font-size: 0.85rem;
-  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
 }
 
 .admin-card p {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #4c1d95;
+  color: #1e293b;
 }
 
-/* ===== Grid Sections ===== */
-.chart-section,
-.admin-details {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
-}
-
-/* Leaderboard gets its own elevated card styling */
-.leaderboard {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem;
-  border: 2px solid #e0e7ff;
-  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.08);
-  display: flex;
-  flex-direction: column;
-}
-
-/* 2-column layout */
+/* ===== Grid ===== */
 .chart-leaderboard-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-section,
+.leaderboard,
+.admin-details {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.2rem;
+  border: 1px solid #e5e7eb;
 }
 
 /* ===== Titles ===== */
 .section-title {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #1e293b;
-}
-
-.section-title div {
-  font-size: 10px;
-}
-
-/* Leaderboard specific header */
-.leaderboard h3.section-title {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f8fafc;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  border-radius: 16px 16px 0 0;
-  color: #1e1b4b;
+  margin-bottom: 1rem;
+  color: #334155;
 }
 
 /* ===== Chart ===== */
@@ -327,147 +307,121 @@ onMounted(() => {
   max-height: 200px;
 }
 
-
-/* ===== Leaderboard Specifics ===== */
+/* ===== Leaderboard ===== */
 .leaderboard-list {
-  max-height: 350px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  /* Natural spacing between rows */
-  padding-right: 5px;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
-/* Scrollbar styling for the list */
-.leaderboard-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.leaderboard-list::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 4px;
-}
-
-/* Row styling */
 .leader-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background: #ffffff;
+  padding: 0.7rem;
+  border-radius: 8px;
   border: 1px solid #f1f5f9;
-  border-radius: 10px;
-  font-size: 0.9rem;
   transition: 0.2s;
 }
 
 .leader-row:hover {
-  border-color: #d1d5db;
-  transform: translateX(3px);
-  background-color: #f9fafb;
+  background: #f9fafb;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.leader-name {
-  font-weight: 500;
-  color: #1e293b;
+  gap: 10px;
 }
 
 .rank-badge {
-  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: #f1f5f9;
-  color: #64748b;
-  border-radius: 50%;
-  font-size: 0.8rem;
-  font-weight: 700;
-  border: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-/* Highlight the top 3 players */
 .rank-badge.top-3 {
-  background: #fef08a;
-  color: #854d0e;
-  border-color: #fde047;
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.leader-name {
+  font-size: 0.85rem;
 }
 
 .avg-score {
-  color: #166534;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #16a34a;
 }
 
 /* ===== Logs ===== */
 .logs-header {
-  display: flex-end;
-  justify-content: center;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
 .logs-row {
-  border-bottom: 1px solid black;
-  align-items: center;
   display: flex;
-  justify-content: center;
+  gap: 10px;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.logs-row span {
-
-  padding: 0.9rem 0.5rem;
-  border-bottom: 1px solid #f8fafc;
-  font-size: 0.9rem;
+.logs-content p {
+  font-size: 0.85rem;
+  color: #1e293b;
 }
 
-.logs-row small {
+.logs-content small {
+  font-size: 0.7rem;
   color: #94a3b8;
 }
 
-.empty {
+.empty,
+.empty-state {
   text-align: center;
+  font-size: 0.8rem;
   color: #94a3b8;
-
+  padding: 1rem 0;
 }
 
-/* ===== Filter Buttons ===== */
+/* ===== Filters ===== */
 .filter-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-buttons button {
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
   cursor: pointer;
-  font-size: 0.8rem;
-  transition: 0.2s;
 }
 
-.filter-buttons button:hover {
-  background: #ede9fe;
-  color: #4c1d95;
+.filter-buttons button.active {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
 }
 
 /* ===== Animation ===== */
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }

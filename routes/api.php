@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 */
 // Ensure your 'admin' guard is configured in config/auth.php
 Route::middleware(['auth:sanctum', 'ability:admin'])->group(function () {
+    Route::get('/me', [UserApiController::class, 'profile']);
     Route::get('/admin/dashboard', [AdminApiController::class, 'dashboard']);
     Route::get('/admin/quizzes', [AdminApiController::class, 'allQuizzes']);
     Route::get('/admin/quizzes/{id}/edit', [AdminApiController::class, 'editQuiz']);

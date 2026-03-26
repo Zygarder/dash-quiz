@@ -1,70 +1,89 @@
 <template>
-  <section class="admin-section">
+  <div class="page-wrapper">
+    <section class="admin-section">
 
-    <!-- Header -->
-    <div class="header-row">
-      <h3 class="section-title">Dasher Records</h3>
-      <p class="section-subtitle">Viewing all completed quiz attempts</p>
-      <input type="text" v-model="searchQuery" placeholder="Search by dasher or quiz..." class="search-input" />
-    </div>
+      <!-- Header -->
+      <div class="header-row">
+        <div>
+          <h3 class="section-title">Dasher Records</h3>
+          <p class="section-subtitle">Viewing all completed quiz attempts</p>
+        </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="table-card">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <h3>Loading Records...</h3>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search..."
+          class="search-input"
+        />
       </div>
-    </div>
 
-    <!-- Records Table -->
-    <div v-else class="table-card">
-      <table class="styled-table">
-        <thead>
-          <tr>
-            <th @click="sortBy('user_name')">
-              Dasher Name
-              <span v-if="sortKey === 'user_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('quiz_title')">
-              Quiz Title
-              <span v-if="sortKey === 'quiz_title'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th class="text-center" @click="sortBy('score')">
-              Score
-              <span v-if="sortKey === 'score'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('created_at')">
-              Date Completed
-              <span v-if="sortKey === 'created_at'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="paginatedRecords.length === 0">
-            <td colspan="5" class="empty-state">No student records found.</td>
-          </tr>
-          <tr v-for="rec in paginatedRecords" :key="rec.id">
-            <td class="user-name">{{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'ID: ' + rec.user_id }}
-            </td>
-            <td class="quiz-title">{{ rec.quiz ? rec.quiz.title : 'Deleted Quiz' }}</td>
-            <td class="text-center">
+      <!-- Loading -->
+      <div v-if="loading" class="table-card">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading records...</p>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div v-else class="table-card">
+
+        <!-- Table Header -->
+        <div class="table-header">
+          <span @click="sortBy('user_name')">Dasher</span>
+          <span @click="sortBy('quiz_title')">Quiz</span>
+          <span class="text-center" @click="sortBy('score')">Score</span>
+          <span @click="sortBy('created_at')">Date</span>
+        </div>
+
+        <!-- Rows -->
+        <div v-if="paginatedRecords.length">
+          <div
+            v-for="rec in paginatedRecords"
+            :key="rec.id"
+            class="table-row"
+          >
+            <span class="user">
+              {{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'User #' + rec.user_id }}
+            </span>
+
+            <span class="quiz">
+              {{ rec.quiz ? rec.quiz.title : 'Deleted Quiz' }}
+            </span>
+
+            <span class="text-center">
               <span class="score-badge" :class="getScoreClass(rec)">
-                {{ rec.score }} / 10
+                {{ rec.score }} / {{ rec.total_questions || 10 }}
               </span>
-            </td>
-            <td class="date-col">{{ formatDate(rec.created_at) }}</td>
-          </tr>
-        </tbody>
-      </table>
+            </span>
 
-      <!-- Pagination -->
-      <div class="pagination" v-if="totalPages > 1">
-        <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+            <span class="date">
+              {{ formatDate(rec.created_at) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div v-else class="empty-state">
+          <p>No records found.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="pagination">
+          <button :disabled="currentPage === 1" @click="currentPage--">
+            Prev
+          </button>
+
+          <span>Page {{ currentPage }} / {{ totalPages }}</span>
+
+          <button :disabled="currentPage === totalPages" @click="currentPage++">
+            Next
+          </button>
+        </div>
+
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </template>
 
 <script setup>
@@ -181,97 +200,119 @@ onMounted(fetchRecords)
 </script>
 
 <style scoped>
-/* Section Header */
+
+/* WRAPPER */
+.page-wrapper {
+  padding: 1.75rem;
+  background: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
 .admin-section {
-  animation: fadeIn 0.4s ease-out;
-  padding: 1rem;
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* HEADER */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
   color: #1e1b4b;
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 4px;
 }
 
 .section-subtitle {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
-.search-input {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
   font-size: 0.85rem;
-  margin-left: auto;
+  color: #64748b;
 }
 
-/* Table */
+/* SEARCH */
+.search-input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+  min-width: 180px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* TABLE CARD */
 .table-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
   overflow: hidden;
-  border: 1px solid #f1f5f9;
-  margin-top: 1rem;
-  overflow-x: auto;
 }
 
-.styled-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.styled-table thead tr {
-  background-color: #f8fafc;
-  border-bottom: 2px solid #f1f5f9;
-  text-align: left;
-}
-
-.styled-table th {
-  padding: 1rem 1.5rem;
-  color: #475569;
-  font-weight: 600;
-  text-transform: uppercase;
+/* HEADER */
+.table-header {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 120px 160px;
+  padding: 12px 16px;
   font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-}
-
-.styled-table td {
-  padding: 1rem 1.5rem;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.record-id {
   font-weight: 600;
-  color: #8b5cf6;
+  color: #6b7280;
+  background: #f9fafb;
 }
 
-.user-name {
-  font-weight: 500;
+.table-header span{
+  text-align: center;
 }
 
-.quiz-title {
-  color: #4c1d95;
+/* ROW */
+.table-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 120px 160px;
+  padding: 14px 16px;
+  border-top: 1px solid #f1f5f9;
+  align-items: center;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.table-row:hover {
+  background: #f9fafb;
+}
+
+/* TEXT */
+.user {
   font-weight: 500;
+  color: #111827;
+}
+
+.quiz {
+  color: #4f46e5;
+}
+
+.date {
+  color: #6b7280;
+  font-size: 0.8rem;
 }
 
 .text-center {
   text-align: center;
 }
 
-/* Score Badges */
+/* SCORE BADGE */
 .score-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .score-high {
@@ -294,62 +335,59 @@ onMounted(fetchRecords)
   color: #475569;
 }
 
-/* Loading State */
+/* EMPTY */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* LOADING */
 .loading-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 150px;
-  gap: 12px;
-  color: #4c1d95;
+  text-align: center;
+  padding: 3rem;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f5f3ff;
-  border-top: 4px solid #8b5cf6;
+  width: 35px;
+  height: 35px;
+  border: 3px solid #e0e7ff;
+  border-top: 3px solid #6366f1;
   border-radius: 50%;
+  margin: 0 auto 10px;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #94a3b8;
-  font-style: italic;
-}
-
-/* Pagination */
+/* PAGINATION */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1rem;
   gap: 12px;
+  padding: 14px;
 }
 
 .pagination button {
   padding: 6px 12px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #e5e7eb;
   background: white;
   cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.pagination button:hover {
+  border-color: #6366f1;
+  color: #6366f1;
 }
 
 .pagination button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
+
 </style>

@@ -1,107 +1,77 @@
 <template>
-  <section class="admin-section">
+  <div class="page-wrapper">
+    <section class="admin-section">
 
-    <!-- Success Alert -->
-    <transition name="slide-fade">
-      <div v-if="successMessage" class="alert-success">
-        <i class="fas fa-check-circle alert-icon"></i>
-        {{ successMessage }}
-      </div>
-    </transition>
+      <!-- Success Alert -->
+      <transition name="fade-slide">
+        <div v-if="successMessage" class="alert-success">
+          <i class="fas fa-check-circle"></i>
+          {{ successMessage }}
+        </div>
+      </transition>
 
-    <!-- Header -->
-    <div class="header-row">
-      <div>
-        <h3 class="section-title">
-          <i class="fas fa-file-alt"></i>
-          Manage Quizzes
-        </h3>
-        <p class="section-subtitle">
-          Create, edit, or remove academic challenges
-        </p>
-      </div>
+      <!-- Header -->
+      <div class="header-row">
+        <div>
+          <h3 class="section-title">Manage Quizzes</h3>
+          <p class="section-subtitle">
+            Create, edit, or manage quizzes
+          </p>
+        </div>
 
-      <button @click="goToAddQuiz" class="add-btn">
-        <i class="fas fa-plus"></i>
-        <div>New Quiz</div>
-      </button>
-    </div>
-
-    <!-- 🔄 Loading -->
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
-      <h3>
-        Loading Quizzes...
-      </h3>
-    </div>
-
-    <!-- Table -->
-    <div v-else class="table-card">
-
-      <!-- Table Header -->
-      <div class="table-header">
-        <span class="col-id" @click="sortBy('id')">
-          <i class="fas fa-hashtag"></i> ID
-          <span v-if="sortKey === 'id'">
-            {{ sortOrder === 'asc' ? '▲' : '▼' }}
-          </span>
-        </span>
-
-        <span class="col-title" @click="sortBy('title')">
-          <i class="fas fa-heading"></i> Title
-          <span v-if="sortKey === 'title'">
-            {{ sortOrder === 'asc' ? '▲' : '▼' }}
-          </span>
-        </span>
-
-        <span class="col-desc">
-          <i class="fas fa-align-left"></i> Description
-        </span>
-
-        <span class="col-actions">
-          <i class="fas fa-cogs"></i> Actions
-        </span>
+        <button @click="goToAddQuiz" class="add-btn">
+          + New Quiz
+        </button>
       </div>
 
-      <!-- Rows -->
-      <div v-if="sortedQuizzes.length > 0">
-        <div v-for="quiz in sortedQuizzes" :key="quiz.id" class="table-row">
+      <!-- Loading -->
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading quizzes...</p>
+      </div>
 
-          <span class="col-id quiz-id">
-            <i class="fas fa-hashtag"></i> {{ quiz.id }}
-          </span>
+      <!-- Table -->
+      <div v-else class="table-card">
 
-          <span class="col-title quiz-name">
-            <i class="fas fa-file"></i> {{ quiz.title }}
-          </span>
+        <!-- Header -->
+        <div class="table-header">
+          <span @click="sortBy('id')">ID</span>
+          <span @click="sortBy('title')">Title</span>
+          <span>Description</span>
+          <span class="text-right">Actions</span>
+        </div>
 
-          <span class="col-desc desc-text">
-            {{ quiz.description || 'No description provided.' }}
-          </span>
+        <!-- Rows -->
+        <div v-if="sortedQuizzes.length">
+          <div v-for="quiz in sortedQuizzes" :key="quiz.id" class="table-row">
+            <span class="id">#{{ quiz.id }}</span>
 
-          <div class="col-actions actions-group">
-            <button @click="goToEditQuiz(quiz.id)" class="btn-icon edit">
-              <i class="fas fa-pen"></i> Edit
-            </button>
+            <span class="title">{{ quiz.title }}</span>
 
-            <button @click="deleteQuiz(quiz.id, quiz.title)" class="btn-icon delete">
-              <i class="fas fa-trash"></i> Delete
-            </button>
+            <span class="desc">
+              {{ quiz.description || 'No description' }}
+            </span>
+
+            <div class="actions">
+              <button @click="goToEditQuiz(quiz.id)" class="btn edit">
+                Edit
+              </button>
+
+              <button @click="deleteQuiz(quiz.id, quiz.title)" class="btn delete">
+                Delete
+              </button>
+            </div>
           </div>
-
         </div>
-      </div>
 
-      <!-- Empty -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">
-          <i class="fas fa-inbox"></i>
+        <!-- Empty -->
+        <div v-else class="empty-state">
+          <p>No quizzes yet.</p>
         </div>
-        <p>No quizzes found. Start by creating your first one!</p>
-      </div>
 
-    </div>
-  </section>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script setup>
@@ -186,182 +156,193 @@ onMounted(fetchQuizzes)
 </script>
 
 <style scoped>
-/* 1. Header & Section */
 .admin-section {
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.3s ease;
 }
 
+.page-wrapper {
+  padding: 1.75rem;
+  background: #f8fafc;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+}
+
+.admin-section {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* HEADER */
 .header-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
   color: #1e1b4b;
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 4px;
 }
 
 .section-subtitle {
+  font-size: 0.85rem;
   color: #64748b;
-  font-size: 0.9rem;
 }
 
-/* 2. Success Alert */
-.alert-success {
-  background: #f5f3ff;
-  border-left: 4px solid #8b5cf6;
-  color: #4c1d95;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-
-.alert-icon {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-/* 3. Add Button - Using Accent Purple */
+/* BUTTON */
 .add-btn {
-  background: #4c1d95;
+  background: #4f46e5;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.add-btn:hover {
-  background: #8b5cf6;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-}
-
-/* 4. Table Card & Grid */
-.table-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  border: 1px solid #f1f5f9;
-  overflow: hidden;
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 80px 1.5fr 3fr 180px;
-  padding: 1rem 1.5rem;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 80px 1.5fr 3fr 180px;
-  padding: 1.2rem 1.5rem;
-  align-items: center;
-  border-bottom: 1px solid #f8fafc;
-  transition: background 0.2s;
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.table-row:hover {
-  background: #fcfaff;
-}
-
-/* 5. Column Styles */
-.quiz-id {
-  color: #8b5cf6;
-  font-weight: 700;
-}
-
-.quiz-name {
-  color: #1e1b4b;
-  font-weight: 600;
-}
-
-.desc-text {
-  color: #64748b;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 20px;
-}
-
-/* 6. Action Buttons */
-.actions-group {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-icon {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid transparent;
   transition: 0.2s;
 }
 
-.btn-icon.edit {
-  background: #f5f3ff;
-  color: #4c1d95;
+.add-btn:hover {
+  background: #6366f1;
 }
 
-.btn-icon.edit:hover {
-  background: #4c1d95;
-  color: white;
-}
-
-.btn-icon.delete {
-  background: #fff1f2;
-  color: #e11d48;
-}
-
-.btn-icon.delete:hover {
-  background: #e11d48;
-  color: white;
-}
-
-/* 7. Animations & States */
-.empty-state {
-  padding: 4rem;
-  text-align: center;
-  color: #94a3b8;
-}
-
-.empty-icon {
-  font-size: 2.5rem;
+/* ALERT */
+.alert-success {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 10px 14px;
+  border-radius: 8px;
   margin-bottom: 1rem;
-  opacity: 0.5;
+  font-size: 0.85rem;
+}
+
+/* TABLE */
+.table-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* HEADER */
+.table-header {
+  display: grid;
+  grid-template-columns: 80px 1.5fr 2fr 150px;
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f9fafb;
+}
+
+/* ROW */
+.table-row {
+  display: grid;
+  grid-template-columns: 80px 1.5fr 2fr 150px;
+  padding: 14px 16px;
+  border-top: 1px solid #f1f5f9;
+  align-items: center;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.table-row:hover {
+  background: #f9fafb;
+}
+
+/* TEXT */
+.id {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.title {
+  font-weight: 500;
+  color: #111827;
+}
+
+.desc {
+  color: #6b7280;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.btn {
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* EDIT */
+.btn.edit {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.btn.edit:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+/* DELETE */
+.btn.delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.btn.delete:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* EMPTY */
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* LOADING */
+.loading-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #e0e7ff;
+  border-top: 3px solid #6366f1;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  animation: spin 1s linear infinite;
+}
+
+/* ANIMATION */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(4px);
   }
 
   to {
@@ -370,44 +351,12 @@ onMounted(fetchQuizzes)
   }
 }
 
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
+.fade-slide-enter-active {
+  transition: all 0.25s ease;
 }
 
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
+.fade-slide-enter-from {
   opacity: 0;
-}
-
-/* Loading State */
-.loading-state {
-  text-align: center;
-  padding: 4rem;
-  color: #4c1d95;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f5f3ff;
-  border-top: 4px solid #8b5cf6;
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  transform: translateY(-5px);
 }
 </style>

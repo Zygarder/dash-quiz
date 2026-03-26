@@ -68,7 +68,7 @@
                             <footer class="action-bar">
                                 <button @click="submitAnswer" class="btn-submit" :disabled="!selectedAnswer">
                                     <span>{{ currentIndex + 1 === questions.length ? 'Finish Quiz' : 'Continue'
-                                    }}</span>
+                                        }}</span>
                                     <svg v-if="currentIndex + 1 !== questions.length" xmlns="http://www.w3.org/2000/svg"
                                         width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -419,7 +419,7 @@ onMounted(fetchQuiz)
     text-align: center;
     background-color: #6366f1;
     color: white;
-    border:1px black solid;
+    border: 1px black solid;
     padding: 15px;
     border-radius: 10px;
 }
@@ -521,7 +521,7 @@ onMounted(fetchQuiz)
 
 .btn-submit:hover:not(:disabled) {
     transform: scale(1.02);
-    color:#6366f1;
+    color: #6366f1;
 }
 
 /* Transitions */

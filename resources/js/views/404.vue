@@ -11,6 +11,7 @@
             <div class="text-section">
                 <h2>Whoops! You've been zapped.</h2>
                 <p>The page you're looking for has moved or vanished into thin air.</p>
+                
             </div>
 
             <div class="actions">
@@ -31,6 +32,7 @@ const router = useRouter();
 const goBack = () => {
     router.back();
 };
+
 </script>
 
 <style scoped>

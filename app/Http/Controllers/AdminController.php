@@ -74,6 +74,7 @@ class AdminController extends Controller
 
     public function RegisterRequest(Request $request)
     {
+        $request->validated();
         // Validate the incoming request
         $valid = $request->validate([
             'first_name' => 'required|string|max:255',

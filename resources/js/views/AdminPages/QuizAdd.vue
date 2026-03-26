@@ -1,62 +1,72 @@
 <template>
     <section class="admin-section">
+        <!-- HEADER -->
         <div class="header-row">
-            <h3 class="section-title">Create New Quiz</h3>
-            <button @click="$router.push('/admin/quizzes/manage')" class="logout-btn" style="background: #555">
+            <div>
+                <h2 class="section-title">Create Quiz</h2>
+                <p class="subtitle">Build a new assessment for students</p>
+            </div>
+
+            <button @click="$router.push('/admin/quizzes/manage')" class="btn-secondary">
                 Cancel
             </button>
         </div>
 
+        <!-- FORM -->
         <div class="quiz-form-card">
-            <div class="form-group">
-                <label>Quiz Name:</label>
-                <input v-model="form.title" type="text" placeholder="e.g. Motherboard" required />
-            </div>
 
-            <div class="form-group">
-                <label>Topic / Description:</label>
-                <input v-model="form.description" type="text" placeholder="e.g. Parts of the Motherboard" required />
-            </div>
-
-            <hr class="form-divider" />
-
-            <div class="questions-header">
-                <h3 style="margin-bottom: 3%;">Questions</h3>
-
-            </div>
-
-            <div v-for="(q, index) in form.questions" :key="index" class="question-block">
-                <div class="question-meta">
-                    <span># {{ index + 1 }}</span>
-                    <button type="button" @click="removeQuestion(index)" class="delete-link">
-                        Remove
-                    </button>
+            <!-- BASIC INFO -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Quiz Name</label>
+                    <input v-model="form.title" type="text" placeholder="e.g. Motherboard" />
                 </div>
 
-                <input v-model="q.text" type="text" placeholder="Enter your question here" class="question-input" />
+                <div class="form-group">
+                    <label>Description</label>
+                    <input v-model="form.description" type="text" placeholder="e.g. Parts of motherboard" />
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- QUESTIONS -->
+            <div class="questions-header">
+                <h3>Questions</h3>
+                <span>{{ form.questions.length }} total</span>
+            </div>
+
+            <div v-for="(q, index) in form.questions" :key="index" class="question-card">
+
+                <div class="question-top">
+                    <span class="question-number">Question {{ index + 1 }}</span>
+                    <button @click="removeQuestion(index)" class="delete-btn">Remove</button>
+                </div>
+
+                <input v-model="q.text" type="text" class="question-input" placeholder="Enter question..." />
 
                 <div class="options-grid">
-                    <div v-for="(opt, optIndex) in ['A', 'B', 'C', 'D']" :key="optIndex" class="option-item">
-                        <label for="opt">
-                            <input type="radio" id="opt" class="correct_answer" :name="'correct_' + index"
-                                :value="optIndex" v-model="q.correct_option" />
-                        </label>
+                    <div v-for="(opt, i) in ['A', 'B', 'C', 'D']" :key="i" class="option-item">
+                        <input type="radio" :name="'correct_' + index" :value="i" v-model="q.correct_option" />
 
-                        <input v-model="q.options[optIndex]" type="text" :placeholder="'Option ' + (opt)" />
-
+                        <input v-model="q.options[i]" type="text" :placeholder="'Option ' + opt" />
                     </div>
                 </div>
 
-            </div><button type="button" @click="addQuestion" class="add-btn">
-                + Add New Question
-            </button>
+            </div>
 
+            <!-- ACTIONS -->
             <div class="form-actions">
-                <button @click="submitQuiz" class="add-btn save-btn" :disabled="loading">
-                    {{ loading ? "Saving..." : "Save Quiz" }}
+                <button @click="addQuestion" class="btn-outline">
+                    + Add Question
                 </button>
 
+                <button @click="submitQuiz" class="btn-primary" :disabled="loading">
+                    <span v-if="!loading">Save Quiz</span>
+                    <span v-else>Saving...</span>
+                </button>
             </div>
+
         </div>
     </section>
 </template>
@@ -118,61 +128,122 @@ const submitQuiz = async () => {
 };
 </script>
 <style scoped>
+.admin-section {
+    padding: 20px;
+}
+
+/* HEADER */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* CARD */
 .quiz-form-card {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* GRID */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
 }
 
 .form-group {
-    margin-bottom: 15px;
     display: flex;
     flex-direction: column;
+    gap: 6px;
 }
 
 .form-group label {
-    font-weight: 600;
-    margin-bottom: 5px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
 }
 
 .form-group input {
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
 }
 
-.form-divider {
-    margin: 25px 0;
-    border: 0;
-    border-top: 1px solid #eee;
+.form-group input:focus {
+    border-color: #6366f1;
+    outline: none;
 }
 
-.question-block {
-    background: #fdfdfd;
-    border: 1px solid #eee;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+/* DIVIDER */
+.divider {
+    height: 1px;
+    background: #f1f5f9;
 }
 
-.question-meta {
+/* QUESTIONS */
+.questions-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #3f2ea3;
+    align-items: center;
+    font-weight: 600;
 }
 
+.question-card {
+    border: 1px solid #f1f5f9;
+    padding: 15px;
+    border-radius: 12px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* TOP */
+.question-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-number {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #6366f1;
+}
+
+.delete-btn {
+    font-size: 0.75rem;
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* INPUT */
 .question-input {
-    width: 100%;
     padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
 }
 
+/* OPTIONS */
 .options-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -181,85 +252,66 @@ const submitQuiz = async () => {
 
 .option-item {
     display: flex;
+    gap: 8px;
     align-items: center;
-    gap: 10px;
-}
-
-.option-item .correct_answer {
-    accent-color: green;
-    appearance: none;
-    width: 15px;
-    height: 15px;
-    border: 2px solid maroon;
-    border-radius: 50%;
-    outline: none;
-    background-color: white;
-    cursor: pointer;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-/* This makes the "click" visible */
-.option-item .correct_answer:checked {
-    background-color: lightgreen;
-    border-color: green;
-    /* Optional: creates a white inner dot */
-}
-
-/* This applies ONLY when it is NOT checked */
-.option-item .correct_answer:not(:checked) {
-    background-color: brown;
-    /* light gray bg */
 }
 
 .option-item input[type="text"] {
-    width: 100%;
+    flex: 1;
     padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
 }
 
-.delete-link {
-    background: none;
-    border: none;
-    color: brown;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.save-btn {
-    width: 100%;
-    padding: 15px;
-    font-size: 16px;
-    background: #3f2ea3;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.save-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.header-row {
+/* ACTIONS */
+.form-actions {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-.add-btn {
-    background: #333;
+.btn-primary {
+    background: #6366f1;
     color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
     border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
     cursor: pointer;
 }
 
-.mt-4 {
-    margin-top: 1.5rem;
+.btn-primary:hover {
+    background: #4f46e5;
+}
+
+.btn-outline {
+    border: 1px dashed #6366f1;
+    background: transparent;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
 }
 </style>

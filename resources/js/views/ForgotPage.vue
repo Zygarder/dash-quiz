@@ -25,6 +25,8 @@
 <script setup>
 import { ref } from 'vue'
 
+// We'll use our gmail, if they forgot their password, they will DM us
+
 const email = ref('')
 const loading = ref(false)
 const handleReset = async () => {

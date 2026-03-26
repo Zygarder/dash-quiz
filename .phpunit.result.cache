@@ -1,0 +1,1 @@
+{"version":2,"defects":{"Tests\\Feature\\UserTest::test_homepage_loads":7,"Tests\\Feature\\UserTest::test_can_create_user":7,"Tests\\Feature\\UserTest::test_can_login":8},"times":{"Tests\\Feature\\UserTest::test_homepage_loads":0.31,"Tests\\Feature\\UserTest::test_can_create_user":0.616,"Tests\\Feature\\UserTest::test_can_login":0.072}}

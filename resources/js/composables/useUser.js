@@ -13,14 +13,15 @@ const fetchUser = async () => {
     try {
         const { data } = await axios.get("/api/me")
         user.value = data.results
+        console.log(user.value)
 
     } catch (err) {
-        console.error("Failed to fetch USER:", err.response || err.message)
+        console.log("Failed to fetch USER:", err.response.data.message || err.message)
     } finally {
         isLoading = false
     }
 }
-const userFullName = computed(() => `${user.value.first_name} ${user.value.last_name}`)
+const userFullName = computed(() => `${user.value.first_name || ''} ${user.value.last_name || ''}`)
 
 const clearUser = () => {
     user.value = null

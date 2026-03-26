@@ -3,7 +3,7 @@
     <header class="auth-header">
       <div class="header-inner">
         <div class="brand">
-          <div class="brand-icon">D</div>
+          <div class="brand-icon">DQ</div>
           <span class="brand-name">Dash<span>Quiz</span></span>
         </div>
         <div class="header-links">
@@ -39,14 +39,13 @@
       <section class="form-section">
         <form class="login-card" @submit.prevent="handleLogin">
           <div class="card-intro">
-            <h2>Account Login</h2>
-            <p>Enter your credentials to continue</p>
+            <h2>Welcome!</h2>
           </div>
 
           <div class="form-group">
-            <label for="email">School Email</label>
+            <label for="email">Email Address</label>
             <div class="input-wrapper">
-              <input id="email" type="email" v-model.trim="form.email" placeholder="name@test.com"
+              <input id="email" type="email" v-model.trim="form.email" placeholder="Enter your email"
                 autocomplete="username" :class="{ 'error-border': errors.email }" />
             </div>
             <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
@@ -55,7 +54,7 @@
           <div class="form-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
-              <input id="password" type="password" v-model.trim="form.password" placeholder="••••••••"
+              <input id="password" type="password" v-model.trim="form.password" placeholder="Enter your password"
                 autocomplete="current-password" :class="{ 'error-border': errors.password }" />
             </div>
             <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
@@ -66,11 +65,11 @@
           </div>
 
           <button type="submit" class="btn-submit" :disabled="loading">
-            <span v-if="!loading">Continue to Dashboard</span>
+            <span v-if="!loading">Login</span>
             <span v-else class="loader-dots">
               <span v-if="loading">
-              <i class="fas fa-spinner fa-spin"></i></span>
-              Logging...</span>
+                <i class="fas fa-spinner fa-spin"></i>
+              </span>Logging...</span>
           </button>
 
           <div class="form-footer">
@@ -97,6 +96,7 @@ const form = reactive({
   email: '',
   password: ''
 })
+
 const loading = ref(false);
 const errors = ref({});
 const generalError = ref('');
@@ -113,7 +113,6 @@ const handleLogin = async () => {
     const response = await axios.post('/api/login', form);
     const data = response.data; // This is your JSON body
 
-    console.log(response.status); // Check the actual HTTP code
 
     // Update this condition
     if (response.status === 200 || response.status === 204) {
@@ -137,14 +136,12 @@ const handleLogin = async () => {
 
     if (err.response) {
       const { status, data } = err.response;
-      console.log(status)
       if (status === 422 && data.errors) {
         // Validation errors
         errors.value = data.errors;
       } else if (status === 401 || status === 419) {
         // Wrong credentials or expired session
         generalError.value = data.message || 'Invalid credentials or session expired.';
-        console.log(data.message)
       }
     }
   } finally {
@@ -235,7 +232,6 @@ const handleLogin = async () => {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   max-width: 1200px;
-  width: 100%;
   margin: 0 auto;
   align-items: center;
   padding: 4rem 2rem;
@@ -313,9 +309,9 @@ const handleLogin = async () => {
 
 /* Login Card */
 .login-card {
+  padding: 10px;
   background: #ffffff;
-  padding: 3.5rem;
-  border-radius: 32px;
+  border-radius: 22px;
   box-shadow: 0 25px 50px -12px rgba(76, 29, 149, 0.1);
   border: 1px solid #f1f5f9;
   animation: fadeIn 0.8s ease-out;
@@ -344,7 +340,7 @@ const handleLogin = async () => {
 
 .form-group label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #475569;
   margin-bottom: 10px;
@@ -353,9 +349,11 @@ const handleLogin = async () => {
 
 input {
   width: 100%;
-  padding: 1rem 1.25rem;
-  border: 2px solid #f1f5f9;
-  border-radius: 16px;
+  padding: 15px 0;
+  margin: 0;
+  border-radius: 10px;
+  text-indent: 15px;
+  border: 2px solid #aaa;
   font-size: 1rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   background: #f8fafc;
@@ -492,15 +490,21 @@ input:focus {
   }
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
   .auth-container {
     gap: 2rem;
   }
+
+  .login-card {
+    padding: 1.5rem 2.5rem;
+  }
+
 
   .main-heading {
     font-size: 3.5rem;
   }
 }
+
 
 @media (max-width: 900px) {
   .auth-container {
@@ -523,6 +527,17 @@ input:focus {
 
   .login-card {
     padding: 2.5rem;
+  }
+
+  .auth-header {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.08);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(2px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
   }
 }
 </style>

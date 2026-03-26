@@ -109,8 +109,6 @@ class UserApiController extends Controller
                     // If no profile photo exists, return default image
                     'profile_photo' => $admin->profile_photo ?? 'default.png',
 
-                    // Count number of quizzes the user has taken
-                    'quizzes_taken' => QuizRecord::where('user_id', $admin->id)->count(),
 
                     // Format account creation date
                     'created_at' => $admin->created_at->format('F j, Y')
