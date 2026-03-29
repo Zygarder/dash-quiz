@@ -126,7 +126,7 @@ const reTake = computed(() => {
 .brand-text {
   font-weight: 700;
   font-size: 0.9rem;
-  color: var(--text-main);
+  color: #1e293b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -135,7 +135,7 @@ const reTake = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid var(--primary);
+  border: 2px solid #6366f1;
   padding: 2px;
   object-fit: cover;
 }
@@ -169,13 +169,13 @@ const reTake = computed(() => {
 .percentage-display {
   font-size: 4rem;
   font-weight: 900;
-  color: var(--text-main);
+  color: #1e293b;
   margin: 0;
   letter-spacing: -2px;
 }
 
 .score-text {
-  color: var(--text-muted);
+  color: #64748b;
   font-size: 1.1rem;
   margin-top: -5px;
 }
@@ -191,13 +191,13 @@ const reTake = computed(() => {
 
 .track-fill {
   height: 100%;
-  background: var(--primary);
+  background: #6366f1;
   border-radius: 10px;
   transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .feedback-msg {
-  color: var(--text-muted);
+  color: #64748b;
   font-style: italic;
   margin-bottom: 2.5rem;
   font-size: 0.95rem;
@@ -211,7 +211,7 @@ const reTake = computed(() => {
 }
 
 .btn-primary {
-  background: var(--text-main);
+  background: #1e293b;
   color: #fff;
   text-decoration: none;
   padding: 1rem;
@@ -222,7 +222,7 @@ const reTake = computed(() => {
 
 .btn-outline {
   background: transparent;
-  color: var(--text-muted);
+  color: #64748b;
   border: 2px solid #e2e8f0;
   padding: 1rem;
   border-radius: 14px;
@@ -237,7 +237,7 @@ const reTake = computed(() => {
 }
 
 .btn-outline:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: #6366f1;
+  color: #6366f1;
 }
 </style>

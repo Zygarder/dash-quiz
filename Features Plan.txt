@@ -1,9 +1,14 @@
+------User Side-------
 Quiz Timer - check
-
 Randomized Questions - check
-
 Quiz History - check
-
 Leaderboard - check
-
 Analytics Dashboard - check
+
+------Admin Side------
+Child Components - check
+Dashboard Datas = check
+Hint Box (for questions)- X
+
+
+

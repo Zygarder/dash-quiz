@@ -1,44 +1,41 @@
 import { ref, computed } from "vue"
 import axios from "axios"
 
-const user = ref('')
-let isLoading = false
+const user = ref(null)
+const isLoading = ref(false)
 
-const fetchUser = async () => {
+const fetchUser = async (force = false) => {
+    // ✅ allow refresh when needed
+    if (!force && user.value && isLoading.value === false) {
+        return user.value
+    }
 
-    if (user.value || isLoading) return user.value
-
-    isLoading = true
-
+    isLoading.value = true
     try {
         const { data } = await axios.get("/api/me")
         user.value = data.results
-        console.log(user.value)
-
     } catch (err) {
-        console.log("Failed to fetch USER:", err.response.data.message || err.message)
+        console.error("Failed to fetch USER:", err.response?.data?.message || err.message)
     } finally {
-        isLoading = false
+        isLoading.value = false
     }
 }
-const userFullName = computed(() => `${user.value.first_name || ''} ${user.value.last_name || ''}`)
 
-const clearUser = () => {
-    user.value = null
-}
+// computed
+const userFullName = computed(() =>
+    `${user.value?.first_name || ''} ${user.value?.last_name || ''}`
+)
 
-
-const userAvatar = computed(() => {
-    const photo = user.value?.profile_photo || "default.png"
-    return `/storage/images/profiles/${photo}`
-})
+const userAvatar = computed(() =>
+    `/storage/images/profiles/${user.value?.profile_photo || "default.png"}`
+)
 
 export function useUser() {
     return {
         user,
+        isLoading,
         userFullName,
-        fetchUser,
         userAvatar,
-        clearUser
+        fetchUser,
     }
 }

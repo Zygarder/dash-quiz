@@ -1,302 +1,277 @@
 <template>
-    <div class="dashboard-page">
-        <TopBar />
+    <div class="leaderboard">
 
-        <main class="dashboard">
-            <h3>Leaderboard (Top Scores)</h3>
-
-            <!-- Current User Rank -->
-            <div v-if="userRank" class="your-rank">
-                Your Rank: <strong>#{{ userRank }}</strong>
+        <!-- HEADER -->
+        <div class="leaderboard-header">
+            <div>
+                <h1>Leaderboard</h1>
+                <p class="sub">{{ leaderboard.length }} participants</p>
             </div>
 
-            <table class="quiz-table leaderboard">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Dasher</th>
-                        <th>Quiz Title</th>
-                        <th>Best Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(leader, index) in leaders" :key="leader.user_id" :class="[
-                        { you: leader.user_id === user?.id },
-                        index === 0 ? 'first-place' : ''
-                    ]">
+            <div v-if="userPosition" class="you-pill">
+                <span>#{{ userPosition }}</span>
+                <small>You</small>
+            </div>
+        </div>
 
-                        <!-- Rank -->
-                        <td>
-                            <span v-if="index === 0">🥇</span>
-                            <span v-else-if="index === 1">🥈</span>
-                            <span v-else-if="index === 2">🥉</span>
-                            <span v-else class="rank-badge no-rank">
-                                {{ index + 1 }}
-                            </span>
-                        </td>
+        <!-- LIST -->
+        <div class="leaderboard-list">
 
-                        <!-- User -->
-                        <td>
-                            <div class="dash-user">
-                                <img :src="`/storage/images/profiles/${leader.profile_photo || 'default.png'}`"
-                                    class="dash-avatar" @error="setDefaultImage" draggable="false" />
+            <div v-for="(user, index) in leaderboard" :key="user.id" class="leader-item"
+                :class="[{ 'is-you': user.isYou }, index < 3 ? 'top' : '']">
 
-                                <span class="dash-name">
-                                    <span v-if="index === 0">👑</span>
-                                    {{ leader.name }}
+                <!-- RANK -->
+                <div class="rank">
+                    <span v-if="index < 3" class="medal">
+                        {{ ['🥇', '🥈', '🥉'][index] }}
+                    </span>
+                    <span v-else>{{ index + 1 }}</span>
+                </div>
 
-                                    <span v-if="leader.user_id === user?.id" class="you-tag">
-                                        (You)
-                                    </span>
-                                </span>
-                            </div>
-                        </td>
+                <!-- USER -->
+                <div class="user">
+                    <img :src="`/storage/images/profiles/${user.profile_photo || 'default.png'} `" alt="user-image"
+                        class="avatar">
+                    <div class="info">
+                        <span class="name">{{ user.name }}</span>
+                        <span class="quiz">{{ user.quiz_title }}</span>
+                    </div>
+                </div>
 
-                        <!-- Quiz -->
-                        <td>{{ leader.quiz_title }}</td>
+                <!-- SCORE -->
+                <div class="score">
+                    <div class="bar">
+                        <div class="fill" :style="{ width: scoreWidth(user.score) }"></div>
+                    </div>
+                    <span>{{ user.score }}/10</span>
+                </div>
 
-                        <!-- Score -->
-                        <td :class="{ perfect: leader.score === 10 }">
-                            <div class="score-bar">
-                                <div class="score-fill" :style="{ width: ((leader.score / 10) * 100) + '%' }">
-                                </div>
-                            </div>
+            </div>
 
-                            <span class="score-text">
-                                {{ leader.score }} / 10
-                            </span>
-                        </td>
-                    </tr>
+            <!-- EMPTY -->
+            <div v-if="!leaderboard.length" class="empty">
+                <p>No rankings yet 📊</p>
+            </div>
 
-                    <tr v-if="leaders.length === 0">
-                        <td colspan="4" class="no-score">
-                            No scores yet.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </main>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue"
-import axios from "axios"
-import TopBar from "@/components/UserSide/TopBar.vue"
-import { useUser } from "@/composables/useUser.js"
+import axios from 'axios'
+import { computed, onMounted, ref } from 'vue'
 
-const { user, fetchUser } = useUser()
+const leaderboard = ref([])
+let isLoading = false
 
-const leaders = ref([])
+const userPosition = computed(() => {
+    const you = leaderboard.value.find(u => u.isYou)
+    return you ? leaderboard.value.indexOf(you) + 1 : null
+})
 
-const fetchLeaderboard = async () => {
+const scoreWidth = (score) => `${(score / 10) * 100}%`
+
+// fetch leaderboard data
+const getLeaderBoard = async () => {
+    await axios.get('sanctum/cookie');
+
+    isLoading = true;
     try {
-        const { data } = await axios.get("/api/dashboard/leaderboard")
-        leaders.value = data.results || []
-    } catch (err) {
-        console.error("Leaderboard fetch failed", err)
+        const { data } = await axios.get('/api/dashboard/leaderboard')
+        leaderboard.value = data.data;
+        console.log(leaderboard.value)
+    } catch (error) {
+        console.error(error.message)
+    } finally {
+        isLoading = false
     }
 }
 
-const userRank = computed(() => {
-    const index = leaders.value.findIndex(lead => lead.user_id === user.value?.id)
-
-    return index !== -1 ? index + 1 : null
-})
-
-const setDefaultImage = (event) => {
-    event.target.src = "/storage/images/profiles/default.png"
-}
-
 onMounted(async () => {
-    await fetchUser()
-    await fetchLeaderboard()
+    await getLeaderBoard();
 })
 </script>
 
 <style scoped>
-/* === MAIN DASHBOARD === */
-.dashboard {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+.leaderboard {
+    width: 100%;
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* HEADER */
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.leaderboard-header h1 {
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    font-weight: 800;
+    color: #1e1b4b;
+}
+
+.sub {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* YOU BADGE */
+.you-pill {
+    background: #6366f1;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 999px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* LIST */
+.leaderboard-list {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    animation: fadeIn 0.3s ease;
+    gap: 8px;
+    max-height: 420px;
+    overflow-y: auto;
 }
 
-/* === PAGE TITLE === */
-.dashboard h3 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #4b3fc2;
-    text-align: center;
+/* ITEM */
+.leader-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    transition: 0.2s;
+    background: #fafafa;
 }
 
-/* === USER RANK DISPLAY === */
-.your-rank {
+.leader-item:hover {
+    background: #f3f4f6;
+}
+
+/* TOP 3 */
+.leader-item.top {
+    background: #f9fafb;
+    border: 1px solid #eee;
+}
+
+/* YOU */
+.leader-item.is-you {
+    border: 1px solid #6366f1;
+    background: #eef2ff;
+}
+
+/* RANK */
+.rank {
+    width: 30px;
     text-align: center;
     font-weight: 700;
-    color: #4b3fc2;
+    color: #6b7280;
 }
 
-/* === TABLE === */
-.quiz-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 6px;
+.medal {
+    font-size: 1.2rem;
 }
 
-.quiz-table thead th {
-    background-color: #4b3fc2;
-    user-select: none;
-    color: #fff;
-    font-weight: 600;
-    padding: 12px 15px;
-    text-align: center;
-}
-
-.quiz-table tbody tr {
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: all 0.25s ease;
-}
-
-.quiz-table tbody tr:hover {
-    transform: translateY(-2px);
-}
-
-/* === FIRST PLACE === */
-.first-place {
-    background: linear-gradient(135deg, #fff9c4, #fff176);
-    box-shadow: 0 0 20px rgba(255, 223, 0, 0.4);
-    font-weight: bold;
-}
-
-/* === CURRENT USER === */
-.you {
-    background-color: #e8f5e8;
-    font-weight: 700;
-    border-left: 4px solid #28a745;
-}
-
-/* === RANK BADGE === */
-.rank-badge {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    font-size: 0.85rem;
-    text-align: center;
-    line-height: 24px;
-    font-weight: 700;
-}
-
-.no-rank {
-    color: black;
-}
-
-/* === USER === */
-.dash-user {
+/* USER */
+.user {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 1;
+    min-width: 0;
 }
 
-.dash-avatar {
-    user-select: none;
-    width: 36px;
-    height: 36px;
+.avatar {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ddd;
+    flex-shrink: 0;
 }
 
-.dash-name {
+.info {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+    flex-direction: column;
+    min-width: 0;
 }
 
-.dash-name span {
-    margin-top: -5px;
+.name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #111827;
 }
 
-.you-tag {
-    color: #28a745;
-    font-weight: bold;
-    font-size: 0.8rem;
-    padding-top: 8.5px;
+.quiz {
+    font-size: 0.75rem;
+    color: #6b7280;
 }
 
-/* === SCORE BAR === */
-.score-bar {
+/* SCORE */
+.score {
+    text-align: right;
+    min-width: 90px;
+}
+
+.bar {
     height: 6px;
-    background: #eee;
-    border-radius: 4px;
+    background: #e5e7eb;
+    border-radius: 999px;
     overflow: hidden;
     margin-bottom: 4px;
 }
 
-.score-fill {
+.fill {
     height: 100%;
-    background: linear-gradient(90deg, #4b3fc2, #6c5ce7);
-    border-radius: 4px;
-    animation: growBar 0.8s ease forwards;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 999px;
+    transition: width 0.4s ease;
 }
 
-.score-text {
-    font-size: 0.85rem;
-    color: #333;
+.score span {
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.perfect {
-    color: #28a745;
-    font-weight: 800;
-}
-
-/* === EMPTY === */
-.no-score {
+/* EMPTY */
+.empty {
     text-align: center;
-    color: #888;
-    font-style: italic;
-    padding: 1rem 0;
+    padding: 20px;
+    color: #9ca3af;
 }
 
-/* === RESPONSIVE === */
-@media (max-width:700px) {
-
-    .quiz-table thead th,
-    .quiz-table tbody td {
-        padding: 10px 8px;
-        font-size: 0.85rem;
-    }
-
-    .dash-avatar {
-        width: 28px;
-        height: 28px;
-    }
-
+/* SCROLL */
+.leaderboard-list::-webkit-scrollbar {
+    width: 5px;
 }
 
-/* === ANIMATIONS === */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.leaderboard-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
 }
 
-@keyframes growBar {
-    from {
-        width: 0;
+/* MOBILE */
+@media (max-width: 640px) {
+    .leaderboard-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .leader-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .score {
+        width: 100%;
     }
 }
 </style>

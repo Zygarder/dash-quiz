@@ -1,14 +1,11 @@
 <template>
   <div class="user-wrapper">
-  <UserSidebar :isSidebarOpen="isSidebarOpen" @logout="handleLogout" @closeSidebar="closeSidebar" />
+    <UserSidebar :isSidebarOpen="isSidebarOpen" @logout="handleLogout" @closeSidebar="closeSidebar" />
     <!-- Mobile overlay -->
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen && isMobile }" @click="isSidebarOpen = false" />
 
-    
-
     <div class="main-wrapper" :class="{ 'sidebar-open': isSidebarOpen && isMobile }">
       <UserTopbar :currentPageTitle="currentPageTitle" @toggleSidebar="toggleSidebar" />
-
       <main class="user-main">
         <router-view />
       </main>
@@ -19,8 +16,10 @@
 <script setup>
 import UserSidebar from '@/components/UserSide/testSide.vue'
 import UserTopbar from '@/components/UserSide/testTop.vue'
+import axios from 'axios'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import SuccessAlert from '@/components/ToastNotification.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -41,28 +40,35 @@ onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 const isMobile = computed(() => windowWidth <= 1024)
 
 const pageTitles = {
-  '/home': 'Home',
-  '/quizzes': 'Available Quizzes',
-  '/records': 'My Records',
-  '/profile': 'Profile'
+  '/user/': 'Home',
+  '/user/quizzes': 'Available Quizzes',
+  '/user/records': 'My Records',
+  '/user/profile': 'Profile'
 }
 
 const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Home')
+console.log(route.path)
 
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
 const closeSidebar = () => { isSidebarOpen.value = false }
 
-const handleLogout = () => {
-  if (!confirm('Are you sure you want to logout?')) return
-  localStorage.removeItem('isLoggedIn')
-  localStorage.removeItem('userRole')
-  router.push('/')
+const handleLogout = async () => {
+
+  if (confirm('Are you sure you want to logout?')) {
+    await axios.post('/api/logout')
+
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('userRole')
+    router.push('/')
+  }
+
 }
 </script>
 
 <style scoped>
 .user-wrapper {
   display: flex;
+  width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
@@ -85,11 +91,18 @@ const handleLogout = () => {
 /* ========================================
    RESPONSIVE BREAKPOINTS
 ======================================== */
+/* Computer: */
+@media (max-width: 1024px) {
+  .main-wrapper {
+    margin-left: 260px;
+  }
+}
+
 
 /* TABLET: Narrower sidebar */
 @media (max-width: 1024px) {
   .main-wrapper {
-    margin-left: 220px;
+    margin-left: 260px;
   }
 }
 
@@ -102,6 +115,7 @@ const handleLogout = () => {
   .main-wrapper {
     margin-left: 0 !important;
   }
+
 
   .user-main {
     padding: clamp(1rem, 5vw, 1.75rem);

@@ -17,22 +17,22 @@
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
-      <router-link to="/home" active-class="active" @click="$emit('closeSidebar')" class="nav-link">
+      <router-link to="/user" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-home"></i></span>
         <span class="nav-text">Home</span>
       </router-link>
 
-      <router-link to="/quizzes" active-class="active" @click="$emit('closeSidebar')" class="nav-link">
+      <router-link to="/user/quizzes" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
         <span class="nav-text">Quizzes</span>
       </router-link>
 
-      <router-link to="/records" active-class="active" @click="$emit('closeSidebar')" class="nav-link">
+      <router-link to="/user/records" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-chart-simple"></i></span>
         <span class="nav-text">Records</span>
       </router-link>
 
-      <router-link to="/profile" active-class="active" @click="$emit('closeSidebar')" class="nav-link">
+      <router-link to="/user/profile" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-user"></i></span>
         <span class="nav-text">Profile</span>
       </router-link>
@@ -78,7 +78,7 @@ defineEmits(['closeSidebar', 'logout'])
   --user-avatar: linear-gradient(135deg, #6366f1, #4f46e5);
 
   width: 240px;
-  background: var(--bg-primary);
+  background: #1e1b4b;
   height: auto;
   position: fixed;
   left: 0;
@@ -142,7 +142,7 @@ defineEmits(['closeSidebar', 'logout'])
 .logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--logo-accent);
+  background: #8b5cf6;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -157,7 +157,7 @@ defineEmits(['closeSidebar', 'logout'])
 .logo-text {
   font-weight: 800;
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: #f8fafc;
   letter-spacing: 0.5px;
 }
 
@@ -169,7 +169,7 @@ defineEmits(['closeSidebar', 'logout'])
 .nav-label {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #4b5563;
   letter-spacing: 1.5px;
   margin-bottom: 1rem;
   padding-left: 0.25rem;
@@ -197,7 +197,7 @@ defineEmits(['closeSidebar', 'logout'])
 
 .nav-link:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
+  color: #f8fafc;
   border-left-color: var(--accent);
   padding-left: 19px;
   margin-left: -3px;
@@ -205,8 +205,8 @@ defineEmits(['closeSidebar', 'logout'])
 
 .nav-link.active {
   background: var(--bg-hover);
-  color: var(--text-primary);
-  border-left-color: var(--accent-active);
+  color: #f8fafc;
+  border-left-color: #6366f1;
 }
 
 .nav-link.active .nav-icon {
@@ -256,7 +256,7 @@ defineEmits(['closeSidebar', 'logout'])
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: var(--user-avatar);
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   border-radius: 8px;
   display: grid;
   place-items: center;
@@ -275,7 +275,7 @@ defineEmits(['closeSidebar', 'logout'])
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -283,7 +283,7 @@ defineEmits(['closeSidebar', 'logout'])
 
 .user-role {
   font-size: 0.6875rem;
-  color: var(--text-muted);
+  color: #4b5563;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

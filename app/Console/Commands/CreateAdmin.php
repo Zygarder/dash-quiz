@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Admin;
+use App\Models\Dasher;
 
 class CreateAdmin extends Command
 {
@@ -20,7 +20,7 @@ class CreateAdmin extends Command
         $email = $this->ask('Email for the admin?');
 
         // Check if user already exists
-        if (Admin::where('email', $email)->exists()) {
+        if (Dasher::where('email', $email)->exists()) {
             $this->error('A user with this email already exists!');
             return;
         }
@@ -35,7 +35,7 @@ class CreateAdmin extends Command
         }
 
         // add news admin
-        Admin::create([
+        Dasher::create([
             'first_name' => 'admin', // depende unsa first name
             'last_name' => 'admin', // depende unsa last name
             'email' => $email,

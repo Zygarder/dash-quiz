@@ -9,12 +9,7 @@
           <p class="section-subtitle">Viewing all completed quiz attempts</p>
         </div>
 
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search..."
-          class="search-input"
-        />
+        <input type="text" v-model="searchQuery" placeholder="Search..." class="search-input" />
       </div>
 
       <!-- Loading -->
@@ -38,11 +33,7 @@
 
         <!-- Rows -->
         <div v-if="paginatedRecords.length">
-          <div
-            v-for="rec in paginatedRecords"
-            :key="rec.id"
-            class="table-row"
-          >
+          <div v-for="rec in paginatedRecords" :key="rec.id" class="table-row">
             <span class="user">
               {{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'User #' + rec.user_id }}
             </span>
@@ -91,29 +82,27 @@ import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 const records = ref([])
-const loading = ref(true)
+let loading = ref(false)
 
 // Pagination & Sorting
 const currentPage = ref(1)
 const perPage = 10
 const sortKey = ref('id')
 const sortOrder = ref('asc')
-
 // Search
 const searchQuery = ref('')
 
 // Fetch records
 const fetchRecords = async (reply = 0) => {
-  try {
-    const response = await axios.get('/api/admin/records')
-    records.value = response.data.data || response.data
+  if (loading.value) return
 
+  try {
+    loading.value = true;
+    const { data } = await axios.get('/api/admin/records')
+    records.value = data.data
+    console.log(records.value)
   } catch (error) {
-    if (error.response?.status === 429 && retry < 3) {
-      setTimeout(() => fetchQuizzes(retry + 1), 1000)
-    } else {
-      console.error("Failed to fetch quizzes", error)
-    }
+    console.log(error)
   } finally {
     loading.value = false
   }
@@ -200,7 +189,6 @@ onMounted(fetchRecords)
 </script>
 
 <style scoped>
-
 /* WRAPPER */
 .page-wrapper {
   padding: 1.75rem;
@@ -254,7 +242,7 @@ onMounted(fetchRecords)
   background: #fff;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -269,7 +257,7 @@ onMounted(fetchRecords)
   background: #f9fafb;
 }
 
-.table-header span{
+.table-header span {
   text-align: center;
 }
 
@@ -278,9 +266,9 @@ onMounted(fetchRecords)
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 120px 160px;
   padding: 14px 16px;
+  text-align: center;
   border-top: 1px solid #f1f5f9;
   align-items: center;
-  font-size: 0.9rem;
   transition: background 0.2s;
 }
 
@@ -292,6 +280,7 @@ onMounted(fetchRecords)
 .user {
   font-weight: 500;
   color: #111827;
+  font-size: 12px;
 }
 
 .quiz {
@@ -300,7 +289,7 @@ onMounted(fetchRecords)
 
 .date {
   color: #6b7280;
-  font-size: 0.8rem;
+  font-size: 12px;
 }
 
 .text-center {
@@ -359,7 +348,9 @@ onMounted(fetchRecords)
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* PAGINATION */
@@ -389,5 +380,4 @@ onMounted(fetchRecords)
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 </style>

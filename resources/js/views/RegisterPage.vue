@@ -1,47 +1,62 @@
 <template>
-    <header class="top-bar">
-        Create New Account
-    </header>
+    <main class="auth-wrapper">
+        <div class="register-card">
+            <header class="card-header">
+                <h1>Create Account</h1>
+                <p>Join Dash Quiz and start your journey</p>
+            </header>
 
-    <main class="center-container">
+            <form @submit.prevent="handleRegister" class="registration-form">
+                <div class="input-group">
+                    <input v-model.trim="form.first_name" type="text" id="first_name" placeholder="First Name" required
+                        :class="{ 'input-error': errors.first_name }" />
+                    <span v-if="errors.first_name" class="error-msg">{{ errors.first_name[0] }}</span>
+                </div>
 
-        <div class="register-box">
-            <h2>Account Registration</h2>
-            <form @submit.prevent="handleRegister">
-                <input v-model.trim="form.first_name" type="text" maxlength="50" placeholder="First Name"
-                    :class="{ 'invalid-input': errors.first_name }" />
-                <div v-if="errors.first_name" class="error">{{ errors.first_name[0] }}</div>
+                <div class="input-group">
+                    <input v-model.trim="form.last_name" type="text" id="last_name" placeholder="Last Name"
+                        :class="{ 'input-error': errors.last_name }" />
+                    <span v-if="errors.last_name" class="error-msg">{{ errors.last_name[0] }}</span>
+                </div>
 
-                <input v-model.trim="form.last_name" type="text" maxlength="50" placeholder="Last Name"
-                    :class="{ 'invalid-input': errors.last_name }" />
-                <div v-if="errors.last_name" class="error">{{ errors.last_name[0] }}</div>
+                <div class="input-group">
+                    <input v-model.trim="form.email" type="email" id="email" placeholder="Email Address" required
+                        :class="{ 'input-error': errors.email }" />
+                    <span v-if="errors.email" class="error-msg">{{ errors.email[0] }}</span>
+                </div>
 
-                <input v-model.trim="form.email" type="email" placeholder="Email Address" autocomplete="off"
-                    :class="{ 'invalid-input': errors.email }" />
-                <div v-if="errors.email" class="error">{{ errors.email[0] }}</div>
+                <div class="input-group">
+                    <input v-model.trim="form.password" type="password" id="password" placeholder="Password" required
+                        :class="{ 'input-error': errors.password }" />
+                    <span v-if="errors.password" class="error-msg">{{ errors.password[0] }}</span>
+                </div>
 
-                <input v-model.trim="form.password" type="password" placeholder="Enter Password" autocomplete="off"
-                    :class="{ 'invalid-input': errors.password }" />
-                <div v-if="errors.password" class="error">{{ errors.password[0] }}</div>
+                <div class="input-group">
+                    <input v-model.trim="form.password_confirmation" type="password" id="password_confirmation"
+                        placeholder="Confirm Password" required />
+                </div>
 
-                <input v-model.trim="form.password_confirmation" autocomplete="off" type="password"
-                    placeholder="Re-type Password" :class="{ 'invalid-input': errors.password_confirmation }" />
+                <div v-if="generalError" class="general-error">{{ generalError }}</div>
 
-                <div v-if="generalError" class="error">{{ generalError }}</div>
-                <button type="submit" class="register-btn" :disabled="loading">
-                    {{ loading ? 'Submitting...' : 'Submit' }}
+                <button type="submit" class="submit-btn" :disabled="loading">
+                    <span v-if="!loading">Create Account</span>
+                    <span v-else class="loader-dots">
+                        <span v-if="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>Creating Account...
+                    </span>
                 </button>
 
-                <p class="small-text">
-                    Already have an account? <a href="/">click here</a>
+                <p class="footer-text">
+                    Already have an account? <router-link to="/">Login</router-link>
                 </p>
             </form>
         </div>
+
+        <footer class="legal-footer">
+            © 2025 Dash Quiz • All Rights Reserved.
+        </footer>
     </main>
-    <!--free comment for documentation purposes only, nakalimot ko pag apil sa commit-->
-    <footer>
-        © 2025 Dash Quiz All Rights Reserved.
-    </footer>
 </template>
 
 <script setup>
@@ -74,7 +89,7 @@ const handleRegister = async () => {
         await axios.get('/sanctum/csrf-cookie')
 
         // 3. Post to Register API
-        const response = await axios.post('/api/register',form)
+        const response = await axios.post('/api/register', form)
 
         if (response.status === 422) {
             errors.value = response.errors
@@ -95,153 +110,208 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* Base typography applied to the container */
-.center-container {
+.auth-wrapper {
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    min-height: 80vh;
-    font-family: 'Inter', sans-serif; /* Modern Font */
+    background: radial-gradient(circle at top left, #6d5dfc, #4b3fc2);
 }
 
-/* Original Top Bar Colors */
-.top-bar {
-    background-color: #4b3fc2; 
-    color: #fff;
-    padding: 10px 20px;
-    text-align: center;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-}
-
-/* Restored proportions with the new fade-in animation */
-.register-box {
-    background-color: #fff;
-    padding: 20px 40px; 
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.register-card {
+    background: white;
     width: 100%;
-    max-width: 350px; 
+    max-width: 380px;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-header {
+    text-align: center;
+}
+
+.card-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.card-header p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.registration-form {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    animation: fadeIn 0.6s ease-out; /* Smooth entrance */
+    gap: 20px;
 }
 
-.register-box h2 {
-    color: #3f2f87; 
-    text-align: center;
-    margin-bottom: 15px;
-    font-weight: 800; /* Bolder, modern weight */
-}
-
-.register-box input {
-    padding: 10px 15px; 
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 13px;
-    font-family: 'Inter', sans-serif;
+.input-group {
+    position: relative;
     width: 100%;
-    box-sizing: border-box;
-    transition: all 0.2s ease; /* Smooth border transition */
 }
 
-.register-box input:focus {
-    border-color: #4b3fc2;
+.input-group input {
+    width: 95%;
+    padding: 15px 10px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
     outline: none;
-    box-shadow: 0 0 5px rgba(75, 63, 194, 0.5);
+    transition: all 0.2s ease;
+    background: #fdfdfd;
 }
 
-.register-btn {
-    padding: 12px 5px; 
+.input-group label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+/* Floating Label Logic */
+.input-group input:focus~label,
+.input-group input:not(:placeholder-shown)~label {
+    top: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b3fc2;
+    background: white;
+    padding: 0 6px;
+    transform: translateY(-50%);
+}
+
+.input-group input:focus {
+    border-color: #4b3fc2;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(75, 63, 194, 0.1);
+}
+
+/* Validation States */
+.input-error {
+    border-color: #ef4444 !important;
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+    display: block;
+}
+
+.general-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Button Styling */
+.submit-btn {
     width: 100%;
-    background-color: #4b3fc2;
-    color: #fff;
-    font-weight: 700;
-    font-family: 'Inter', sans-serif;
+    padding: 16px;
+    background: #4b3fc2;
+    color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Modern button physics */
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 10px;
 }
 
-/* Added the 'lift' animation on hover */
-.register-btn:hover:not(:disabled) {
-    background-color: #3f2ea3;
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 15px rgba(75, 63, 194, 0.3); 
+.submit-btn:hover:not(:disabled) {
+    background: #3a2fad;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(75, 63, 194, 0.2);
 }
 
-.register-btn:active {
+.submit-btn:active {
     transform: translateY(0);
 }
 
-.register-btn:disabled {
-    background-color: #ccc;
+.submit-btn:disabled {
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
-.error {
-    color: red;
-    font-size: 12px;
-    margin-top: -5px;
-    margin-bottom: 5px;
+/* Loading Spinner */
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.footer-text {
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.footer-text a {
+    color: #4b3fc2;
+    text-decoration: none;
     font-weight: 600;
 }
 
-.invalid-input {
-    border: 1px solid red !important;
-    background-color: #fef2f2; /* Kept the subtle red background for errors */
+.footer-text a:hover {
+    text-decoration: underline;
 }
 
-.small-text {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 0.85rem;
-    color: #999;
-    font-family: 'Inter', sans-serif;
+.legal-footer {
+    margin-top: 30px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
 }
 
-.small-text a {
-    color: #4b3fc2;
-    text-decoration: none;
-    font-weight: 700;
-    cursor: pointer;
-    transition: color 0.2s;
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.small-text a:hover {
-    color: #3f2ea3;
-}
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+    .input-row {
+        grid-template-columns: 1fr;
+    }
 
-/* Original Fixed Footer */
-footer {
-    width: 100%;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    background-color: #4b3fc2;
-    color: #fff;
-    text-align: center;
-    padding: 10px;
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-/* The Entrance Animation */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 576px) {
-    .register-box {
-        padding: 25px 15px;
-        max-width: 90%;
+    .register-card {
+        padding: 30px 20px;
     }
 }
 </style>

@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
@@ -9,7 +7,6 @@ use App\Models\QuizRecord;
 use App\Models\Dasher;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-
 class UserApiController extends Controller
 {
     // Get top users based on quiz scores
@@ -23,130 +20,89 @@ class UserApiController extends Controller
             ->limit(10) // show only top 10 users
             ->get()
             ->map(function ($record) {
-
                 return [
                     // Combine first and last name for easier display
                     'name' => "{$record->user->first_name} {$record->user->last_name}",
-
                     // If user has no photo, return default image
                     'profile_photo' => $record->user->profile_photo,
-
                     // Score achieved in the quiz
                     'score' => $record->score,
-
                     // Title of the quiz the score belongs to
                     'quiz_title' => $record->quiz->title,
-
                     // User ID can be used by frontend for profile links
                     'user_id' => $record->user_id
                 ];
             });
-
         return response()->json([
             'status' => 'success',
             'data' => $leaders
         ]);
     }
-
     // Get list of available quizzes
     public function quizzes()
     {
         // Retrieve quiz list with only necessary fields
         // Reduces response size and improves performance
         $quizzes = Quiz::all(['id', 'title', 'description']);
-
         return response()->json([
             'status' => 'success',
-            'results' => $quizzes
+            'data' => $quizzes
         ]);
     }
-
-    // Get logged-in user or admin profile information
-    // I did this because its better way, than re designing the database structure 
     public function profile()
     {
-        // Get authenticated user using the dasher guard
+        // Check dasher first
         if (Auth::guard('dasher')->check()) {
             $user = Auth::guard('dasher')->user();
-
+            if ($user->active_status == 0) {
+                Auth::guard('dasher')->logout();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User is inactive.'
+                ], 403);
+            }
             return response()->json([
                 'status' => 'success',
                 'results' => [
                     'id' => $user->id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-
-                    // Full name for easier frontend display
+                    'role' => $user->role,
                     'full_name' => "{$user->first_name} {$user->last_name}",
-
                     'email' => $user->email,
-
-                    // If no profile photo exists, return default image
                     'profile_photo' => $user->profile_photo ?? 'default.png',
-
-                    // Count number of quizzes the user has taken
+                    'created_at' => $user->created_at->format('F j, Y'),
                     'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
-
-                    // Format account creation date
-                    'created_at' => $user->created_at->format('F j, Y')
-                ]
-            ]);
-        } else if (Auth::guard('admin')->check()) {
-            $admin = Auth::guard('admin')->user();
-
-            return response()->json([
-                'status' => 'success',
-                'results' => [
-                    'id' => $admin->id,
-                    'first_name' => $admin->first_name,
-                    'last_name' => $admin->last_name,
-
-                    // Full name for easier frontend display
-                    'full_name' => "{$admin->first_name} {$admin->last_name}",
-
-                    'email' => $admin->email,
-
-                    // If no profile photo exists, return default image
-                    'profile_photo' => $admin->profile_photo ?? 'default.png',
-
-
-                    // Format account creation date
-                    'created_at' => $admin->created_at->format('F j, Y')
                 ]
             ]);
         }
-
-
-
-
+        // If neither guard is authenticated
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Unauthenticated.'
+        ], 401);
     }
-
     // Get quiz history of the logged-in user
     public function records()
     {
         // Get authenticated user's ID
         $userId = Auth::guard('dasher')->id();
-
         // Fetch quiz records for this user
         $records = QuizRecord::where('user_id', $userId)
             ->with(['quiz']) // load quiz information
             ->orderByDesc('created_at') // newest records first
             ->get()
             ->map(function ($record) {
-
                 return [
                     'quiz_id' => $record->quiz_id,
                     'score' => $record->score,
-
                     // Include quiz details for frontend display
                     'quiz_title' => $record->quiz->title,
                     'quiz_description' => $record->quiz->description,
-
                     // Format record date
                     'created_at' => $record->created_at->format('Y-m-d')
                 ];
             });
-
         return response()->json([
             'results' => $records
         ]);

@@ -66,7 +66,7 @@ const handleDelete = async () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 1004;
 }
 
 /* 2. The Card: Adds padding and structure */

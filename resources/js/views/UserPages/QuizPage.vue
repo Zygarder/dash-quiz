@@ -1,288 +1,315 @@
 <template>
-  <div class="dash-quiz">
-    <TopBar />
+    <div class="dash-quiz" :class="{ 'sidebar-shifted': isSidebarOpen }">
+        <div class="container">
 
-    <main class="container">
-      <header class="page-header">
-        <div class="header-content">
-          <div class="icon-box">
-            <i class="fas fa-desktop"></i>
-          </div>
-          <div class="text-group">
-            <h2>Computer Systems Servicing</h2>
-            <p>Select a competency to begin your assessment</p>
-          </div>
-        </div>
-      </header>
+            <header class="page-header">
+                <div class="header-content">
+                    <div class="icon-box">
+                        <i class="fas fa-desktop"></i>
+                    </div>
 
-      <section class="challenge-container">
-        <div v-if="quizzes.length === 0" class="quiz-container">
-          <div v-for="i in 3" :key="i" class="skeleton-card"></div>
-        </div>
-
-        <div v-else class="quiz-container">
-          <router-link v-for="quiz in quizzes" :key="quiz.id" :to="{ name: 'quiz-start', params: { quiz_id: quiz.id } }"
-            class="quiz-card">
-
-            <div class="card-inner">
-              <div class="icon-wrapper">
-                <i class="fas fa-microchip"></i>
-              </div>
-
-              <div class="quiz-content">
-                <h3>{{ quiz.description }}</h3>
-                <div class="quiz-meta">
-                  <span class="meta-item">
-                    <i class="fas fa-list-ol"></i>
-                    {{ quiz.total_questions || 10 }}
-                  </span>
-                  <span class="meta-item difficulty" :class="quiz.difficulty?.toLowerCase()">
-                    <i class="fas fa-chart-line"></i>
-                    {{ quiz.difficulty || "Beginner" }}
-                  </span>
+                    <div class="text-group">
+                        <h2>Computer Systems Servicing</h2>
+                        <p>Select a competency to begin your assessment</p>
+                    </div>
                 </div>
-              </div>
-              <div class="arrow-indicator">
-                <i class="fas fa-chevron-right"></i>
-              </div>
+            </header>
+
+            <div v-if="loading" class="loading">
+                <div class="spinner"></div>
             </div>
-          </router-link>
+
+            <template v-else>
+                <section class="challenge-container">
+                    <!-- EMPTY -->
+                    <div v-if="quizzes.length === 0" class="empty">
+                        No quizzes yet 📊
+                    </div>
+
+                    <div v-else class="quiz-grid">
+                        <router-link v-for="quiz in quizzes" :key="quiz.id" :title=quiz.description
+                            :to="{ name: 'quiz-start', params: { quiz_id: quiz.id } }" class="quiz-card">
+                            <div class="card-inner">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+
+                                <div class="quiz-content">
+                                    <h3>{{ quiz.description }}</h3>
+                                    <div class="quiz-meta">
+                                        <span class="meta-item">
+                                            <i class="fas fa-list-ol"></i>
+                                            {{ quiz.total_questions || 10 }}
+                                            <span>Q</span>
+                                        </span>
+                                        <span class="meta-item difficulty"
+                                            :class="quiz.difficulty?.toLowerCase() || 'beginner'">
+                                            <i class="fas fa-signal"></i>
+                                            {{ quiz.difficulty || "Beginner" }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="arrow-indicator">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                        </router-link>
+                    </div>
+                </section>
+            </template>
         </div>
-      </section>
-    </main>
-  </div>
+    </div>
 </template>
 
 <script setup>
 import { useUser } from "@/composables/useUser"
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import TopBar from "@/components/UserSide/TopBar.vue"
+
+// 1. Receive sidebar state from Parent Layout to adjust margins
+defineProps({
+    isSidebarOpen: {
+        type: Boolean,
+        default: true
+    }
+})
 
 const { fetchUser } = useUser()
-
-// quizzes data
-const props = defineProps({})
-
-const quizzes = ref([]) // will be the array/object of quizzes
+const quizzes = ref([])
+const loading = ref(false)
 
 const fetchQuizzes = async () => {
-  try {
-    const { data } = await axios.get('/api/quizzes')
+    if (loading.value) return
 
-    // assign the fetched data to quizzes
-    quizzes.value = data.results
-
-  } catch (err) {
-    console.error('Failed to fetch quizzes:', err)
-  }
+    try {
+        loading.value = true
+        const { data } = await axios.get('/api/quizzes')
+        quizzes.value = data.data
+    } catch (err) {
+        console.error('Failed to fetch quizzes:', err)
+    } finally {
+        loading.value = false;
+    }
 }
 
 onMounted(async () => {
-  await fetchUser()
-  fetchQuizzes()
+    await fetchUser()
+    fetchQuizzes()
 })
-
 </script>
 
-
 <style scoped>
-:target {
-  --primary: #4b3fc2;
-  --primary-light: #6358db;
-  --bg-soft: #f8faff;
-}
-
+/* ROOT */
 .dash-quiz {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    width: 100%;
+    height: auto;
+    background: #f8fafc;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border-radius: 12px;
 }
 
+/* CONTAINER */
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 40px 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
-/* === HEADER DESIGN === */
+/* HEADER */
 .page-header {
-  margin-bottom: 40px;
-  animation: slideDown 0.6s ease-out;
+    margin-bottom: 1.5rem;
 }
 
 .header-content {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 
 .icon-box {
-  background: #4b3fc2;
-  color: white;
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 12px rgba(75, 63, 194, 0.3);
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #4b3fc2, #6366f1);
+    color: white;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
 }
 
 .text-group h2 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin: 0;
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    font-weight: 800;
+    color: #1e1b4b;
 }
 
 .text-group p {
-  color: #666;
-  margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
 }
 
-/* === QUIZ GRID === */
-.quiz-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+/* ✅ GRID FIXED */
+.quiz-grid {
+    display: grid;
+    gap: 14px;
+    /* responsive auto layout */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+/* CARD */
 .quiz-card {
-  text-decoration: none;
-  color: inherit;
-  perspective: 1000px;
+    text-decoration: none;
+    color: inherit;
+    padding: 14px 16px;
+    height: 100px;
 }
 
 .card-inner {
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  position: relative;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  overflow: hidden;
+    background: white;
+    border-radius: 14px;
+    display: flex;
+    padding: 0 10px;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #e2e8f0;
+    transition: 0.2s ease;
+    height: 100%;
 }
 
 .quiz-card:hover .card-inner {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(75, 63, 194, 0.12);
-  border-color: #4b3fc2;
+    transform: translateY(-3px);
+    border-color: #6366f1;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08);
 }
 
-/* ICON WRAPPER */
+/* ICON */
 .icon-wrapper {
-  width: 56px;
-  height: 56px;
-  background: #f0eeff;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: #4b3fc2;
-  transition: 0.3s;
-}
-
-.quiz-card:hover .icon-wrapper {
-  background: #4b3fc2;
-  color: white;
-  transform: scale(1.1) rotate(-5deg);
+    width: 42px;
+    height: 42px;
+    background: #f5f3ff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6366f1;
+    font-size: 1rem;
+    flex-shrink: 0;
 }
 
 /* CONTENT */
-.quiz-content h3 {
-  font-size: 1.1rem;
-  margin: 0 0 8px 0;
-  color: #2d2d2d;
-  line-height: 1.3;
+.quiz-content {
+    flex: 1;
+    min-width: 0;
 }
 
+.quiz-content h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* META */
 .quiz-meta {
-  display: flex;
-  gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .meta-item {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #7a7a7a;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
+/* DIFFICULTY */
 .difficulty.beginner {
-  color: #27ae60;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 2px 6px;
+    border-radius: 6px;
 }
 
 .difficulty.intermediate {
-  color: #f39c12;
+    color: #f59e0b;
+    background: #fffbeb;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.difficulty.advanced {
+    color: #ef4444;
+    background: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.empty {
+    text-align: center;
+    padding: 20px;
+    font-size: medium;
+    color: #9ca3af;
 }
 
 /* ARROW */
 .arrow-indicator {
-  margin-left: auto;
-  color: #ccc;
-  transition: 0.3s;
+    margin-left: auto;
+    color: #cbd5f5;
+    transition: 0.2s;
 }
 
 .quiz-card:hover .arrow-indicator {
-  transform: translateX(5px);
-  color: #4b3fc2;
+    transform: translateX(3px);
+    color: #6366f1;
 }
 
-/* SKELETON LOADER */
-.skeleton-card {
-  height: 110px;
-  background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 20px;
+
+.spinner {
+    width: 35px;
+    height: 35px;
+    border: 4px solid #eee;
+    border-top: 4px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
+/* 📱 MOBILE */
+@media (max-width: 500px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
 
-@media (max-width: 600px) {
-  .quiz-container {
-    grid-template-columns: 1fr;
-  }
-
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .icon-box {
-    margin: 0 auto;
-  }
+    .arrow-indicator {
+        display: none;
+    }
 }
 </style>

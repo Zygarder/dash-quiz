@@ -19,6 +19,7 @@
 <script setup>
 import AdminSidebar from '@/components/AdminSide/AdminSideBar.vue'
 import AdminTopbar from '@/components/AdminSide/AdminTopBar.vue'
+import axios from 'axios'
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -70,11 +71,13 @@ const closeSidebar = () => {
     isSidebarOpen.value = false
 }
 
-const handleLogout = () => {
-    if (!confirm('Are you sure you want to logout?')) return
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userRole')
-    router.push('/')
+const handleLogout = async () => {
+    if (confirm('Are you sure you want to logout?')) {
+        await axios.post('/api/logout')
+        localStorage.removeItem('isLoggedIn')
+        localStorage.removeItem('userRole')
+        router.push('/')
+    }
 }
 
 watch(isSidebarOpen, (val) => {

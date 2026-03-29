@@ -16,49 +16,38 @@
       <section class="hero-content">
         <div class="badge">V 1.0.1</div>
         <h1 class="main-heading">
-          Precision in <br />
-          <span class="text-gradient">Assessment.</span>
+          Learning is <span class="text-gradient">better</span> <br />
+          when we do it <span class="text-gradient">together.</span>
         </h1>
-        <p class="sub-heading">
-          Empowering TVL-CSS students at Taft National High School with real-world NCII diagnostic tools and performance
-          analytics.
-        </p>
-
-        <div class="feature-list">
-          <div class="feature-item">
-            <div class="check">✓</div>
-            <span>Real-time Performance Analytics</span>
-          </div>
-          <div class="feature-item">
-            <div class="check">✓</div>
-            <span>Secure COC Mock Assessments</span>
-          </div>
-        </div>
       </section>
 
       <section class="form-section">
         <form class="login-card" @submit.prevent="handleLogin">
           <div class="card-intro">
-            <h2>Welcome!</h2>
+            <h2>Welcome Dasher!</h2>
           </div>
 
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <div class="input-wrapper">
-              <input id="email" type="email" v-model.trim="form.email" placeholder="Enter your email"
-                autocomplete="username" :class="{ 'error-border': errors.email }" />
+          <div class="email_password">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <div class="input-wrapper">
+                <input id="email" type="email" v-model.trim="form.email" placeholder="Enter your email"
+                  autocomplete="username" :class="{ 'error-border': errors.email }" />
+              </div>
+              <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
             </div>
-            <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
+
+            <div class="form-group">
+              <label for="password">Password </label>
+              <div class="input-wrapper">
+                <input id="password" type="password" v-model.trim="form.password" placeholder="Enter your password"
+                  autocomplete="current-password" :class="{ 'error-border': errors.password }" />
+              </div>
+
+              <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-wrapper">
-              <input id="password" type="password" v-model.trim="form.password" placeholder="Enter your password"
-                autocomplete="current-password" :class="{ 'error-border': errors.password }" />
-            </div>
-            <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
-          </div>
 
           <div v-if="generalError" class="alert-box">
             {{ generalError }}
@@ -69,7 +58,8 @@
             <span v-else class="loader-dots">
               <span v-if="loading">
                 <i class="fas fa-spinner fa-spin"></i>
-              </span>Logging...</span>
+              </span>Logging...
+            </span>
           </button>
 
           <div class="form-footer">
@@ -109,6 +99,7 @@ const handleLogin = async () => {
   generalError.value = '';
 
   try {
+
     // Change this line
     const response = await axios.post('/api/login', form);
     const data = response.data; // This is your JSON body
@@ -124,9 +115,9 @@ const handleLogin = async () => {
       }
 
       if (data.role === 'admin') {
-        router.push('/admin/dashboard');
+        router.push('/admin');
       } else {
-        router.push('/home');
+        router.push('/user');
       }
     }
 
@@ -145,7 +136,10 @@ const handleLogin = async () => {
       }
     }
   } finally {
-    loading.value = false;
+    setTimeout(() => {
+      loading.value = false;
+    }, 5000)// undisable
+
   }
 };
 </script>
@@ -170,13 +164,21 @@ const handleLogin = async () => {
 }
 
 .auth-header {
-  padding: 1.25rem 0;
+  padding: 10px 0;
   border-bottom: 1px solid rgba(139, 92, 246, 0.08);
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.form-section {
+  padding: 10px 0;
+  margin-left: 101px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
 .header-inner {
@@ -234,7 +236,7 @@ const handleLogin = async () => {
   max-width: 1200px;
   margin: 0 auto;
   align-items: center;
-  padding: 4rem 2rem;
+  padding: 1rem 2rem;
   gap: 4rem;
 }
 
@@ -251,7 +253,6 @@ const handleLogin = async () => {
   border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 800;
-  margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -262,7 +263,7 @@ const handleLogin = async () => {
   line-height: 1;
   color: #1e1b4b;
   letter-spacing: -0.04em;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .text-gradient {
@@ -307,25 +308,35 @@ const handleLogin = async () => {
   border-radius: 50%;
 }
 
+.email_password {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Login Card */
 .login-card {
-  padding: 10px;
-  background: #ffffff;
-  border-radius: 22px;
-  box-shadow: 0 25px 50px -12px rgba(76, 29, 149, 0.1);
+  /* Increased padding from 10px to 2.5rem for breathing room */
+  width: 100%;
+  background: #ffff;
+  border-radius: 15px;
+  /* Softened the shadow for a cleaner look */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
   border: 1px solid #f1f5f9;
   animation: fadeIn 0.8s ease-out;
 }
 
 .card-intro {
   margin-bottom: 2.5rem;
+  padding: 0;
 }
 
 .card-intro h2 {
   font-size: 1.85rem;
+  margin-top: 1%;
+  margin-bottom: 0;
+  ;
   font-weight: 800;
   color: #1e1b4b;
-  letter-spacing: -0.02em;
 }
 
 .card-intro p {
@@ -336,6 +347,9 @@ const handleLogin = async () => {
 
 .form-group {
   margin-bottom: 1.75rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
@@ -343,13 +357,12 @@ const handleLogin = async () => {
   font-size: 0.95rem;
   font-weight: 700;
   color: #475569;
-  margin-bottom: 10px;
-  margin-left: 4px;
+  margin-bottom: 5px;
 }
 
 input {
   width: 100%;
-  padding: 15px 0;
+  padding: 10px 0;
   margin: 0;
   border-radius: 10px;
   text-indent: 15px;
@@ -385,14 +398,40 @@ input:focus {
   width: 100%;
   background: #1e1b4b;
   color: white;
-  padding: 1.1rem;
-  border-radius: 16px;
+  padding: 10px 0;
+  border-radius: 10px;
   border: none;
   font-weight: 700;
   font-size: 1.05rem;
   cursor: pointer;
   margin-top: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Error state refined */
+.error-border {
+  border-color: #f87171 !important;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15);
+}
+
+/* Error text */
+.error-text {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+/* Alert box improved */
+.alert-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .btn-submit:hover:not(:disabled) {
@@ -406,7 +445,12 @@ input:focus {
 }
 
 .form-footer {
-  margin-top: 2.5rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.form-footer p {
+  margin-top: .5rem;
   text-align: center;
 }
 
@@ -422,7 +466,7 @@ input:focus {
 }
 
 .separator {
-  margin: 1.75rem 0;
+  margin: 20px 0;
   display: flex;
   align-items: center;
   color: #cbd5e1;
@@ -510,6 +554,10 @@ input:focus {
   .auth-container {
     grid-template-columns: 1fr;
     padding-top: 2rem;
+  }
+
+  .form-section {
+    margin: 0;
   }
 
   .hero-content {

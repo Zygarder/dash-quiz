@@ -1,5 +1,6 @@
 <template>
     <div class="quiz-wrapper">
+        <!-- Navbar -->
         <header class="quiz-navbar">
             <div class="nav-content">
                 <div class="nav-left">
@@ -32,6 +33,7 @@
             </div>
         </header>
 
+        <!-- Main -->
         <main class="container">
             <transition name="fade">
                 <div v-if="loading" class="state-card">
@@ -49,10 +51,14 @@
                 <div v-else-if="questions.length" class="active-quiz">
                     <transition name="slide-fade" mode="out-in">
                         <div class="question-card" :key="currentIndex">
-                            <h2 class="question-text">
-                                {{ currentQuestion.text }}
-                            </h2>
+                            <h2 class="question-text">{{ currentQuestion.text }}</h2>
 
+                            <!-- Hint Box -->
+                            <div v-if="currentQuestion.hint" class="hint-box">
+                                💡 Hint: {{ currentQuestion.hint }}
+                            </div>
+
+                            <!-- Options -->
                             <div class="options-grid">
                                 <div v-for="(option, index) in currentQuestion.options" :key="option.id"
                                     class="option-item">
@@ -65,10 +71,11 @@
                                 </div>
                             </div>
 
+                            <!-- Action Bar -->
                             <footer class="action-bar">
                                 <button @click="submitAnswer" class="btn-submit" :disabled="!selectedAnswer">
                                     <span>{{ currentIndex + 1 === questions.length ? 'Finish Quiz' : 'Continue'
-                                        }}</span>
+                                    }}</span>
                                     <svg v-if="currentIndex + 1 !== questions.length" xmlns="http://www.w3.org/2000/svg"
                                         width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -127,7 +134,7 @@ const fetchQuiz = async () => {
     if (!quizId) {
         error.value = 'No quiz ID in the URL.'
         loading.value = false
-        router.push('/quizzes')
+        router.push('/user/quizzes')
     } else {
         // sets the selected quiz
         localStorage.setItem('quiz_id', quizId)
@@ -184,11 +191,11 @@ onMounted(() => {
     fetchQuiz()
 })
 
-// Format seconds to MM:SS -> minutes/seconds
+// Format seconds to MM:SS
 const formattedTime = computed(() => {
     const mins = Math.floor(timeElapsed.value / 60)
     const secs = timeElapsed.value % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 })
 
 // if confirmed, quiz progress will be deleted
@@ -197,7 +204,7 @@ const confirmExit = () => {
         localStorage.removeItem('quiz_current_index')
         localStorage.removeItem('quiz_score')
         localStorage.removeItem('quizId')
-        router.push('/quizzes')
+        router.push('/user/quizzes')
     }
 }
 
@@ -206,7 +213,6 @@ const submitAnswer = async () => {
     if (!selectedAnswer.value) return
 
     try {
-
         // send answer
         const payload = {
             question_id: currentQuestion.value.id,
@@ -274,7 +280,12 @@ const submitQuizResult = async () => {
 //return to quizzes
 const goBackToQuizzes = () => router.push('/quizzes')
 
-onMounted(fetchQuiz)
+onMounted(() => {
+    timerInterval = setInterval(() => {
+        timeElapsed.value++
+    }, 1000)
+    fetchQuiz()
+})
 </script>
 
 <style scoped>
@@ -417,7 +428,7 @@ onMounted(fetchQuiz)
     margin-bottom: 1.5rem;
     font-weight: 600;
     text-align: center;
-    background-color: #6366f1;
+    background-color: #1e1b4b;
     color: white;
     border: 1px black solid;
     padding: 15px;
@@ -560,6 +571,63 @@ onMounted(fetchQuiz)
     display: inline-block;
     animation: rotation 1s linear infinite;
     margin-bottom: 1rem;
+}
+
+/* Hint Box */
+.hint-box {
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    border-left: 4px solid #6366f1;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.hint-box:hover {
+    background: #e0e7ff;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .question-text {
+        font-size: 1.5rem;
+        padding: 12px;
+    }
+
+    .option-card {
+        padding: 1rem;
+    }
+
+    .btn-submit {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-right {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .question-text {
+        font-size: 1.3rem;
+        padding: 10px;
+    }
+
+    .option-card {
+        font-size: 0.95rem;
+    }
 }
 
 @keyframes rotation {

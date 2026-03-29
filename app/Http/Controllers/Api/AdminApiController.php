@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Http\Controllers\Controller;
+use App\Models\AdminLog;
 use App\Models\Dasher;
 use App\Models\QuizRecord;
 use App\Models\Quiz;
@@ -18,112 +18,100 @@ class AdminApiController extends Controller
     ###############################################
     public function logActivity($action, $description)
     {
+        $admin = Auth::guard('dasher')->user();
         // insert log
-        DB::table('activity_logs')->insert([
-            'admin_id' => Auth::guard('admin')->user()->id,
+        AdminLog::insert([
+            'admin_id' => $admin->id,
             'action_type' => $action,
             'description' => $description,
             'created_at' => now()
         ]);
     }
-
     ###############################################
-    # DASHBOARD DATA API (Merged & Cleaned!)
+    # DASHBOARD DATA API
     ###############################################
     public function dashboard()
     {
-        $totalUsers = DB::table('dasher')->count();
-        $totalQuizzes = DB::table('quizzes')->count();
-        $activeCount = Dasher::where("active_status", '=', 1)->count();
-        $topDashers = DB::table('dasher')
-            ->join('quiz_records', 'dasher.id', '=', 'quiz_records.user_id')
-            ->select(
-                'dasher.id',
-                'dasher.first_name',
-                'dasher.last_name',
-                DB::raw('ROUND((SUM(quiz_records.score) / (COUNT(quiz_records.id) * 10)) * 100, 1) as average_score')
-            )
-            ->groupBy('dasher.id', 'dasher.first_name', 'dasher.last_name')
-            ->orderByDesc('average_score')
-            ->limit(10)
+        // Ensure admin is authenticated
+        $admin = Auth::guard('dasher')->user();
+        if ($admin->role !== 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+        // Total number of dashers
+        $totalUsers = Dasher::where('role', 'dasher')->count();
+        // Total number of quizzes
+        $totalQuizzes = Quiz::count();
+        // Number of active dashers
+        $activeCount = Dasher::where('active_status', 1)->where('role', 'dasher')->count();
+        // Top 10 dashers by average score
+        $topDashers = Dasher::with('quizRecords')
+            ->where('role', 'dasher')
+            ->withCount('quizRecords AS total_quizzes') // total quizzes taken
+            ->withSum('quizRecords AS total_score', 'score') // total score
+            ->get()
+            ->map(function ($dasher) {
+                $average = $dasher->total_quizzes
+                    ? round(($dasher->total_score / ($dasher->total_quizzes * 10)) * 100, 1)
+                    : 0;
+                return [
+                    'id' => $dasher->id,
+                    'first_name' => $dasher->first_name,
+                    'last_name' => $dasher->last_name,
+                    'average_score' => $average
+                ];
+            })
+            ->sortByDesc('average_score')
+            ->take(10)
+            ->values();
+        // Last 20 admin logs
+        $logs = AdminLog::latest()
+            ->take(20)
             ->get();
 
-        $logs = DB::table('activity_logs')
-            ->orderBy('created_at', 'desc')
-            ->limit(20)
-            ->get();
-
-        $admin_name = Auth::guard('admin')->user()->first_name;
-
-        // Prepare stats payload
+        // Prepare stats
         $stats = [
             'total_users' => $totalUsers,
             'total_quizzes' => $totalQuizzes,
             'active_users' => $activeCount,
             'logs' => $logs,
-            'admin_name' => $admin_name,
+            'admin_name' => $admin->first_name,
             'top_users' => $topDashers
         ];
-
         return response()->json([
             'status' => 'success',
             'data' => $stats
         ], 200);
     }
-
     ###############################################
     # LOGIN API
     ###############################################
-
     public function login(Request $request)
     {
-        // validate 
         $valid = $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
-
-        // admin login
-        if (Auth::guard('admin')->attempt($valid)) {
-
-            $request->session()->regenerate();
-
-            Auth::guard('admin')->user()->update([
-                'active_status' => 1
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'role' => 'admin'
-            ], 200);
-        }
-
-        // dasher login
         if (Auth::guard('dasher')->attempt($valid)) {
-
             $request->session()->regenerate();
-
-            Auth::guard('dasher')->user()->update([
-                'active_status' => 1
-            ]);
+            $user = Auth::guard('dasher')->user();
+            $user->update(['active_status' => 1]);
 
             return response()->json([
                 'status' => 'success',
-                'role' => 'dasher'
+                'role' => $user->role
             ], 200);
         }
-
-        // If both fail
         return response()->json([
             'status' => 'error',
             'message' => 'Invalid email or password.'
         ], 401);
     }
-
     ###############################################
     # REGISTER API
     ###############################################
-
     public function register(Request $request)
     {
         $valid = $request->validate([
@@ -137,65 +125,35 @@ class AdminApiController extends Controller
             'last_name' => 'Enter your last name',
             'email' => 'Email is required',
             'email.unique' => 'Email is already been in use',
-            'password' => 'Enter your password',
+            'password.misn' => 'Password atleast length of 6',
             'password.confirmed' => 'Please, confirm your password',
-
         ]);
-
         $dasher = Dasher::create([
             'first_name' => $valid['first_name'],
             'last_name' => $valid['last_name'],
             'email' => $valid['email'],
-            'password' => Hash::make($valid['password'])
+            'password' => Hash::make($valid['password']),
+            'role' => 'dasher'
         ]);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Account created successfully',
             'data' => $dasher
         ], 201);
     }
-
     ###############################################
     # LOGOUT API
     ###############################################
     public function logout(Request $request)
     {
-        // Explicitly log out the user from the "dasher" guard
         if (Auth::guard('dasher')->check()) {
-
-            // Get current user's ID
-            $id = Auth::guard('dasher')->user()->id;
-
-            // Mark user as offline by updating active_status
-            Dasher::where('id', $id)->update(['active_status' => 0]);
-
-            // Log the user out
+            $user = Auth::guard('dasher')->user();
+            $user->update(['active_status' => 0]); //set offline current auth user
             Auth::guard('dasher')->logout();
         }
-
-        // Explicitly log out the admin from the "admin" guard
-        if (Auth::guard('admin')->check()) {
-
-            // Get current user's ID
-            $id = Auth::guard('admin')->user()->id;
-
-            // Mark admin as offline by updating active_status
-            Dasher::where('id', $id)->update(['active_status' => 0]);
-
-            // Log the admin out
-            Auth::guard('admin')->logout();
-        }
-
-        // Invalidate the session to remove all session data
         $request->session()->invalidate();
-
-        // Regenerate CSRF token for security
         $request->session()->regenerateToken();
     }
-
-
-
     ###############################################
     # QUIZ MANAGEMENT APIs
     ###############################################
@@ -206,7 +164,6 @@ class AdminApiController extends Controller
             'data' => Quiz::all()
         ], 200);
     }
-
     public function createQuiz(Request $request)
     {
         $request->validate([
@@ -262,7 +219,6 @@ class AdminApiController extends Controller
                     ]);
                 }
             }
-
             // Log the activity
             $this->logActivity('New Quiz!', "Quiz '{$request->title}' was created");
 
@@ -282,7 +238,6 @@ class AdminApiController extends Controller
             ], 500);
         }
     }
-
     ###############################################
     # EDIT QUIZ (API Fetch)
     ###############################################
@@ -324,7 +279,6 @@ class AdminApiController extends Controller
             ], 500);
         }
     }
-
     ###############################################
     # UPDATE QUIZ (API Submission)
     ###############################################
@@ -385,7 +339,6 @@ class AdminApiController extends Controller
                         ]);
                         $optionId = DB::getPdo()->lastInsertId();
                     }
-
                     $isCorrect = ($qData['correct_option'] == $index) ? 1 : 0;
 
                     DB::insert("INSERT INTO answers (question_id, answer_text, is_correct) VALUES (?, ?, ?)", [
@@ -399,13 +352,11 @@ class AdminApiController extends Controller
                     }
                 }
             }
-
             if (!empty($receivedQuestionIds)) {
                 $placeholders = implode(',', array_fill(0, count($receivedQuestionIds), '?'));
                 $deleteParams = array_merge([$id], $receivedQuestionIds);
                 DB::delete("DELETE FROM questions WHERE quiz_id = ? AND id NOT IN ($placeholders)", $deleteParams);
             }
-
             // <-- LOG ACTIVITY HERE (Update)
             $this->logActivity('Edit', "Quiz Title '{$request->title}' was updated");
 
@@ -416,7 +367,6 @@ class AdminApiController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Failed to update: ' . $e->getMessage()], 500);
         }
     }
-
     ###############################################
     # DELETE QUIZ
     ###############################################
@@ -430,13 +380,10 @@ class AdminApiController extends Controller
                 'message' => 'Quiz not found'
             ], 404);
         }
-
         $quizTitle = $quiz->title; // Save title before deleting for the log
         $quiz->delete();
-
         // <-- LOG ACTIVITY HERE (Quiz Deletion)
         $this->logActivity('Deletion', "Quiz '{$quizTitle}' (ID: $id) was deleted by");
-
         return response()->json([
             'status' => 'success',
             'message' => "Quiz ID $id deleted"
@@ -448,9 +395,15 @@ class AdminApiController extends Controller
     ###############################################
     public function allUsers()
     {
+        $users = Dasher::where('role', 'dasher')->get();
+
+        $users->map(function ($user) {
+            $user->quizzes_taken = QuizRecord::where('user_id', $user->id)->count();
+            return $user;
+        });
         return response()->json([
             'status' => 'success',
-            'data' => Dasher::all()
+            'data' => $users,
         ], 200);
     }
 
@@ -467,24 +420,23 @@ class AdminApiController extends Controller
 
         // <-- LOG ACTIVITY HERE (User Deletion)
         $this->logActivity('User Deletion', "User ID {$id} named {$user->first_name} was deleted");
-
         $user->delete();
-
-
         return response()->json([
             'status' => 'success',
             'message' => "User ID $id deleted"
         ], 200);
     }
-
     ###############################################
     # STUDENT RECORDS API
     ###############################################
     public function studentRecords()
     {
-        return response()->json([
-            'status' => 'success',
-            'data' => QuizRecord::with(['quiz', 'user'])->get()
-        ], 200);
+        if (Auth::guard('dasher')->check()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => QuizRecord::with(['quiz', 'user'])
+                    ->get()
+            ], 200);
+        }
     }
 }

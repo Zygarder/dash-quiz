@@ -52,7 +52,6 @@
                         <input v-model="q.options[i]" type="text" :placeholder="'Option ' + opt" />
                     </div>
                 </div>
-
             </div>
 
             <!-- ACTIONS -->

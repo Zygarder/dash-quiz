@@ -7,18 +7,6 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('admin', function (Blueprint $table) {
-            $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('active_status')->default(false);
-            $table->string('role')->default('admin');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->timestamps();
-        });
-
-        // MOVE DASHER HERE (Before quiz_records)
         Schema::create('dasher', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
@@ -35,6 +23,5 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('dasher');
-        Schema::dropIfExists('admin');
     }
 };

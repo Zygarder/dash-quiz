@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 // User Pages
-import HomePage from './views/UserPages/testHome.vue'
-import Profile from './views/UserPages/testProfilePage.vue'
-import Records from './views/UserPages/testRecords.vue'
-import QuizPage from './views/UserPages/testQuizPage.vue'
+import HomePage from './views/UserPages/HomePage.vue'
+import Profile from './views/UserPages/ProfilePage.vue'
+import Records from './views/UserPages/RecordsPage.vue'
+import QuizPage from './views/UserPages/QuizPage.vue'
 import TakeQuizPage from './views/UserPages/TakeQuizPage.vue'
 import QuizResult from './views/UserPages/QuizResult.vue'
-
 import UserLayout from './views/UserPages/UserLayout.vue'
 
 // Landing Page
@@ -16,42 +16,14 @@ import ForgotPage from './views/ForgotPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
-import AdminLayout from './views/AdminPages/AdminLayout.vue'
 import UsersTable from './views/AdminPages/UsersTable.vue'
 import StudentRecords from './views/AdminPages/StudentRecords.vue'
 import QuizAdd from './views/AdminPages/QuizAdd.vue'
 import QuizEdit from './views/AdminPages/QuizEdit.vue'
-import ManageQuestions from './views/AdminPages/ManageQuestions.vue'
-
-
+import ManageQuestions from './views/AdminPages/ManageQuiz.vue'
+import AdminLayout from './views/AdminPages/AdminLayout.vue'
 
 const routes = [
-    {
-        path: "/test-dashboard",
-        component: UserLayout,
-        children: [
-            {
-                path: '/home',
-                component: HomePage,
-                meta: { requiresAuth: true, requiresStudent: true }
-            }, {
-                path: '/records',
-                component: Records,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-            {
-                path: '/quizzes',
-                component: QuizPage,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-            {
-                path: '/profile',
-                component: Profile,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-
-        ]
-    },
     {
         path: "/",
         component: LoginPage,
@@ -64,21 +36,43 @@ const routes = [
         path: "/forgot",
         component: ForgotPage
     },
-    ,
-
-
     {
-        path: '/quiz/:quiz_id',
-        name: 'quiz-start',
-        component: TakeQuizPage,
-        meta: { requiresAuth: true, requiresStudent: true }
+        path: "/user",
+        component: UserLayout,
+        children: [
+            {
+                path: '',
+                component: HomePage,
+                meta: { requiresAuth: true, requiresStudent: true }
+            }, {
+                path: 'records',
+                component: Records,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+            {
+                path: 'quizzes',
+                component: QuizPage,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+            {
+                path: 'profile',
+                component: Profile,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+
+        ]
     },
     {
         path: '/quiz-result',
         component: QuizResult,
         meta: { requiresAuth: true, requiresStudent: true }
     },
-
+    {
+        path: '/quiz/:quiz_id',
+        name: 'quiz-start',
+        component: TakeQuizPage,
+        meta: { requiresAuth: true, requiresStudent: true }
+    },
     // Admin routes
     {
         path: '/admin',
@@ -86,11 +80,7 @@ const routes = [
         meta: { requiresAuth: true, requiresAdmin: true },
         children: [
             {
-                path: '/', // /admin
-                component: AdminDashboard
-            },
-            {
-                path: 'dashboard', // /admin/dashboard
+                path: '', // /admin/dashboard
                 component: AdminDashboard
             },
             {
@@ -110,7 +100,7 @@ const routes = [
                 component: QuizEdit
             },
             {
-                path: 'quizzes/manage',
+                path: 'manage-quizzes',
                 component: ManageQuestions
             }
         ]
@@ -142,17 +132,17 @@ router.beforeEach((to, from, next) => {
 
     // 2. Prevent logged-in users from seeing the Login/Register page
     if ((to.path === '/' || to.path === '/register') && isAuthenticated) {
-        return next(userRole === 'admin' ? '/admin/dashboard' : '/home');
+        return next(userRole === 'admin' ? '/admin' : '/user');
     }
 
     // 3. Admin Protection: Stop students from seeing Admin pages
     if (to.meta.requiresAdmin && userRole !== 'admin') {
-        return next({ path: '/home' });
+        return next({ path: '/user' });
     }
 
     // 4. Student Protection: Stop admins from seeing Student pages
     if (to.meta.requiresStudent && userRole === 'admin') {
-        return next({ path: '/admin/dashboard' });
+        return next({ path: '/admin' });
     }
 
     // Default: Allow through

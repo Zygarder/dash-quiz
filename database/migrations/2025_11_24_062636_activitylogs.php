@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('activity_logs',function (Blueprint $table){
+        Schema::create('admin_log',function (Blueprint $table){
             $table->engine = 'InnoDB';
             $table->id();
             $table->integer('admin_id');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('activity_logs');
+        Schema::dropIfExists('admin_log');
     }
 };

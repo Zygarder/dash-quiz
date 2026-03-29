@@ -1,15 +1,18 @@
 <script setup>
-import { reactive, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   show: Boolean,
-  initialData: Object // Pass single object instead of array
+  user: {
+    type: Object,
+    default: () => ({})
+  }
 })
 
-const emit = defineEmits(['close', 'save'])
+const emit = defineEmits(['close', 'save', 'notify'])
 
-// Reactive object for modal fields
-const editValue = reactive({
+// ✅ Local form state
+const form = ref({
   first_name: '',
   last_name: '',
   email: '',
@@ -17,32 +20,43 @@ const editValue = reactive({
   password_confirmation: ''
 })
 
-// Update fields when Fmodal opens
-watch(() => props.show,
-  (newVal) => {
-    if (newVal && props.initialData) {
-      Object.assign(editValue, {
-        first_name: props.initialData.first_name || '',
-        last_name: props.initialData.last_name || '',
-        email: props.initialData.email || '',
-        password: '',
+// ✅ Watch for when the modal opens to sync data
+watch(
+  () => props.show,
+  (isVisible) => {
+    if (isVisible && props.user) {
+      form.value = {
+        first_name: props.user.first_name || '',
+        last_name: props.user.last_name || '',
+        email: props.user.email || '',
+        password: '', // Reset passwords
         password_confirmation: ''
-      })
+      }
     }
-  }
+  },
+  { immediate: true }
 )
 
-// Handle Save
+// ✅ Save handler
 const handleSave = () => {
-  const hashedData = {
-    first_name: editValue.first_name,
-    last_name: editValue.last_name,
-    email: editValue.email,
-    password: editValue.password,
-    password_confirmation: editValue.password_confirmation
+  // 1. Password Match Validation
+  if (form.value.password || form.value.password_confirmation) {
+    if (form.value.password !== form.value.password_confirmation) {
+      emit('notify', { message: "Passwords do not match!", type: "error" })
+      return
+    }
   }
 
-  emit('save', hashedData)
+  // 2. Prepare Clean Payload
+  const payload = { ...form.value }
+
+  // 3. Remove password fields if they are empty (so we don't update them)
+  if (!payload.password) {
+    delete payload.password
+    delete payload.password_confirmation
+  }
+
+  emit('save', payload)
   emit('close')
 }
 </script>
@@ -55,28 +69,27 @@ const handleSave = () => {
 
       <div class="edit-fields">
         <label for="first_name">First Name</label>
-        <input id="first_name" v-model="editValue.first_name" type="text" placeholder="John" autocomplete="off" />
+        <input id="first_name" v-model="form.first_name" type="text" autocomplete="off" />
       </div>
 
       <div class="edit-fields">
         <label for="last_name">Last Name</label>
-        <input id="last_name" v-model="editValue.last_name" type="text" placeholder="Doe" autocomplete="off" />
+        <input id="last_name" v-model="form.last_name" type="text" autocomplete="off" />
       </div>
 
       <div class="edit-fields">
         <label for="email">Email</label>
-        <input id="email" v-model="editValue.email" type="email" placeholder="example@mail.com" autocomplete="off" />
+        <input id="email" v-model="form.email" type="email" autocomplete="off" />
       </div>
 
       <div class="edit-fields">
         <label for="password">Password</label>
-        <input id="password" v-model="editValue.password" type="password" placeholder="••••••" autocomplete="off" />
+        <input id="password" v-model="form.password" type="password" autocomplete="off" />
       </div>
 
       <div class="edit-fields">
         <label for="password_confirmation">Confirm Password</label>
-        <input id="password_confirmation" v-model="editValue.password_confirmation" type="password" placeholder="••••••"
-          autocomplete="off" />
+        <input id="password_confirmation" v-model="form.password_confirmation" type="password" autocomplete="off" />
       </div>
 
       <div class="modal-buttons">
@@ -99,7 +112,7 @@ const handleSave = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1004;
 }
 
 .modal-content {

@@ -17,39 +17,32 @@ Route::post('/register', [AdminApiController::class, 'register']);
 */
 // Note: We use auth:sanctum because it handles the session cookie from your Vue app
 Route::middleware('auth:sanctum')->group(function () {
-
     // Matches your fetchUser() call: axios.get("/api/me")
     Route::get('/me', [UserApiController::class, 'profile']);
-
     // Dashboard & Leaderboard
     // Moved inside middleware so UserApiController can use Auth::id() to highlight "You"
     Route::get('/dashboard/leaderboard', [UserApiController::class, 'leaderboard']);
-
     // Quizzes
     Route::get('/quizzes', [UserApiController::class, 'quizzes']);
     Route::get('/quiz/{quiz_id}', [QuizApiController::class, 'getQuiz']);
     Route::get('/quiz/progress', [QuizApiController::class, 'getQuizProgress']);
     Route::post('/quiz/answer', [QuizApiController::class, 'submitAnswer']);
     Route::post('/quiz/result', [QuizApiController::class, 'submitQuizResult']);
-
     // Records
     Route::get('/records', [UserApiController::class, 'records']);
-
     // Profile
     Route::put('/profile/update', [ProfileApiController::class, 'updateProfile']);
-
     Route::post('/profile/photo', [ProfileApiController::class, 'uploadPhoto']);
     // Self-Delete
     Route::delete('/profile/delete', [ProfileApiController::class, 'selfDeleteAccount']);
     // Logout
     Route::post('/logout', [AdminApiController::class, 'logout']);
 });
-
 /*
 | Admin Specific Routes
 */
 // Ensure your 'admin' guard is configured in config/auth.php
-Route::middleware(['auth:sanctum', 'ability:admin'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [UserApiController::class, 'profile']);
     Route::get('/admin/dashboard', [AdminApiController::class, 'dashboard']);
     Route::get('/admin/quizzes', [AdminApiController::class, 'allQuizzes']);

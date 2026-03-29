@@ -1,97 +1,123 @@
 <template>
   <div class="records-page">
+    <div class="records-container">
 
-    <main class="main-content">
-      <div class="records-container">
+      <!-- HEADER -->
+      <div>
         <h3 class="records-title">Performance Analytics</h3>
-        <p class="subtitle">Track your quiz progress and performance</p>
+        <p class="subtitle">Track your quiz progress</p>
+      </div>
 
-        <div class="stats-grid" v-if="records.length > 0">
+      <!-- LOADING -->
+      <div v-if="loading" class="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- CONTENT -->
+      <template v-else>
+
+        <!-- STATS -->
+        <div class="stats-grid" v-if="records.length">
+
           <div class="chart-card">
             <h4>Score Distribution</h4>
             <div class="chart-container">
               <Doughnut :data="chartData" :options="chartOptions" />
             </div>
           </div>
+
           <div class="stats-summary">
             <div class="stat-box">
-              <span class="label">Average Score</span>
-              <span class="value">{{ averageScore }}%</span>
+              <span>Average</span>
+              <b>{{ averageScore }}%</b>
             </div>
+
             <div class="stat-box">
-              <span class="label">Quizzes Taken</span>
-              <span class="value">{{ records.length }}</span>
+              <span>Quizzes</span>
+              <b>{{ records.length }}</b>
             </div>
+
             <div class="stat-box">
-              <span class="label">Highest Score</span>
-              <span class="value">{{ maxScore }}/10</span>
+              <span>Best</span>
+              <b>{{ maxScore }}/10</b>
             </div>
           </div>
+
         </div>
 
-        <h3 class="records-title sub-title">Detailed History</h3>
-
+        <!-- SEARCH -->
         <div class="filter-bar">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" v-model="searchQuery" placeholder="Search topic or score..." />
+          <i class="fas fa-search"></i>
+          <input v-model="searchQuery" placeholder="Search..." />
         </div>
 
-        <div class="table-wrapper">
+        <!-- EMPTY -->
+        <div v-if="!records.length" class="empty">
+          <p>No records yet 📊</p>
+        </div>
+
+        <!-- TABLE -->
+        <div v-else class="table-wrapper">
           <table class="records-table">
             <thead>
               <tr>
-                <th>Date Taken</th>
-                <th>Topics</th>
-                <th>Scores</th>
+                <th>Date</th>
+                <th>Quiz</th>
+                <th>Score</th>
               </tr>
             </thead>
+
             <tbody>
               <tr v-for="record in filteredRecords" :key="record.id">
                 <td>{{ formatDate(record.created_at) }}</td>
-                <td>{{ record.quiz_description }}</td>
+                <td>{{ record.quiz_title || 'Untitled' }}</td>
                 <td>
-                  <span :class="['score-badge', record.score >= 7 ? 'pass' : 'fail']">
-                    {{ record.score }} / 10
+                  <span :class="['badge', record.score >= 7 ? 'pass' : 'fail']">
+                    {{ record.score }}/10
                   </span>
                 </td>
               </tr>
+
               <tr v-if="filteredRecords.length === 0">
-                <td colspan="3" class="empty-msg">No records found.</td>
+                <td colspan="3" class="empty-msg">No match found</td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
-    </main>
+
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js'
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import { ref, computed, onMounted } from "vue"
-import { useUser } from "@/composables/useUser"
 import { Doughnut } from 'vue-chartjs'
 import axios from "axios"
+import { useUser } from "@/composables/useUser"
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
+ChartJS.register(Title, Tooltip, Legend, ArcElement)
 
 const { fetchUser } = useUser()
+
 const records = ref([])
 const searchQuery = ref("")
+const loading = ref(true)
 
-/*
-|--------------------------------------------------------------------------
-| Analytics Calculations
-|--------------------------------------------------------------------------
-*/
+/* ===============================
+   ANALYTICS
+================================ */
 const averageScore = computed(() => {
   if (!records.value.length) return 0
-  const total = records.value.reduce((acc, curr) => acc + curr.score, 0)
+  const total = records.value.reduce((sum, r) => sum + r.score, 0)
   return ((total / (records.value.length * 10)) * 100).toFixed(1)
 })
 
 const maxScore = computed(() => {
-  return records.value.length ? Math.max(...records.value.map(r => r.score)) : 0
+  return records.value.length
+    ? Math.max(...records.value.map(r => r.score))
+    : 0
 })
 
 const chartData = computed(() => {
@@ -99,13 +125,11 @@ const chartData = computed(() => {
   const failed = records.value.length - passed
 
   return {
-    labels: ['Passed (7-10)', 'Needs Review (<7)'],
+    labels: ['Passed', 'Needs Review'],
     datasets: [{
-      backgroundColor: ['#4b32a8', '#ffccd5'],
-      hoverBackgroundColor: ['#3a2585', '#ffb3c1'],
       data: [passed, failed],
-      borderWidth: 0,
-      hoverOffset: 10
+      backgroundColor: ['#6366f1', '#f43f5e'],
+      borderWidth: 0
     }]
   }
 })
@@ -118,37 +142,44 @@ const chartOptions = {
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Actions & Data Fetching
-|--------------------------------------------------------------------------
-*/
+/* ===============================
+   FETCH
+================================ */
 const fetchRecords = async () => {
+  loading.value = true
   try {
-    const { data } = await axios.get("api/records")
-    records.value = data.results
+    const res = await axios.get('/api/records')
+    records.value = res.data.results || []
   } catch (err) {
-    console.error('Failed to fetch records:', err)
+    console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 
+/* ===============================
+   FILTER
+================================ */
 const filteredRecords = computed(() => {
-  if (!searchQuery.value) return records.value
   const query = searchQuery.value.toLowerCase()
-  return records.value.filter(record =>
-    record.quiz_title.toLowerCase().includes(query) ||
-    record.score.toString().includes(query)
-  )
+
+  return records.value.filter(record => {
+    const title = record.quiz_title?.toLowerCase() || ''
+    const score = record.score?.toString() || ''
+    return title.includes(query) || score.includes(query)
+  })
 })
 
-const formatDate = (dateStr) => {
-  return new Date(dateStr).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
+/* ===============================
+   FORMAT
+================================ */
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString()
 }
 
+/* ===============================
+   INIT
+================================ */
 onMounted(async () => {
   await fetchUser()
   fetchRecords()
@@ -156,134 +187,104 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-:root {
-  --primary: #6366f1;
-  --bg: #f9fafb;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #6b7280;
-  --border: #eef2f7;
-}
-
-/* === PAGE === */
 .records-page {
-  background: var(--bg);
-  min-height: 100vh;
-  font-family: "Inter", sans-serif;
+  width: 100%;
 }
 
-.main-content {
-  max-width: 1000px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-/* === CARD CONTAINER === */
 .records-container {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  background: #fff;
+  border-radius: 14px;
+  padding: clamp(1rem, 3vw, 1.8rem);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
-/* === TITLES === */
+/* HEADER */
 .records-title {
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
   font-weight: 800;
-  color: var(--text);
+  color: #1e1b4b;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-top: -10px;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
-.sub-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-top: 10px;
+/* LOADING */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
 }
 
-/* === GRID === */
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 4px solid #eee;
+  border-top: 4px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* GRID */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
+  margin-top: 20px;
 }
 
-/* === CHART CARD === */
-.chart-card {
-  background: #fafafa;
-  padding: 20px;
-  border-radius: 14px;
-}
-
-.chart-card h4 {
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
+/* CHART */
 .chart-container {
   height: 200px;
 }
 
-/* === STATS === */
+/* STATS */
+.stats-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .stat-box {
-  background: #fafafa;
-  padding: 16px;
-  border-radius: 12px;
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-.stat-box .label {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-.stat-box .value {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--text);
-}
-
-/* === SEARCH === */
+/* SEARCH */
 .filter-bar {
+  margin-top: 20px;
   position: relative;
-  max-width: 320px;
+  max-width: 280px;
 }
 
 .filter-bar input {
   width: 100%;
-  padding: 10px 12px 10px 35px;
+  padding: 8px 10px 8px 30px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  outline: none;
-  transition: 0.2s;
+  border: 1px solid #e5e7eb;
 }
 
-.filter-bar input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
-.search-icon {
+.filter-bar i {
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--muted);
 }
 
-/* === TABLE === */
+/* TABLE */
 .table-wrapper {
   overflow-x: auto;
+  margin-top: 20px;
 }
 
 .records-table {
@@ -291,63 +292,51 @@ onMounted(async () => {
   border-collapse: collapse;
 }
 
-/* header */
-.records-table thead {
-  background: transparent;
-}
-
-.records-table th {
-  text-align: left;
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  padding: 12px;
-}
-
-/* body */
+.records-table th,
 .records-table td {
-  padding: 14px 12px;
-  border-top: 1px solid var(--border);
-}
-
-/* hover effect */
-.records-table tbody tr {
-  transition: 0.15s;
+  padding: 10px;
 }
 
 .records-table tbody tr:hover {
   background: #f9fafb;
 }
 
-/* === BADGES === */
-.score-badge {
-  padding: 5px 12px;
+/* BADGE */
+.badge {
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
 }
 
-.score-badge.pass {
+.pass {
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
 }
 
-.score-badge.fail {
+.fail {
   background: rgba(244, 63, 94, 0.1);
   color: #f43f5e;
 }
 
-/* === EMPTY === */
-.empty-msg {
+/* EMPTY */
+.empty {
   text-align: center;
   padding: 30px;
-  color: var(--muted);
+  color: #9ca3af;
 }
 
-/* === RESPONSIVE === */
+/* MOBILE */
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .records-table th {
+    font-size: 0.75rem;
+  }
+
+  .records-table td {
+    font-size: 0.85rem;
   }
 }
 </style>

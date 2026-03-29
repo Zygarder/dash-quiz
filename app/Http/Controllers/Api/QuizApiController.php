@@ -51,7 +51,6 @@ class QuizApiController extends Controller
 
                         // Send options to frontend
                         'options' => $options->values()->map(function ($opt, $optIndex) use ($optionLabels) {
-
                             return [
                                 'id' => $opt->id,
                                 'text' => $opt->option_text,

@@ -14,12 +14,12 @@
     <div class="nav-label">MAIN MENU</div>
 
     <nav class="sidebar-nav">
-      <router-link to="/admin/dashboard" active-class="active" @click="$emit('closeSidebar')">
+      <router-link to="/admin" exact-active-class="active" @click="$emit('closeSidebar')">
         <span class="nav-icon"><i class="fas fa-th-large"></i></span>
         <span class="nav-text">Dashboard</span>
       </router-link>
 
-      <router-link to="/admin/quizzes/manage" active-class="active" @click="$emit('closeSidebar')">
+      <router-link to="/admin/manage-quizzes" active-class="active" @click="$emit('closeSidebar')">
         <span class="nav-icon"><i class="fas fa-book-open"></i></span>
         <span class="nav-text">Quizzes</span>
       </router-link>
@@ -82,7 +82,7 @@ defineEmits(['closeSidebar', 'logout'])
     position: sticky;
     transform: translateX(0) !important;
   }
-  
+
   .admin-sidebar.open {
     transform: translateX(0) !important;
   }
@@ -104,7 +104,7 @@ defineEmits(['closeSidebar', 'logout'])
     transform: translateX(-100%);
     padding: 1.25rem;
   }
-  
+
   .admin-sidebar.open {
     transform: translateX(0);
     box-shadow: 12px 0 40px rgba(0, 0, 0, 0.4);
@@ -117,7 +117,7 @@ defineEmits(['closeSidebar', 'logout'])
     width: 260px;
     padding: 1rem;
   }
-  
+
   .admin-sidebar.open {
     width: 85vw;
     max-width: 280px;
@@ -137,7 +137,7 @@ defineEmits(['closeSidebar', 'logout'])
     padding: 10px 12px;
     gap: 10px;
   }
-  
+
   .nav-text {
     font-size: 0.9rem;
   }
@@ -148,11 +148,11 @@ defineEmits(['closeSidebar', 'logout'])
   .admin-info {
     display: none;
   }
-  
+
   .admin-badge {
     gap: 8px;
   }
-  
+
   .admin-avatar {
     width: 32px;
     height: 32px;
@@ -186,7 +186,9 @@ defineEmits(['closeSidebar', 'logout'])
   letter-spacing: 1px;
 }
 
-.logo-text span { color: #818cf8; }
+.logo-text span {
+  color: #818cf8;
+}
 
 .nav-label {
   font-size: 0.7rem;
@@ -214,7 +216,8 @@ defineEmits(['closeSidebar', 'logout'])
   transition: all 0.2s;
 }
 
-.sidebar-nav a:hover, .sidebar-nav a.active {
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
   background: rgba(99, 102, 241, 0.1);
   color: white;
 }
@@ -223,7 +226,9 @@ defineEmits(['closeSidebar', 'logout'])
   flex: 1;
 }
 
-.sidebar-nav a.active .nav-icon { color: #818cf8; }
+.sidebar-nav a.active .nav-icon {
+  color: #818cf8;
+}
 
 .sidebar-footer {
   padding-top: 1.5rem;
@@ -273,8 +278,8 @@ defineEmits(['closeSidebar', 'logout'])
   border-radius: 6px;
 }
 
-.logout-icon-btn:hover { 
+.logout-icon-btn:hover {
   background: rgba(239, 68, 68, 0.1);
-  transform: scale(1.1); 
+  transform: scale(1.1);
 }
 </style>

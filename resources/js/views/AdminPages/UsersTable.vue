@@ -16,12 +16,8 @@
           <p class="section-subtitle">Manage all user accounts</p>
         </div>
 
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search by name or email..."
-          class="search-input"
-        />
+        <input type="text" v-model="searchQuery" placeholder="Search by name, email, or quizzes..."
+          class="search-input" />
       </div>
 
       <!-- Loading -->
@@ -37,48 +33,40 @@
         <table class="styled-table">
           <thead>
             <tr>
-              <th @click="sortBy('first_name')">
-                First Name
-                <span v-if="sortKey === 'first_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              <!-- Replace first_name + last_name columns with one -->
+              <th @click="sortBy('full_name')">
+                Full Name
+                <span v-if="sortKey === 'full_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
               </th>
-
-              <th @click="sortBy('last_name')">
-                Last Name
-                <span v-if="sortKey === 'last_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-
               <th @click="sortBy('email')">
                 Email
                 <span v-if="sortKey === 'email'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
               </th>
-
+              <th @click="sortBy('quizzes_taken')">
+                Quizzes Taken
+                <span v-if="sortKey === 'quizzes_taken'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
               <th @click="sortBy('created_at')">
                 Date Registered
                 <span v-if="sortKey === 'created_at'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
               </th>
-
               <th class="text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
             <tr v-if="paginatedUsers.length === 0">
-              <td colspan="5" class="empty-state">No users found.</td>
+              <td colspan="6" class="empty-state">No users found.</td>
             </tr>
 
             <tr v-for="user in paginatedUsers" :key="user.id">
-              <td class="name">{{ user.first_name }}</td>
-              <td class="name">{{ user.last_name }}</td>
+              <td class="name">{{ user.first_name }} {{ user.last_name }}</td>
               <td class="email">{{ user.email }}</td>
+              <td class="quizzes_taken">{{ user.quizzes_taken }}</td>
               <td>{{ formatDate(user.created_at) }}</td>
-
               <td class="actions-col">
-                <button @click="editUser(user)" class="btn edit">
-                  Edit
-                </button>
-                <button @click="confirmDelete(user.id)" class="btn delete">
-                  Delete
-                </button>
+                <button @click="editUser(user)" class="btn edit">Edit</button>
+                <button @click="confirmDelete(user.id)" class="btn delete">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -91,7 +79,6 @@
           <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
         </div>
       </div>
-
     </section>
   </div>
 </template>
@@ -128,13 +115,10 @@ const fetchUsers = async () => {
 // Delete
 const confirmDelete = async (id) => {
   if (!confirm(`Delete user ID: ${id}?`)) return
-
   try {
     await axios.delete(`/api/admin/users/${id}`)
     successMessage.value = `User ${id} removed.`
-
     await fetchUsers()
-
     setTimeout(() => successMessage.value = '', 2500)
   } catch (error) {
     alert('Delete failed.')
@@ -157,19 +141,38 @@ const formatDate = (date) => {
 
 // Filter + Sort
 const filteredUsers = computed(() => {
-  let filtered = users.value.filter(u =>
-    u.first_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    u.last_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  // Combine first + last name for search
+  const query = searchQuery.value.toLowerCase()
 
+  let filtered = users.value.filter(u => {
+    const fullName = `${u.first_name} ${u.last_name}`.toLowerCase()
+    return fullName.includes(query) ||
+      u.email?.toLowerCase().includes(query) ||
+      String(u.quizzes_taken || '').includes(query)
+  })
+
+  // Sorting
   filtered.sort((a, b) => {
-    let A = a[sortKey.value] || ''
-    let B = b[sortKey.value] || ''
+    let A, B
 
+    if (sortKey.value === 'full_name') {
+      A = `${a.first_name} ${a.last_name}`.toLowerCase()
+      B = `${b.first_name} ${b.last_name}`.toLowerCase()
+    } else {
+      A = a[sortKey.value] ?? ''
+      B = b[sortKey.value] ?? ''
+    }
+
+    // Parse dates
     if (sortKey.value === 'created_at') {
       A = new Date(A)
       B = new Date(B)
+    }
+
+    // Numeric sort for quizzes_taken
+    if (sortKey.value === 'quizzes_taken') {
+      A = Number(A)
+      B = Number(B)
     }
 
     if (A < B) return sortOrder.value === 'asc' ? -1 : 1
@@ -237,6 +240,8 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  /* allow wrap on smaller screens */
 }
 
 .section-title {
@@ -256,7 +261,8 @@ onUnmounted(() => {
   border-radius: 10px;
   border: 1px solid #e2e8f0;
   font-size: 0.85rem;
-  width: 230px;
+  width: 250px;
+  margin-top: 10px;
 }
 
 /* ===== Card ===== */
@@ -264,20 +270,24 @@ onUnmounted(() => {
   background: white;
   border-radius: 16px;
   border: 1px solid #f1f5f9;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+}
+
+td {
+  text-align: center;
 }
 
 /* ===== Table ===== */
 .styled-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.85rem;
 }
 
 .styled-table th {
   padding: 1rem;
   font-size: 0.75rem;
-  text-transform: uppercase;
   color: #64748b;
   border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
@@ -286,7 +296,6 @@ onUnmounted(() => {
 .styled-table td {
   padding: 1rem;
   border-bottom: 1px solid #f8fafc;
-  font-size: 0.9rem;
 }
 
 .styled-table tr:hover {
@@ -365,7 +374,9 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== Pagination ===== */
@@ -389,10 +400,117 @@ onUnmounted(() => {
 }
 
 /* ===== Animation ===== */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s;
 }
-.fade-enter-from, .fade-leave-to {
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
+}
+
+/* ===============================
+   MEDIA QUERIES
+================================= */
+
+/* Large desktops */
+@media (min-width: 1200px) {
+  .dashboard-wrapper {
+    padding: 3rem 4rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    font-size: 12px;
+  }
+}
+
+/* Medium desktops / laptops */
+@media (max-width: 1199px) and (min-width: 1025px) {
+  .dashboard-wrapper {
+    padding: 2.5rem 3rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .dashboard-wrapper {
+    padding: 2rem;
+  }
+
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+  }
+}
+
+/* Small tablets / large phones */
+@media (max-width: 768px) and (min-width: 481px) {
+  .dashboard-wrapper {
+    padding: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .search-input {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .dashboard-wrapper {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .search-input {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+    width: 100%;
+  }
+
+  .actions-col {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 </style>

@@ -1,102 +1,82 @@
 <template>
-  <div class="profile-page-wrapper">
-
-    <SideBarComp :show="showSidebar" @close="closeSidebar" />
-
-    <TopBar />
-
-    <main class="main-content">
-
-      <div class="profile-card" v-if="user">
-
-        <!-- Avatar -->
-        <div class="profile-header">
-
-          <div class="avatar">
-            <img :src="preview || profileImageUrl" draggable="false" @error="setDefaultAvatar" />
-          </div>
-
-          <h2>{{ user.first_name }}</h2>
-          <small>{{ user.email }}</small>
-
-          <form enctype="multipart/form-data">
-            <label class="file-label">
-              Change Profile
-              <input type="file" @change="onFileChange">
-            </label>
-          </form>
-
+  <div class="main-content">
+    <div class="profile-card" v-if="user">
+      <div class="profile-header">
+        <div :class="['avatar', { 'uploading': loading }]">
+          <img :src="preview || profileImageUrl" draggable="false" />
+          <div v-if="loading" class="avatar-loader"></div>
         </div>
 
-        <!-- Profile Details -->
-        <div class="profile-details">
+        <h2>{{ user.first_name }}</h2>
+        <small>{{ user.email }}</small>
 
-          <div class="detail-row">
-            <span>Full Name:</span>
-            <b>{{ userFullName }}</b>
-          </div>
-
-          <div class="detail-row">
-            <span>Date Joined:</span>
-            <b>{{ formattedDate }}</b>
-          </div>
-
-          <div class="detail-row">
-            <span>Quizzes Taken:</span>
-            <b>{{ quizzesCount }}</b>
-          </div>
-
-        </div>
-
-        <div class="profile-buttons">
-
-          <button id="edit-profile" @click="showEditModal = true">
-            Edit Profile
-          </button>
-
-          <button id="delete" class="danger" @click="showDeleteModal = true">
-            Delete Account
-          </button>
-
-        </div>
-
+        <label class="file-label">
+          Change Photo
+          <input type="file" @change="onFileChange" accept="image/*">
+        </label>
       </div>
 
-    </main>
+      <div class="profile-details">
+        <div class="detail-row">
+          <span class="label">Full Name</span>
+          <span class="value">{{ userFullName }}</span>
+        </div>
 
-    <!-- Modals -->
-    <EditProfileModal :show="showEditModal" :user="user" @close="showEditModal = false" @save="updateProfile" />
+        <div class="detail-row">
+          <span class="label">Date Joined</span>
+          <span class="value">{{ formattedDate }}</span>
+        </div>
 
-    <DeleteAccountModal :show="showDeleteModal" @close="showDeleteModal = false" @deleted="handleDeleted" />
+        <div class="detail-row">
+          <span class="label">Quizzes Taken</span>
+          <span class="value">{{ quizzesCount || 'N/A' }}</span>
+        </div>
+      </div>
 
+      <div class="profile-buttons">
+        <button id="edit-profile" @click="showEditModal = true">
+          Edit Profile
+        </button>
+        <button id="delete" class="danger" @click="showDeleteModal = true">
+          Delete Account
+        </button>
+      </div>
+    </div>
   </div>
+
+  <ToastNotification :message="notification.message" :type="notification.type" @clear="notification.message = ''" />
+  <EditProfileModal :show="showEditModal" :loading="loading" :user="user" @notify="handleNotify" @save="updateProfile"
+    @close="showEditModal = false" />
+  <DeleteAccountModal :show="showDeleteModal" @close="showDeleteModal = false" @deleted="handleDeleted" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue"
 import axios from "axios"
 import { useRouter } from "vue-router"
-import SideBarComp from "@/components/UserSide/SideBar.vue"
-import TopBar from "@/components/UserSide/TopBar.vue"
 import DeleteAccountModal from "@/components/ProfileModals/DeleteModal.vue"
 import EditProfileModal from "@/components/ProfileModals/EditModal.vue"
+import ToastNotification from "@/components/ToastNotification.vue"
 
-import { useSidebar } from "@/composables/useSidebar"
 import { useUser } from "@/composables/useUser"
 
 const router = useRouter()
 
-const { showSidebar, closeSidebar } = useSidebar()
 const { userFullName, fetchUser, userAvatar, user } = useUser()
+const notification = ref({
+  message: '',
+  type: 'success'
+})
+
+const handleNotify = (payload) => {
+  showToast(payload.message, payload.type)
+}
 
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 
 const preview = ref(null)
 const selectedFile = ref(null)
-
-const successMessage = ref("")
-const errorMessage = ref("")
 const loading = ref(false)
 
 /*
@@ -119,6 +99,16 @@ const quizzesCount = computed(() => {
   return user.value?.quizzes_taken || 0
 })
 
+const showToast = (msg, type = 'success') => {
+  notification.value.message = msg
+  notification.value.type = type
+
+  // Auto hide after 4 seconds
+  setTimeout(() => {
+    notification.message = ''
+  }, 2000)
+}
+
 const formattedDate = computed(() => {
   if (!user.value?.created_at) return ""
 
@@ -127,115 +117,79 @@ const formattedDate = computed(() => {
 
 /*
 |--------------------------------------------------------------------------
-| Avatar Fallback
-|--------------------------------------------------------------------------
-*/
-
-const setDefaultAvatar = (event) => {
-  event.target.src = "/storage/images/profiles/default.png"
-}
-
-/*
-|--------------------------------------------------------------------------
 | Update Profile
 |--------------------------------------------------------------------------
 */
-
 const updateProfile = async (formData) => {
-
-  successMessage.value = ""
-  errorMessage.value = ""
-
   try {
-
     loading.value = true
-
     // Get CSRF cookie (Laravel Sanctum)
     await axios.get("/sanctum/csrf-cookie")
-
     const { data } = await axios.put("/api/profile/update", formData)
 
     // Update local user state
-    if (data.results && user.value) {
-      user.value.first_name = data.results.first_name
-      user.value.last_name = data.results.last_name
-      user.value.email = data.results.email
+    if (data.data && user.value) {
+      user.value.first_name = data.data.first_name
+      user.value.last_name = data.data.last_name
+      user.value.email = data.data.email
     }
-
     showEditModal.value = false
-    successMessage.value = "Profile updated successfully!"
+    showToast("Profile updated successfully!", "success")
 
   } catch (err) {
-
-    if (err.response?.status === 422) {
-
-      const messages = Object.values(err.response.data.errors)
-        .flat()
-        .join(" ")
-
-      errorMessage.value = messages
-
-    } else if (err.response?.status === 401) {
-
-      errorMessage.value = "You are not authenticated."
-
-    } else {
-
-      errorMessage.value = "Update failed."
-
-    }
-
+    const errorMsg = err.response?.data?.message || "Update failed"
+    showToast(errorMsg, "error")
   } finally {
-
     loading.value = false
-
   }
-
-}
-
-
-
-/*
+}/*
 |--------------------------------------------------------------------------
-| Upload Photo
+| Upload Photo Logic
 |--------------------------------------------------------------------------
 */
-
 const onFileChange = async (e) => {
-
   const file = e.target.files[0]
   if (!file) return
 
+  // 1. Basic Client-side Validation
+  if (!file.type.startsWith('image/')) {
+    showToast("Please select a valid image file.", "error")
+    return
+  }
+
+  // 2. Set Local Preview immediately for better UX
   selectedFile.value = file
   preview.value = URL.createObjectURL(file)
 
   loading.value = true
 
   try {
-
     const formData = new FormData()
     formData.append("photo", file)
+
+    // Ensure CSRF is handled for the POST request
+    await axios.get("/sanctum/csrf-cookie")
 
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
 
-    successMessage.value = "Profile updated!"
-
-    if (data.photo_url) {
-      user.value.profile_photo = data.photo_url
+    // 3. Update the user object with the new URL from the server
+    if (data.photo_url && user.value) {
+      user.value.profile_photo = data.new_photo
+      showToast("Profile picture updated!", "success")
     }
 
-  } catch {
+  } catch (error) {
+    console.error("Upload Error:", error)
+    // Clear preview on failure so it doesn't look like it worked
+    preview.value = null
 
-    errorMessage.value = "Upload failed."
-
+    const errorMsg = error.response?.data?.message || "Failed to upload photo."
+    showToast(errorMsg, "error")
   } finally {
-
     loading.value = false
-
   }
-
 }
 
 /*
@@ -243,62 +197,55 @@ const onFileChange = async (e) => {
 | Lifecycle
 |--------------------------------------------------------------------------
 */
-
+// after updating user
 onMounted(async () => {
-  if (!user.value) {
-    await fetchUser()
-  }
+  await fetchUser(true)
 })
+
 </script>
 
 <style scoped>
-/* PAGE WRAPPER */
-.profile-page-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: #f6f7fb;
-}
-
-/* MAIN CONTENT */
+/* MAIN CONTENT WRAPPER */
 .main-content {
-  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 40px 20px;
+  align-items: center;
+  min-height: 80vh;
+  /* Adjust based on your layout */
+  padding: 20px;
 }
 
 /* PROFILE CARD */
 .profile-card {
-  width: 380px;
-  max-width: 95%;
+  width: 100%;
+  max-width: 450px;
+  /* Limits width on desktop */
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  padding: 2rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  animation: fadeIn .25s ease;
+  animation: fadeIn 0.4s ease-out;
 }
 
-/* HEADER */
+/* HEADER SECTION */
 .profile-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 1.2rem;
+  text-align: center;
+  margin-bottom: 25px;
 }
 
-/* AVATAR */
 .avatar {
   width: 120px;
   height: 120px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #4b32a8;
-  margin-bottom: 10px;
+  border: 4px solid #f0edff;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(75, 50, 168, 0.1);
 }
 
 .avatar img {
@@ -307,84 +254,110 @@ onMounted(async () => {
   object-fit: cover;
 }
 
-/* NAME */
 .profile-header h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
 }
 
 .profile-header small {
-  color: #777;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 4px;
 }
 
-/* FILE LABEL */
 .file-label {
+  margin-top: 15px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4b32a8;
   cursor: pointer;
+  padding: 8px 16px;
+  border: 1.5px solid #4b32a8;
+  border-radius: 50px;
+  transition: all 0.2s;
+}
+
+.file-label:hover {
   background: #4b32a8;
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: .85rem;
-  margin-top: 8px;
 }
 
 .file-label input {
   display: none;
 }
 
-/* DETAILS */
+/* DETAILS SECTION */
 .profile-details {
-  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: .6rem;
+  gap: 12px;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  background: #f4f2ff;
-  padding: .7rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #e3e0ff;
+  align-items: center;
+  padding: 14px 18px;
+  background: #f9faff;
+  border-radius: 12px;
+  border: 1px solid #f0edff;
 }
 
-.detail-row span {
+.detail-row .label {
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #4b32a8;
+  color: #8e8eb2;
 }
 
-/* BUTTONS */
+.detail-row .value {
+  font-weight: 700;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+}
+
+/* BUTTONS SECTION */
 .profile-buttons {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-#edit-profile,
-#delete {
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  color: white;
-  font-weight: 600;
+button {
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
+  border: none;
+  transition: transform 0.1s, opacity 0.2s;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 #edit-profile {
   background: #4b32a8;
+  color: white;
 }
 
 #delete {
-  background: #e53935;
+  background: #fff;
+  color: #e53935;
+  border: 1px solid #fee2e2;
+}
+
+#delete:hover {
+  background: #fff5f5;
 }
 
 /* ANIMATION */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px);
   }
 
   to {
@@ -393,17 +366,15 @@ onMounted(async () => {
   }
 }
 
-/* MOBILE */
-@media (max-width:700px) {
+/* RESPONSIVE FIX */
+@media (max-width: 480px) {
+  .profile-buttons {
+    grid-template-columns: 1fr;
+    /* Stack buttons on small phones */
+  }
 
   .profile-card {
-    width: 95%;
+    padding: 20px;
   }
-
-  .detail-row {
-    flex-direction: column;
-    gap: 4px;
-  }
-
 }
 </style>

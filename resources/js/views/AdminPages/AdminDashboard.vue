@@ -94,7 +94,7 @@ import Chart from "chart.js/auto"
 import axios from "axios"
 
 // --- State ---
-const stats = ref(null)
+const stats = ref([])
 const chartCanvas = ref(null)
 let chartInstance = null
 
@@ -120,7 +120,6 @@ const filteredLogs = computed(() => {
       weekAgo.setDate(now.getDate() - 7)
       return logDate >= weekAgo
     }
-
     return true
   })
 })
@@ -146,11 +145,9 @@ const getLogType = (type) => ({
 // --- Chart ---
 const renderChart = () => {
   if (!chartCanvas.value || !stats.value) return
-
   if (chartInstance) {
     chartInstance.destroy()
   }
-
   chartInstance = new Chart(chartCanvas.value, {
     type: "bar",
     data: {
@@ -167,37 +164,26 @@ const renderChart = () => {
     }
   })
 }
-
 // --- Fetch Data ---
 const fetchStats = async (showNotif = false) => {
   try {
-    const response = await axios.get('/api/admin/dashboard')
-
+    const { data } = await axios.get('/api/admin/dashboard')
+    stats.value = data.data
     // Optional: detect updates
     if (showNotif && stats.value) {
       notification.value = "Dashboard updated!"
-      setTimeout(() => notification.value = "", 2000)
+      setTimeout(() => notification.value = "", 3000)
     }
-
-    stats.value = response.data.data
-
     await nextTick()
     renderChart()
-
   } catch (err) {
     console.error("Error fetching stats:", err)
   }
-  
 }
-
 // --- Lifecycle ---
-onMounted(() => {
+onMounted(async () => {
   // initial load
-  fetchStats()
-
-  interval = setInterval(() => {
-    fetchStats(true)
-  }, 3000)
+  await fetchStats()
 })
 
 // cleanup

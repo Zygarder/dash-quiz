@@ -34,6 +34,11 @@ class Dasher extends Authenticatable
     {
         return $this->profile_photo
             ? asset('storage/images/profiles/' . $this->profile_photo)
-            : asset('images/profiles/person.jpg'); // fallback
+            : asset('images/profiles/default.jpg'); // fallback if no image
+    }
+
+    public function quizRecords()
+    {
+        return $this->hasMany(QuizRecord::class, 'id');
     }
 }

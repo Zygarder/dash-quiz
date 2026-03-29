@@ -2,11 +2,7 @@
     <section class="admin-section">
         <div class="header-row">
             <h3 class="section-title">Edit Quiz</h3>
-            <button
-                @click="$router.push('/admin/quizzes/manage')"
-                class="logout-btn"
-                style="background: #666"
-            >
+            <button @click="$router.push('/admin/quizzes/manage')" class="logout-btn" style="background: #777">
                 Cancel
             </button>
         </div>
@@ -18,22 +14,12 @@
         <div v-else class="quiz-form-card">
             <div class="form-group">
                 <label>Quiz Name:</label>
-                <input
-                    v-model="form.title"
-                    type="text"
-                    placeholder="e.g. Motherboard"
-                    required
-                />
+                <input v-model="form.title" type="text" placeholder="e.g. Motherboard" required />
             </div>
 
             <div class="form-group">
                 <label>Topic / Description:</label>
-                <input
-                    v-model="form.description"
-                    type="text"
-                    placeholder="e.g. Parts of the Motherboard"
-                    required
-                />
+                <input v-model="form.description" type="text" placeholder="e.g. Parts of the Motherboard" required />
             </div>
 
             <hr class="form-divider" />
@@ -45,59 +31,29 @@
                 </button>
             </div>
 
-            <div
-                v-for="(q, index) in form.questions"
-                :key="index"
-                class="question-block"
-            >
+            <div v-for="(q, index) in form.questions" :key="index" class="question-block">
                 <div class="question-meta">
                     <span>Question #{{ index + 1 }}</span>
-                    <button
-                        type="button"
-                        @click="removeQuestion(index)"
-                        class="delete-link"
-                    >
+                    <button type="button" @click="removeQuestion(index)" class="delete-link">
                         Remove
                     </button>
                 </div>
 
-                <input
-                    v-model="q.text"
-                    type="text"
-                    placeholder="Enter your question here"
-                    class="question-input"
-                    required
-                />
+                <input v-model="q.text" type="text" placeholder="Enter your question here" class="question-input"
+                    required />
 
                 <div class="options-grid">
-                    <div
-                        v-for="(opt, optIndex) in 4"
-                        :key="optIndex"
-                        class="option-item"
-                    >
-                        <input class="correct_answer"
-                            type="radio"
-                            :name="'correct_' + index"
-                            :value="optIndex"
-                            v-model="q.correct_option"
-                            required
-                        />
-                        <input
-                            v-model="q.options[optIndex]"
-                            type="text"
-                            :placeholder="'Option ' + (optIndex + 1)"
-                            required
-                        />
+                    <div v-for="(opt, optIndex) in 4" :key="optIndex" class="option-item">
+                        <input class="correct_answer" type="radio" :name="'correct_' + index" :value="optIndex"
+                            v-model="q.correct_option" required />
+                        <input v-model="q.options[optIndex]" type="text" :placeholder="'Option ' + (optIndex + 1)"
+                            required />
                     </div>
                 </div>
             </div>
 
             <div class="form-actions mt-4">
-                <button
-                    @click="updateQuiz"
-                    class="add-btn save-btn"
-                    :disabled="saving"
-                >
+                <button @click="updateQuiz" class="add-btn save-btn" :disabled="saving">
                     {{ saving ? "Saving Changes..." : "Save Changes" }}
                 </button>
             </div>
@@ -200,25 +156,30 @@ const handleLogout = () => {
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .form-group {
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
+
 .form-group label {
     font-weight: 600;
     margin-bottom: 5px;
 }
+
 .form-group input {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
 }
+
 .form-divider {
     margin: 25px 0;
     border: 0;
     border-top: 1px solid #eee;
 }
+
 .question-block {
     background: #fdfdfd;
     border: 1px solid #eee;
@@ -226,6 +187,7 @@ const handleLogout = () => {
     border-radius: 8px;
     margin-bottom: 20px;
 }
+
 .question-meta {
     display: flex;
     justify-content: space-between;
@@ -233,6 +195,7 @@ const handleLogout = () => {
     font-weight: bold;
     color: #3f2ea3;
 }
+
 .question-input {
     width: 100%;
     padding: 10px;
@@ -241,22 +204,26 @@ const handleLogout = () => {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 .options-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
+
 .option-item {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 .option-item input[type="text"] {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
 .delete-link {
     background: none;
     border: none;
@@ -264,6 +231,7 @@ const handleLogout = () => {
     cursor: pointer;
     font-size: 12px;
 }
+
 .save-btn {
     width: 100%;
     padding: 15px;
@@ -274,16 +242,19 @@ const handleLogout = () => {
     border-radius: 6px;
     cursor: pointer;
 }
+
 .save-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
+
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
+
 .add-btn {
     background: #333;
     color: white;

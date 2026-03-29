@@ -35,8 +35,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUser } from '@/composables/useUser.js'
 
-
-
 defineProps({
   currentPageTitle: String,
 })
@@ -51,6 +49,8 @@ const updateWidth = () => {
   screenWidth.value = window.innerWidth
 }
 
+
+
 onMounted(() => window.addEventListener('resize', updateWidth))
 onUnmounted(() => window.removeEventListener('resize', updateWidth))
 
@@ -58,7 +58,7 @@ const isMobile = computed(() => screenWidth.value <= 1024)
 
 
 onMounted(async () => {
-  await fetchUser()
+  setInterval(await fetchUser(), 3000)
 })
 </script>
 

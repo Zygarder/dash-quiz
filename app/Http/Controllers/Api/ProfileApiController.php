@@ -51,37 +51,42 @@ class ProfileApiController extends Controller
     // Update user profile information
     public function updateProfile(Request $request)
     {
-        // Get the authenticated user
-        $user = Auth::guard('dasher')->user();
+        if (Auth::guard('dasher')->check()) {
+            // Get the authenticated user
+            $user = Auth::guard('dasher')->user();
+            // Validate incoming profile data
+            $valid = $request->validate([
+                'first_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
 
-        // Validate incoming profile data
-        $valid = $request->validate([
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
+                // Email must be unique in the dasher table
+                'email' => 'required|email|unique:dasher,email,' . $user->id . '|max:255',
 
-            // Email must be unique in the dasher table
-            'email' => 'required|email|unique:dasher|max:255',
+                // Password is optional but must be confirmed if provided
+                'password' => 'nullable|string|confirmed|min:6',
+            ]);
 
-            // Password is optional but must be confirmed if provided
-            'password' => 'nullable|string|confirmed|min:6',
-        ]);
+            // Update user fields only if new values are provided
+            $user->update([
+                'first_name' => $valid['first_name'] ?? $user->first_name,
+                'last_name' => $valid['last_name'] ?? $user->last_name,
+                'email' => $valid['email'],
+            ]);
 
-        // Update user fields only if new values are provided
-        $user->first_name = $valid['first_name'] ?? $user->first_name;
-        $user->last_name = $valid['last_name'] ?? $user->last_name;
-        $user->email = $valid['email'];
+            // If password is provided, hash it before saving
+            // Hashing protects the password in the database
+            if (!empty($valid['password'])) {
+                $user->password = Hash::make($valid['password']);
+            }
+            // Save updated user information
+            $user->save();
 
-        // If password is provided, hash it before saving
-        // Hashing protects the password in the database
-        $user->password = Hash::make($valid['password']) ?? $user->password;
+            return response()->json([
+                'status' => 'success',
+                'data' => $user
+            ]);
+        }
 
-        // Save updated user information
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $user
-        ]);
     }
 
     // Upload or update the user's profile photo

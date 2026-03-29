@@ -38,7 +38,7 @@
           <span @click="sortBy('id')">ID</span>
           <span @click="sortBy('title')">Title</span>
           <span>Description</span>
-          <span class="text-right">Actions</span>
+          <span>Actions</span>
         </div>
 
         <!-- Rows -->
@@ -107,7 +107,9 @@ const fetchQuizzes = async (retry = 0) => {
   }
 }
 
-// Sorting logic
+/**
+ *  Sorting logic
+ */
 const sortedQuizzes = computed(() => {
   return [...quizzes.value].sort((a, b) => {
     let valA = a[sortKey.value] || ''
@@ -230,6 +232,7 @@ onMounted(fetchQuizzes)
 /* HEADER */
 .table-header {
   display: grid;
+  text-align: center;
   grid-template-columns: 80px 1.5fr 2fr 150px;
   padding: 12px 16px;
   font-size: 0.75rem;
@@ -241,11 +244,12 @@ onMounted(fetchQuizzes)
 /* ROW */
 .table-row {
   display: grid;
+  text-align: center;
   grid-template-columns: 80px 1.5fr 2fr 150px;
   padding: 14px 16px;
   border-top: 1px solid #f1f5f9;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 12px;
   transition: background 0.2s;
 }
 
