@@ -28,21 +28,21 @@
                 <!-- Email -->
                 <div class="field">
                     <input v-model.trim="form.email" type="email" placeholder="Email address" required
-                        :class="{ error: errors.email }" />
+                        :class="{ error: errors.email }" autocomplete="false"/>
                     <small v-if="errors.email">{{ errors.email[0] }}</small>
                 </div>
 
                 <!-- Password -->
                 <div class="field">
                     <input v-model.trim="form.password" type="password" placeholder="Password" required
-                        :class="{ error: errors.password }" />
+                        :class="{ error: errors.password }" autocomplete="false"/>
                     <small v-if="errors.password">{{ errors.password[0] }}</small>
                 </div>
 
                 <!-- Confirm -->
                 <div class="field">
                     <input v-model.trim="form.password_confirmation" type="password" placeholder="Confirm password"
-                        required />
+                        required autocomplete="false" />
                 </div>
 
                 <div v-if="generalError" class="alert">
@@ -63,7 +63,7 @@
 
         <!-- FOOTER -->
         <footer class="auth-footer">
-            © 2026 Dash Quiz • SNSU Capstone Project
+            © {{ new Date().getFullYear() }} Dash Quiz • SNSU Capstone Project
         </footer>
     </main>
 </template>
