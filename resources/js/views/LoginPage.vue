@@ -1,190 +1,144 @@
 <template>
   <div class="auth-wrapper">
+
+    <!-- HEADER -->
     <header class="auth-header">
       <div class="header-inner">
         <div class="brand">
-          <div class="brand-icon">DQ</div>
+          <div class="logo">DQ</div>
           <span class="brand-name">Dash<span>Quiz</span></span>
         </div>
-        <div class="header-links">
-          <span>Taft CSS Assessment Portal</span>
-        </div>
+        <span class="portal">Assessment Portal</span>
       </div>
     </header>
 
-    <main class="auth-container">
-      <section class="hero-content">
-        <div class="badge">V 1.0.1</div>
-        <h1 class="main-heading">
-          Learning is <span class="text-gradient">better</span> <br />
-          when we do it <span class="text-gradient">together.</span>
+    <!-- MAIN -->
+    <main class="container">
+
+      <!-- HERO -->
+      <section class="hero">
+        <span class="badge">v1.0.1</span>
+        <h1>
+          Learning is <span>better</span><br />
+          when we do it <span>together</span>
         </h1>
+        <p>Practice, learn, and improve your skills with Dash Quiz.</p>
       </section>
 
+      <!-- LOGIN CARD -->
       <section class="form-section">
-        <form class="login-card" @submit.prevent="handleLogin">
-          <div class="card-intro">
-            <h2>Welcome Dasher!</h2>
+        <form class="card" @submit.prevent="handleLogin">
+          <h2>Welcome back</h2>
+
+          <div class="field">
+            <input type="email" v-model.trim="form.email" placeholder="Email address"
+              :class="{ error: errors.email }" />
+            <small v-if="errors.email">{{ errors.email[0] }}</small>
           </div>
 
-          <div class="email_password">
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <div class="input-wrapper">
-                <input id="email" type="email" v-model.trim="form.email" placeholder="Enter your email"
-                  autocomplete="username" :class="{ 'error-border': errors.email }" />
-              </div>
-              <span v-if="errors.email" class="error-text">{{ errors.email[0] }}</span>
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password </label>
-              <div class="input-wrapper">
-                <input id="password" type="password" v-model.trim="form.password" placeholder="Enter your password"
-                  autocomplete="current-password" :class="{ 'error-border': errors.password }" />
-              </div>
-
-              <span v-if="errors.password" class="error-text">{{ errors.password[0] }}</span>
-            </div>
+          <div class="field">
+            <input type="password" v-model.trim="form.password" placeholder="Password"
+              :class="{ error: errors.password }" />
+            <small v-if="errors.password">{{ errors.password[0] }}</small>
           </div>
 
-
-          <div v-if="generalError" class="alert-box">
+          <div v-if="generalError" class="alert">
             {{ generalError }}
           </div>
 
-          <button type="submit" class="btn-submit" :disabled="loading">
+          <button class="btn" type="submit" :disabled="loading">
             <span v-if="!loading">Login</span>
-            <span v-else class="loader-dots">
-              <span v-if="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-              </span>Logging...
-            </span>
+            <span v-else class="loader"></span>
           </button>
 
-          <div class="form-footer">
-            <p>Need help? <router-link to="/forgot" class="v-link">Forgot Password</router-link></p>
-            <div class="separator"><span>OR</span></div>
-            <router-link to="/register" class="btn-secondary">New Student? Register</router-link>
+          <div class="footer-links">
+            <router-link to="/forgot" class="forgot-link">Forgot password?</router-link>
+
+            <div class="divider">
+              <div class="line"></div>or<div class="line"></div>
+            </div>
+
+            <router-link to="/register" class="btn-register">Create account</router-link>
           </div>
         </form>
       </section>
+
     </main>
 
+    <!-- FOOTER -->
     <footer class="auth-footer">
-      <p>&copy; 2026 Dash Quiz. Authorized SNSU IT Capstone Project.</p>
+      © 2026 Dash Quiz • SNSU Capstone Project
     </footer>
+
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+
+const router = useRouter()
 
 const form = reactive({
   email: '',
   password: ''
 })
 
-const loading = ref(false);
-const errors = ref({});
-const generalError = ref('');
-
-const router = useRouter();
+const loading = ref(false)
+const errors = ref({})
+const generalError = ref('')
 
 const handleLogin = async () => {
-  loading.value = true;
-  errors.value = {};
-  generalError.value = '';
+  if (loading.value) return
+
+  loading.value = true
+  errors.value = {}
+  generalError.value = ''
 
   try {
+    const { data } = await axios.post('/api/login', form)
 
-    // Change this line
-    const response = await axios.post('/api/login', form);
-    const data = response.data; // This is your JSON body
+    localStorage.setItem('isLoggedIn', 'true')
+    if (data.role) localStorage.setItem('userRole', data.role)
 
-
-    // Update this condition
-    if (response.status === 200 || response.status === 204) {
-      localStorage.setItem('isLoggedIn', 'true');
-
-      // Use data.role (from your JSON response)
-      if (data.role) {
-        localStorage.setItem('userRole', data.role);
-      }
-
-      if (data.role === 'admin') {
-        router.push('/admin');
-      } else {
-        router.push('/user');
-      }
-    }
-
+    router.push(data.role === 'admin' ? '/admin' : '/user')
   } catch (err) {
-    // Reset local storage on failure
-    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isLoggedIn')
 
-    if (err.response) {
-      const { status, data } = err.response;
-      if (status === 422 && data.errors) {
-        // Validation errors
-        errors.value = data.errors;
-      } else if (status === 401 || status === 419) {
-        // Wrong credentials or expired session
-        generalError.value = data.message || 'Invalid credentials or session expired.';
-      }
+    if (err.response?.data?.errors) {
+      errors.value = err.response.data.errors
+    } else {
+      generalError.value = err.response?.data?.message || 'Login failed.'
     }
   } finally {
-    setTimeout(() => {
-      loading.value = false;
-    }, 5000)// undisable
-
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>
-/* Color Palette Variables */
-:root {
-  --v-deep: #2e1065;
-  --v-main: #4c1d95;
-  --v-accent: #8b5cf6;
-  --v-bg: #f5f3ff;
-  --text-h: #1e1b4b;
-  --text-p: #475569;
+* {
+  box-sizing: border-box;
 }
 
 .auth-wrapper {
   min-height: 100vh;
-  background: radial-gradient(circle at top right, #f5f3ff 0%, #ffffff 100%);
-  font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
+  background: #ffffff;
 }
 
+/* HEADER */
 .auth-header {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.08);
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.form-section {
-  padding: 10px 0;
-  margin-left: 101px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
 }
 
 .header-inner {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -193,399 +147,236 @@ const handleLogin = async () => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.brand-icon {
-  background: #4c1d95;
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #6366f1;
   color: white;
-  width: 34px;
-  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  font-weight: 900;
-  box-shadow: 0 4px 12px rgba(76, 29, 149, 0.2);
+  font-weight: 800;
 }
 
 .brand-name {
   font-weight: 800;
-  font-size: 1.3rem;
-  color: #1e1b4b;
-  letter-spacing: -0.5px;
+  color: #111827;
 }
 
 .brand-name span {
-  color: #8b5cf6;
+  color: #6366f1;
 }
 
-.header-links {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #94a3b8;
-  font-weight: 800;
+.portal {
+  font-size: 12px;
+  color: #6b7280;
 }
 
-/* Layout */
-.auth-container {
+/* MAIN */
+.container {
   flex: 1;
+  max-width: 1100px;
+  margin: auto;
+  padding: 40px 20px;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  max-width: 1200px;
-  margin: 0 auto;
-  align-items: center;
-  padding: 1rem 2rem;
-  gap: 4rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
 }
 
-/* Hero Section */
-.hero-content {
-  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .badge {
-  display: inline-block;
-  background: #ede9fe;
-  color: #5b21b6;
-  padding: 6px 14px;
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.7rem;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  font-size: 2.6rem;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #111827;
 }
 
-.main-heading {
-  font-size: clamp(3rem, 5vw, 4.5rem);
-  font-weight: 900;
-  line-height: 1;
-  color: #1e1b4b;
-  letter-spacing: -0.04em;
-  margin-bottom: 0;
+
+
+.btn-register {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 10px;
+  background: #1b8023;
+  cursor: pointer;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.btn-register:hover {
+  background-color: #1e9328;
 }
 
-.sub-heading {
-  font-size: 1.25rem;
-  color: #475569;
-  line-height: 1.6;
-  margin-bottom: 3rem;
-  max-width: 500px;
+.hero span {
+  color: #6366f1;
 }
 
-.feature-list {
+.hero p {
+  margin-top: 12px;
+  color: #6b7280;
+}
+
+/* CARD */
+.form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-footer {
+  width: 100%;
+  background-color: orange;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: #1e1b4b;
-  font-size: 1rem;
+.card h2 {
+  margin: 0;
+  color: #111827;
 }
 
-.check {
-  color: #8b5cf6;
-  font-weight: 900;
-  background: #f5f3ff;
-  width: 24px;
-  height: 24px;
+.field input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.field input.error {
+  border-color: #ef4444;
+}
+
+.field small {
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.alert {
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn:hover {
+  background: #6366f1;
+}
+
+.loader {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white;
   border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.email_password {
-  display: flex;
-  flex-direction: column;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Login Card */
-.login-card {
-  /* Increased padding from 10px to 2.5rem for breathing room */
-  width: 100%;
-  background: #ffff;
-  border-radius: 15px;
-  /* Softened the shadow for a cleaner look */
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f1f5f9;
-  animation: fadeIn 0.8s ease-out;
-}
-
-.card-intro {
-  margin-bottom: 2.5rem;
-  padding: 0;
-}
-
-.card-intro h2 {
-  font-size: 1.85rem;
-  margin-top: 1%;
-  margin-bottom: 0;
-  ;
-  font-weight: 800;
-  color: #1e1b4b;
-}
-
-.card-intro p {
-  color: #64748b;
-  margin-top: 6px;
-  font-weight: 500;
-}
-
-.form-group {
-  margin-bottom: 1.75rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #475569;
-  margin-bottom: 5px;
-}
-
-input {
-  width: 100%;
-  padding: 10px 0;
-  margin: 0;
-  border-radius: 10px;
-  text-indent: 15px;
-  border: 2px solid #aaa;
-  font-size: 1rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #f8fafc;
-  color: #1e1b4b;
-}
-
-input:focus {
-  outline: none;
-  border-color: #8b5cf6;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
-}
-
-.error-border {
-  border-color: #ef4444 !important;
-  background-color: #fef2f2;
-}
-
-.error-text {
-  font-size: 0.75rem;
-  color: #ef4444;
-  font-weight: 600;
-  margin-top: 6px;
-  margin-left: 4px;
-  display: block;
-}
-
-.btn-submit {
-  width: 100%;
-  background: #1e1b4b;
-  color: white;
-  padding: 10px 0;
-  border-radius: 10px;
-  border: none;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Error state refined */
-.error-border {
-  border-color: #f87171 !important;
-  background-color: #fef2f2;
-  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15);
-}
-
-/* Error text */
-.error-text {
-  font-size: 0.75rem;
-  color: #ef4444;
-  font-weight: 600;
-  margin-top: 5px;
-}
-
-/* Alert box improved */
-.alert-box {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background: #4c1d95;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 20px -5px rgba(76, 29, 149, 0.25);
-}
-
-.btn-submit:active {
-  transform: translateY(0);
-}
-
-.form-footer {
-  margin-top: 2rem;
+.footer-links {
   text-align: center;
+  font-size: 13px;
 }
 
-.form-footer p {
-  margin-top: .5rem;
-  text-align: center;
-}
-
-.v-link {
-  color: #8b5cf6;
+.forgot-link {
+  margin-top: 10px;
   text-decoration: none;
-  font-weight: 700;
-  transition: color 0.2s;
+  color: #6366f1;
 }
 
-.v-link:hover {
-  color: #4c1d95;
+.forgot-link:hover {
+  text-decoration: underline;
 }
 
-.separator {
-  margin: 20px 0;
+.divider {
+  margin: 15px 0;
+  color: #9ca3af;
+  font-size: 12px;
   display: flex;
+  justify-content: center;
   align-items: center;
-  color: #cbd5e1;
-  font-size: 0.75rem;
-  font-weight: 800;
+  gap: 10px;
 }
 
-.separator::before,
-.separator::after {
-  content: "";
-  flex: 1;
+.line {
+  width: 100%;
+  background-color: grey;
   height: 1px;
-  background: #f1f5f9;
 }
 
-.separator span {
-  padding: 0 12px;
-}
-
-.btn-secondary {
-  display: block;
-  text-decoration: none;
-  padding: 1rem;
-  border-radius: 16px;
-  border: 2px solid #f1f5f9;
-  color: #475569;
-  font-weight: 700;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background: #fff;
-  border-color: #ddd6fe;
-  color: #5b21b6;
-}
-
+/* FOOTER */
 .auth-footer {
-  padding: 3rem;
   text-align: center;
-  color: #94a3b8;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: auto;
+  padding: 10px;
+  background-color: #6366f1;
+  font-size: 12px;
+  color: #e5e7eb;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@media (min-width: 1024px) {
-  .auth-container {
-    gap: 2rem;
-  }
-
-  .login-card {
-    padding: 1.5rem 2.5rem;
-  }
-
-
-  .main-heading {
-    font-size: 3.5rem;
-  }
-}
-
-
-@media (max-width: 900px) {
-  .auth-container {
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .container {
     grid-template-columns: 1fr;
-    padding-top: 2rem;
   }
 
-  .form-section {
-    margin: 0;
-  }
-
-  .hero-content {
+  .hero {
     text-align: center;
   }
 
-  .sub-heading {
-    margin: 0 auto 3rem;
-  }
-
-  .feature-list {
-    align-items: center;
-    margin-bottom: 3rem;
-  }
-
-  .login-card {
-    padding: 2.5rem;
-  }
-
-  .auth-header {
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.08);
-    background-color: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(2px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    width: 100%;
+  .hero h1 {
+    font-size: 2rem;
   }
 }
 </style>
