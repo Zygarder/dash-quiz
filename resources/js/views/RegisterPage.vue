@@ -216,7 +216,7 @@ nav {
     padding: 12px;
     border: none;
     border-radius: 10px;
-    background: #6366f1;
+    background: #4f46e5;
     color: white;
     font-weight: 600;
     cursor: pointer;
@@ -224,7 +224,7 @@ nav {
 }
 
 .btn:hover {
-    background: #4f46e5;
+    background: #6366f1;
 }
 
 .btn:disabled {
@@ -249,12 +249,12 @@ nav {
 
 /* FOOTER */
 .auth-footer {
-  text-align: center;
-  padding: 10px;
-  width: 100%;
-  background-color: #6366f1;
-  font-size: 12px;
-  color: #e5e7eb;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    background-color: #6366f1;
+    font-size: 12px;
+    color: #e5e7eb;
 }
 
 @media (max-width: 500px) {
