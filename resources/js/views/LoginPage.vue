@@ -17,7 +17,6 @@
 
       <!-- HERO -->
       <section class="hero">
-        <span class="badge">v1.0.1</span>
         <h1>
           Learning is <span>better</span><br />
           when we do it <span>together</span>
@@ -193,22 +192,11 @@ const handleLogin = async () => {
   justify-content: center;
 }
 
-.badge {
-  background: #eef2ff;
-  color: #4f46e5;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  margin-bottom: 16px;
-}
-
 .hero h1 {
   font-size: 2.6rem;
   font-weight: 800;
   color: #111827;
 }
-
-
 
 .btn-register {
   padding: 12px;
