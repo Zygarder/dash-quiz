@@ -16,7 +16,7 @@
           <span class="user-status">Online</span>
         </div>
         <div v-if="currentPageTitle !== 'Profile'">
-          <router-link to="profile">
+          <router-link to="/user/profile">
             <div class="avatar-container">
               <img :src="userAvatar" alt="no img" width="30" height="30" class="avatar-img">
               <span class="pulse-indicator"></span>
