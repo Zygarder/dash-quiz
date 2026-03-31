@@ -31,7 +31,7 @@
         </div>
 
         <div class="action-grid">
-          <router-link to="/home" class="btn-primary">
+          <router-link to="/" class="btn-primary">
             Go to Dashboard
           </router-link>
           <button @click="reTake" class="btn-outline">
