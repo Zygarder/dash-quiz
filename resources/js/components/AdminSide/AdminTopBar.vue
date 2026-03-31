@@ -13,10 +13,10 @@
           <span class="user-name">{{ userFullName }}</span>
           <span class="user-status">Online</span>
         </div>
-          <div class="avatar-container">
-            <img :src="userAvatar" class="avatar-img" />
-            <span class="pulse-indicator"></span>
-          </div>
+        <div class="avatar-container">
+          <img :src="userAvatar" class="avatar-img" />
+          <span class="pulse-indicator"></span>
+        </div>
       </div>
     </div>
   </header>
@@ -27,11 +27,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 
-
 defineProps({
   currentPageTitle: {
-    type: String,
-    default: 'Admin'
+    type: String
   }
 })
 
