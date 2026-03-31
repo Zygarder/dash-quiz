@@ -56,12 +56,12 @@ const isPhone = computed(() => windowWidth <= 640)
 
 const pageTitles = {
     '/admin/dashboard': 'Dashboard',
-    '/admin/quizzes/manage': 'Quizzes',
+    '/admin/manage-quizzes': 'Quizzes',
     '/admin/users': 'Users',
     '/admin/records': 'Records',
 }
 
-const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Admin')
+const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Dashboard')
 
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
