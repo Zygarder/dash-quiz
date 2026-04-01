@@ -407,6 +407,45 @@ class AdminApiController extends Controller
         ], 200);
     }
 
+    public function updateUser(Request $request, $id)
+    {
+        $user = Dasher::findOrFail($id);
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+
+            'email' => 'required|email|unique:dasher,email,' . $user->id . '|max:255',
+
+            'password' => ['nullable', 'required_with:new_password'],
+
+            'new_password' => ['nullable', 'min:6', 'confirmed'],
+        ]);
+
+        // ✅ Only run if user wants to change password
+        if ($request->filled('new_password')) {
+
+            // Check current password
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'message' => 'Current password is incorrect'
+                ], 422);
+            }
+
+            $user->password = Hash::make($request->new_password);
+        }
+        $user->first_name = $validated['first_name'];
+        $user->last_name = $validated['last_name'];
+        $user->email = $validated['email'];
+        $user->save();
+
+        $this->logActivity('User Update', "Dasher ID #'{$user->id}' was updated");
+
+        return response()->json([
+            'message' => 'User updated successfully'
+        ]);
+    }
+
     public function deleteUser($id)
     {
         $user = Dasher::findOrFail($id);
