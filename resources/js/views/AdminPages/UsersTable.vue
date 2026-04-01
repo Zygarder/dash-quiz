@@ -33,7 +33,10 @@
         <table class="styled-table">
           <thead>
             <tr>
-              <!-- Replace first_name + last_name columns with one -->
+              <th @click="sortBy('id')">
+                ID
+                <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+              </th>
               <th @click="sortBy('full_name')">
                 Full Name
                 <span v-if="sortKey === 'full_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
@@ -60,12 +63,13 @@
             </tr>
 
             <tr v-for="user in paginatedUsers" :key="user.id">
+              <td>{{ user.id }}</td>
               <td class="name">{{ user.first_name }} {{ user.last_name }}</td>
               <td class="email">{{ user.email }}</td>
               <td class="quizzes_taken">{{ user.quizzes_taken }}</td>
               <td>{{ formatDate(user.created_at) }}</td>
               <td class="actions-col">
-                <button @click="editUser(user)" class="btn edit">Edit</button>
+                <button @click="openEdit(user)" class="btn edit">Edit</button>
                 <button @click="confirmDelete(user.id)" class="btn delete">Delete</button>
               </td>
             </tr>
@@ -80,22 +84,33 @@
         </div>
       </div>
     </section>
+    <ToastNotification :message="notification.message" :type="notification.type" @clear="notification.message = ''" />
+    <EditUserModal :user="selectedUser" :show="openEditModal" @close="openEditModal = false" @notif="handleNotify"
+      @save="handleSave" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import axios from 'axios'
+import ToastNotification from "@/components/ToastNotification.vue"
+import EditUserModal from '@/components/AdminSide/EditUserModal.vue'
 
 const users = ref([])
 const loading = ref(true)
-const successMessage = ref('')
+const openEditModal = ref(false)
+const selectedUser = ref(null)
 
 // Pagination & Sorting
 const currentPage = ref(1)
 const perPage = 10
 const sortKey = ref('id')
 const sortOrder = ref('asc')
+
+const notification = ref({
+  message: '',
+  type: 'success'
+})
 
 // Search
 const searchQuery = ref('')
@@ -104,7 +119,7 @@ const searchQuery = ref('')
 const fetchUsers = async () => {
   try {
     const response = await axios.get('/api/admin/users')
-    users.value = response.data.data || response.data
+    users.value = response.data?.data
   } catch (error) {
     console.error('Error fetching users:', error)
   } finally {
@@ -112,22 +127,51 @@ const fetchUsers = async () => {
   }
 }
 
-// Delete
-const confirmDelete = async (id) => {
-  if (!confirm(`Delete user ID: ${id}?`)) return
+const handleNotify = (payload) => {
+  showToast(payload.message, payload.type)
+}
+
+const showToast = (msg, type = 'success') => {
+  notification.value.message = msg
+  notification.value.type = type
+
+  // Auto hide after 4 seconds
+  setTimeout(() => {
+    notification.message = ''
+  }, 2000)
+}
+
+// edit modal
+const openEdit = (user) => {
+  selectedUser.value = user
+  openEditModal.value = true
+}
+
+// save
+const handleSave = async (formData) => {
   try {
-    await axios.delete(`/api/admin/users/${id}`)
-    successMessage.value = `User ${id} removed.`
+    await axios.put(`/api/admin/user/update/${selectedUser.value.id}`, formData)
+    openEditModal.value = false
+    showToast("User profile updated successfully!", "success")
     await fetchUsers()
-    setTimeout(() => successMessage.value = '', 2500)
-  } catch (error) {
-    alert('Delete failed.')
+  } catch (err) {
+    console.error(err)
+    showToast("Invalid inputs", "error")
   }
 }
 
-// Edit
-const editUser = (user) => {
-  alert(`Edit user ${user.id}`)
+// delete
+const confirmDelete = async (id) => {
+  if (!confirm(`Delete user ID: ${id}?`)) return
+  try {
+    await axios.delete(`/api/admin/user/delete/${id}`)
+    showToast("User deleted successfully!", "success")
+    await fetchUsers()
+    setTimeout(() => successMessage.value = '', 2500)
+  } catch (error) {
+    showToast(`Failed to delete use ${id}`, "success")
+    alert('Delete failed.')
+  }
 }
 
 // Format date
@@ -141,14 +185,17 @@ const formatDate = (date) => {
 
 // Filter + Sort
 const filteredUsers = computed(() => {
-  // Combine first + last name for search
   const query = searchQuery.value.toLowerCase()
 
   let filtered = users.value.filter(u => {
     const fullName = `${u.first_name} ${u.last_name}`.toLowerCase()
-    return fullName.includes(query) ||
+
+    return (
+      fullName.includes(query) ||
       u.email?.toLowerCase().includes(query) ||
-      String(u.quizzes_taken || '').includes(query)
+      String(u.quizzes_taken || '').includes(query) ||
+      String(u.id).includes(query) // ✅ SEARCH BY ID
+    )
   })
 
   // Sorting
@@ -163,13 +210,17 @@ const filteredUsers = computed(() => {
       B = b[sortKey.value] ?? ''
     }
 
-    // Parse dates
+    // ✅ ID numeric sort
+    if (sortKey.value === 'id') {
+      A = Number(A)
+      B = Number(B)
+    }
+
     if (sortKey.value === 'created_at') {
       A = new Date(A)
       B = new Date(B)
     }
 
-    // Numeric sort for quizzes_taken
     if (sortKey.value === 'quizzes_taken') {
       A = Number(A)
       B = Number(B)
@@ -382,9 +433,13 @@ td {
 /* ===== Pagination ===== */
 .pagination {
   display: flex;
+  width: 100%;
   justify-content: center;
+  align-items: center;
   gap: 10px;
-  padding: 1rem;
+  font-size: 13px;
+  padding: 10px;
+  background-color: #f9fafb;
 }
 
 .pagination button {
