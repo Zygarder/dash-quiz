@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/admin/quizzes/create', [AdminApiController::class, 'createQuiz']);
     Route::delete('/admin/quizzes/{id}', [AdminApiController::class, 'deleteQuiz']);
     Route::get('/admin/users', [AdminApiController::class, 'allUsers']);
-    Route::delete('/admin/users/{id}', [AdminApiController::class, 'deleteUser']);
+    Route::delete('/admin/user/delete/{id}', [AdminApiController::class, 'deleteUser']);
+    Route::put('/admin/user/update/{id}', [AdminApiController::class, 'updateUser']);
     Route::get('/admin/records', [AdminApiController::class, 'studentRecords']);
 });
