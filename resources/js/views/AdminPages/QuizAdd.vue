@@ -7,7 +7,7 @@
                 <p class="subtitle">Build a new assessment for students</p>
             </div>
 
-            <button @click="$router.push('/admin/quizzes/manage')" class="btn-secondary">
+            <button @click="$router.push('/admin/manage-quizzes')" class="btn-secondary">
                 Cancel
             </button>
         </div>

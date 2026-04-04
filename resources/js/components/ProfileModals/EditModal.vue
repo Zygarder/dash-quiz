@@ -1,66 +1,3 @@
-<script setup>
-import { ref, watch } from 'vue'
-
-const props = defineProps({
-  show: Boolean,
-  user: {
-    type: Object,
-    default: () => ({})
-  }
-})
-
-const emit = defineEmits(['close', 'save', 'notify'])
-
-// ✅ Local form state
-const form = ref({
-  first_name: '',
-  last_name: '',
-  email: '',
-  password: '',
-  password_confirmation: ''
-})
-
-// ✅ Watch for when the modal opens to sync data
-watch(
-  () => props.show,
-  (isVisible) => {
-    if (isVisible && props.user) {
-      form.value = {
-        first_name: props.user.first_name || '',
-        last_name: props.user.last_name || '',
-        email: props.user.email || '',
-        password: '', // Reset passwords
-        password_confirmation: ''
-      }
-    }
-  },
-  { immediate: true }
-)
-
-// ✅ Save handler
-const handleSave = () => {
-  // 1. Password Match Validation
-  if (form.value.password || form.value.password_confirmation) {
-    if (form.value.password !== form.value.password_confirmation) {
-      emit('notify', { message: "Passwords do not match!", type: "error" })
-      return
-    }
-  }
-
-  // 2. Prepare Clean Payload
-  const payload = { ...form.value }
-
-  // 3. Remove password fields if they are empty (so we don't update them)
-  if (!payload.password) {
-    delete payload.password
-    delete payload.password_confirmation
-  }
-
-  emit('save', payload)
-  emit('close')
-}
-</script>
-
 <template>
   <div v-if="show" class="modal">
     <div class="modal-content">
@@ -88,8 +25,13 @@ const handleSave = () => {
       </div>
 
       <div class="edit-fields">
+        <label for="password">New Password</label>
+        <input id="new_password" v-model="form.new_password" type="password" autocomplete="off" />
+      </div>
+
+      <div class="edit-fields">
         <label for="password_confirmation">Confirm Password</label>
-        <input id="password_confirmation" v-model="form.password_confirmation" type="password" autocomplete="off" />
+        <input id="password_confirmation" v-model="form.new_password_confirmation" type="password" autocomplete="off" />
       </div>
 
       <div class="modal-buttons">
@@ -99,6 +41,73 @@ const handleSave = () => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, watch } from 'vue'
+
+const props = defineProps({
+  show: Boolean,
+  user: {
+    type: Object,
+    default: () => ({})
+  }
+})
+const form = ref({
+  first_name: '',
+  last_name: '',
+  email: '',
+  password: '',
+  new_password: '',
+  new_password_confirmation: ''
+})
+
+const emit = defineEmits(['save', 'close'])
+
+// Watch for when the modal opens to sync data
+watch(
+  () => props.user,
+  (user) => {
+    if (user) {
+      form.value = {
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        password: '',
+        new_password: '',
+        new_password_confirmation: ''
+      }
+    }
+  },
+  { immediate: true }
+)
+
+
+// ✅ Save handle
+const handleSave = () => {
+  // 1. Password Match Validation
+  if (form.value.new_password || form.value.new_password_confirmation) {
+    if (form.value.new_password !== form.value.new_password_confirmation) {
+      emit('notify', { message: "Passwords do not match!", type: "error" })
+      return
+    }
+  }
+
+  // 2. Prepare Clean Payload
+  const payload = { ...form.value }
+
+  // 3. Remove password fields if they are empty (so we don't update them)
+  if (!payload.password) {
+    delete payload.password
+    delete payload.new_password
+    delete payload.new_password_confirmation
+  }
+
+  emit('save', payload)
+  emit('close')
+}
+</script>
+
+
 
 <style scoped>
 /* Reusing the core alignment logic */

@@ -107,8 +107,8 @@ watch(isSidebarOpen, (val) => {
 
 /* DESKTOP: Sidebar always visible */
 .main-wrapper {
-    flex: 1;
     display: flex;
+    width: 100%;
     flex-direction: column;
     min-height: 100vh;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

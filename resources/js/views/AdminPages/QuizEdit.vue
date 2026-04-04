@@ -2,7 +2,7 @@
     <section class="admin-section">
         <div class="header-row">
             <h3 class="section-title">Edit Quiz</h3>
-            <button @click="$router.push('/admin/quizzes/manage')" class="logout-btn" style="background: #777">
+            <button @click="$router.push('/admin/manage-quizzes')" class="cancel-btn">
                 Cancel
             </button>
         </div>
@@ -26,9 +26,7 @@
 
             <div class="questions-header">
                 <h3>Questions</h3>
-                <button type="button" @click="addQuestion" class="add-btn">
-                    + Add Question
-                </button>
+
             </div>
 
             <div v-for="(q, index) in form.questions" :key="index" class="question-block">
@@ -50,9 +48,16 @@
                             required />
                     </div>
                 </div>
+
+            </div>
+            <div>
+                <button type="button" @click="addQuestion" class="add-btn">
+                    + Add Question
+                </button>
             </div>
 
             <div class="form-actions mt-4">
+
                 <button @click="updateQuiz" class="add-btn save-btn" :disabled="saving">
                     {{ saving ? "Saving Changes..." : "Save Changes" }}
                 </button>
@@ -178,6 +183,15 @@ const handleLogout = () => {
     margin: 25px 0;
     border: 0;
     border-top: 1px solid #eee;
+}
+
+.cancel-btn {
+    padding: 8px 14px;
+    font-size: 12 px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 .question-block {

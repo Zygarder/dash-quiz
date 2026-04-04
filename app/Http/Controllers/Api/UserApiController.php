@@ -82,6 +82,8 @@ class UserApiController extends Controller
             'message' => 'Unauthenticated.'
         ], 401);
     }
+
+    
     // Get quiz history of the logged-in user
     public function records()
     {

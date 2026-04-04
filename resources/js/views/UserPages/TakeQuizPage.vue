@@ -44,7 +44,7 @@
                 <div v-else-if="error" class="state-card error">
                     <div class="icon">⚠️</div>
                     <h2>Unable to load quiz</h2>
-                    <p>{{ error }}</p>
+                    <small>You can ask the admins.</small>
                     <button @click="goBackToQuizzes" class="btn-primary">Return to Dashboard</button>
                 </div>
 
@@ -278,7 +278,7 @@ const submitQuizResult = async () => {
 }
 
 //return to quizzes
-const goBackToQuizzes = () => router.push('/quizzes')
+const goBackToQuizzes = () => router.push('/user/quizzes')
 
 onMounted(() => {
     timerInterval = setInterval(() => {
@@ -303,6 +303,20 @@ onMounted(() => {
     background-color: #f8fafc;
     min-height: 100vh;
     font-family: 'Inter', system-ui, sans-serif;
+}
+
+.btn-primary {
+    border-radius: 10px;
+    border: 1px solid;
+    background-color: #4338ca;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 10px;
+}
+
+.btn-primary:hover {
+    background-color: #6366f1;
 }
 
 /* Navbar & Progress */
@@ -382,6 +396,10 @@ onMounted(() => {
     background: var(--primary-soft);
     padding: 4px 12px;
     border-radius: 20px;
+}
+
+.icon {
+    font-size: 80px;
 }
 
 .stat-label {
@@ -556,10 +574,22 @@ onMounted(() => {
 
 .state-card {
     text-align: center;
-    padding: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 2.5rem;
     background: white;
     border-radius: 24px;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.error {
+    background-image: linear-gradient(0deg, #d9c700, #e4e100, #d9c700);
+}
+
+.state-card h2 {
+    margin: 0;
 }
 
 .loader {

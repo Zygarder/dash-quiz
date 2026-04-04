@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/composables/useUser'
 
@@ -34,36 +34,40 @@ defineProps({
 })
 
 const { user, fetchUser, userFullName, userAvatar } = useUser()
-
 const emit = defineEmits(['toggleSidebar', 'logout'])
-const route = useRoute()
 
-const loggingOut = ref(false)
+// 1. Create a reactive ref for the window width
+const windowWidth = ref(window.innerWidth)
 
-// Responsive visibility
-const showMenuButton = computed(() => window.innerWidth <= 1024)
-const showPageTitle = computed(() => window.innerWidth > 768)
-const showUserMeta = computed(() => window.innerWidth > 640)
-const showAvatar = computed(() => window.innerWidth > 480)
+// 2. Function to update the width
+const updateWidth = () => {
+  windowWidth.value = window.innerWidth
+}
 
-// Handle window resize
-window.addEventListener('resize', () => {
-  // Trigger reactivity
-  showMenuButton.value
-  showPageTitle.value
-  showUserMeta.value
-  showAvatar.value
+// 3. Setup and Cleanup listeners
+onMounted(() => {
+  window.addEventListener('resize', updateWidth)
+  fetchUser()
 })
 
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth)
+})
+
+/** * Logic Fix: 
+ * If you want the menu button to appear when the screen is 768px or smaller, 
+ * use <= 768. If you want it for tablets too, use <= 1024.
+ */
+const showMenuButton = computed(() => windowWidth.value <= 768)
+const showPageTitle = computed(() => windowWidth.value > 768)
+const showUserMeta = computed(() => windowWidth.value > 640)
+const showAvatar = computed(() => windowWidth.value > 480)
+
+const loggingOut = ref(false)
 const handleLogout = () => {
   loggingOut.value = true
   emit('logout')
 }
-
-
-onMounted(async () => {
-  await fetchUser()
-})
 </script>
 
 <style scoped>
@@ -84,7 +88,6 @@ onMounted(async () => {
   width: 100%;
   max-width: 1280px;
   padding: 0 1rem;
-  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -95,7 +98,6 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-shrink: 0;
 }
 
 .page-title {

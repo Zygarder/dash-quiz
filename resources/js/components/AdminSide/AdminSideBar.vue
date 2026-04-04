@@ -61,7 +61,7 @@ defineEmits(['closeSidebar', 'logout'])
 
 <style scoped>
 .admin-sidebar {
-  width: 240px;
+  width: 280px;
   background: #1e1b4b;
   height: auto;
   position: fixed;

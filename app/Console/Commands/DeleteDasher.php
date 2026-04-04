@@ -10,8 +10,7 @@ class DeleteDasher extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'dasher:delete 
-                            {identifier : Email or ID of the dasher}';
+    protected $signature = 'dasher:delete {identifier : Email or ID of the dasher}';
 
     /**
      * The console command description.

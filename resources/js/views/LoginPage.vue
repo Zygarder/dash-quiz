@@ -37,7 +37,7 @@
 
           <div class="field">
             <input type="password" v-model.trim="form.password" placeholder="Password"
-              :class="{ error: errors.password }" autocomplete="false"/>
+              :class="{ error: errors.password }" autocomplete="false" />
             <small v-if="errors.password">{{ errors.password[0] }}</small>
           </div>
 
@@ -66,7 +66,7 @@
 
     <!-- FOOTER -->
     <footer class="auth-footer">
-      © {{new Date().getFullYear()}} Dash Quiz • SNSU Capstone Project
+      © {{ new Date().getFullYear() }} Dash Quiz • SNSU Capstone Project
     </footer>
 
   </div>

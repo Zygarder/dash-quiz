@@ -153,9 +153,9 @@ const renderChart = () => {
     data: {
       labels: ["System Stats"],
       datasets: [
-        { label: "Total Users", data: [stats.value.total_users] },
-        { label: "Total Quizzes", data: [stats.value.total_quizzes] },
-        { label: "Active Users", data: [stats.value.active_users] },
+        { label: "Total Users", data: [stats.value.total_users], backgroundColor: '#8b5cf6' },
+        { label: "Total Quizzes", data: [stats.value.total_quizzes], backgroundColor: '#16a34a' },
+        { label: "Active Users", data: [stats.value.active_users], backgroundColor: '#4b3cd1' },
       ]
     },
     options: {

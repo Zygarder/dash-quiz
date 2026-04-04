@@ -51,42 +51,35 @@ class ProfileApiController extends Controller
     // Update user profile information
     public function updateProfile(Request $request)
     {
-        if (Auth::guard('dasher')->check()) {
-            // Get the authenticated user
-            $user = Auth::guard('dasher')->user();
-            // Validate incoming profile data
-            $valid = $request->validate([
-                'first_name' => 'nullable|string|max:255',
-                'last_name' => 'nullable|string|max:255',
+        $user = Auth::guard('dasher')->user();
 
-                // Email must be unique in the dasher table
-                'email' => 'required|email|unique:dasher,email,' . $user->id . '|max:255',
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email|unique:dasher,email,' . $user->id . '|max:255',
+            'password' => ['nullable', 'required_with:new_password'],
+            'new_password' => ['nullable', 'min:6', 'confirmed'],
+        ]);
 
-                // Password is optional but must be confirmed if provided
-                'password' => 'nullable|string|confirmed|min:6',
-            ]);
-
-            // Update user fields only if new values are provided
-            $user->update([
-                'first_name' => $valid['first_name'] ?? $user->first_name,
-                'last_name' => $valid['last_name'] ?? $user->last_name,
-                'email' => $valid['email'],
-            ]);
-
-            // If password is provided, hash it before saving
-            // Hashing protects the password in the database
-            if (!empty($valid['password'])) {
-                $user->password = Hash::make($valid['password']);
+        if ($request->filled('new_password')) {
+            // Check current password
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'message' => 'Current password is incorrect'
+                ], 422);
             }
-            // Save updated user information
-            $user->save();
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $user
-            ]);
+            $user->password = Hash::make($request->new_password);
         }
+        $user->first_name = $validated['first_name'];
+        $user->last_name = $validated['last_name'];
+        $user->email = $validated['email'];
+        $user->save();
 
+        return response()->json([
+            'message' => 'User updated successfully',
+            'data' => $user // <- add this so frontend can update local state
+        ]);
     }
 
     // Upload or update the user's profile photo

@@ -14,8 +14,8 @@
 </template>
 
 <script setup>
-import UserSidebar from '@/components/UserSide/testSide.vue'
-import UserTopbar from '@/components/UserSide/testTop.vue'
+import UserSidebar from '@/components/UserSide/SideBar.vue'
+import UserTopbar from '@/components/UserSide/TopBar.vue'
 import axios from 'axios'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -25,7 +25,7 @@ const router = useRouter()
 const route = useRoute()
 
 const isSidebarOpen = ref(false)
-let windowWidth = window.innerWidth
+let windowWidth = ref(window.innerWidth)
 
 const updateWindowWidth = () => {
   windowWidth = window.innerWidth
@@ -47,7 +47,6 @@ const pageTitles = {
 }
 
 const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Home')
-console.log(route.path)
 
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
 const closeSidebar = () => { isSidebarOpen.value = false }
@@ -66,6 +65,15 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  margin: 0
+}
+
 .user-wrapper {
   display: flex;
   width: 100%;
