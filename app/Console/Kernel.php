@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\Dasher;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,7 +13,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('inspire')->everyMinute();
+        $schedule->call(function () {
+            Dasher::where('last_activity', '<', now()->subMinutes(2))
+                ->update(['active_status' => 0]);
+        })->everyMinute();
     }
 
     /**
@@ -20,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

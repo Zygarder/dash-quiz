@@ -5,7 +5,7 @@ const user = ref(null)
 const isLoading = ref(false)
 
 const fetchUser = async (force = false) => {
-    // ✅ allow refresh when needed
+    //  allow refresh when needed
     if (!force && user.value && isLoading.value === false) {
         return user.value
     }
@@ -14,6 +14,7 @@ const fetchUser = async (force = false) => {
     try {
         const { data } = await axios.get("/api/me")
         user.value = data.results
+        console.log(user.value)
     } catch (err) {
         console.error("Failed to fetch USER:", err.response?.data?.message || err.message)
     } finally {
@@ -21,7 +22,6 @@ const fetchUser = async (force = false) => {
     }
 }
 
-// computed
 const userFullName = computed(() =>
     `${user.value?.first_name || ''} ${user.value?.last_name || ''}`
 )

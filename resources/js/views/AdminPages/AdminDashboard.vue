@@ -101,7 +101,7 @@ let chartInstance = null
 const notification = ref("")
 const filterType = ref("today")
 
-let interval = null // for auto-refresh
+let interval = 1 * 10 * 1000 // for auto-refresh
 
 // --- Computed ---
 const filteredLogs = computed(() => {
@@ -183,7 +183,7 @@ const fetchStats = async (showNotif = false) => {
 // --- Lifecycle ---
 onMounted(async () => {
   // initial load
-  await fetchStats()
+  setInterval(await fetchStats(), 10000)
 })
 
 // cleanup

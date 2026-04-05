@@ -53,8 +53,8 @@ onUnmounted(() => window.removeEventListener('resize', updateWidth))
 const isMobile = computed(() => screenWidth.value <= 768)
 
 
-onMounted(async () => {
-  setInterval(await fetchUser(), 3000)
+onMounted(() => {
+  fetchUser()
 })
 </script>
 

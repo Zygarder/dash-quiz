@@ -51,16 +51,15 @@ class UserApiController extends Controller
     }
     public function profile()
     {
-        // Check dasher first
         if (Auth::guard('dasher')->check()) {
             $user = Auth::guard('dasher')->user();
-            if ($user->active_status == 0) {
-                Auth::guard('dasher')->logout();
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'User is inactive.'
-                ], 403);
-            }
+
+            // Update online status
+            $user->update([
+                'active_status' => 1,
+                'last_activity' => now()
+            ]);
+
             return response()->json([
                 'status' => 'success',
                 'results' => [
@@ -73,17 +72,18 @@ class UserApiController extends Controller
                     'profile_photo' => $user->profile_photo ?? 'default.png',
                     'created_at' => $user->created_at->format('F j, Y'),
                     'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
+                    'active_status' => $user->active_status, // optional for frontend
                 ]
             ]);
         }
-        // If neither guard is authenticated
+
         return response()->json([
             'status' => 'error',
             'message' => 'Unauthenticated.'
         ], 401);
     }
 
-    
+
     // Get quiz history of the logged-in user
     public function records()
     {

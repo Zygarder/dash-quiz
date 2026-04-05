@@ -20,6 +20,7 @@ import axios from 'axios'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import SuccessAlert from '@/components/ToastNotification.vue'
+import { startHeartbeat } from '@/composables/heartbeat'
 
 const router = useRouter()
 const route = useRoute()
@@ -62,6 +63,10 @@ const handleLogout = async () => {
   }
 
 }
+
+onMounted(() => {
+  startHeartbeat(router)
+})
 </script>
 
 <style scoped>

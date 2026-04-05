@@ -45,7 +45,9 @@ class AdminApiController extends Controller
         // Total number of quizzes
         $totalQuizzes = Quiz::count();
         // Number of active dashers
-        $activeCount = Dasher::where('active_status', 1)->where('role', 'dasher')->count();
+        $activeCount = Dasher::where('role', 'dasher')
+            ->where('last_activity', '>=', now()->subMinutes(1))
+            ->count();
         // Top 10 dashers by average score
         $topDashers = Dasher::with('quizRecords')
             ->where('role', 'dasher')
@@ -97,7 +99,12 @@ class AdminApiController extends Controller
         if (Auth::guard('dasher')->attempt($valid)) {
             $request->session()->regenerate();
             $user = Auth::guard('dasher')->user();
-            $user->update(['active_status' => 1]);
+
+            // Set both to ensure the scheduler doesn't kill the session early
+            $user->update([
+                'active_status' => 1,
+                'last_activity' => now()
+            ]);
 
             return response()->json([
                 'status' => 'success',
@@ -146,14 +153,43 @@ class AdminApiController extends Controller
     ###############################################
     public function logout(Request $request)
     {
-        if (Auth::guard('dasher')->check()) {
-            $user = Auth::guard('dasher')->user();
-            $user->update(['active_status' => 0]); //set offline current auth user
+        $user = Auth::guard('dasher')->user();
+        if ($user) {
+            $user->update(['active_status' => 0]);
+
             Auth::guard('dasher')->logout();
         }
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        // Return true or a status to let the calling function know it finished
+        return true;
     }
+
+    public function heartbeat(Request $request)
+    {
+        $user = Auth::guard('dasher')->user();
+        // ADD THIS: Check if the user even exists first
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthenticated'], 401);
+        }
+
+        // 1. Check if the Scheduler marked them offline FIRST
+        if ($user->active_status != 1) {
+            $this->logout($request);
+            return response()->json(['status' => 'error'], 403);
+        }
+
+        // 2. ONLY IF they are active, update the timestamp
+        $user->update([
+            'last_activity' => now(),
+            'active_status' => 1
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
     ###############################################
     # QUIZ MANAGEMENT APIs
     ###############################################

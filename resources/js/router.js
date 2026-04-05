@@ -61,8 +61,7 @@ const routes = [
             },
 
         ]
-    },
-    {
+    }, {
         path: '/quiz-result',
         component: QuizResult,
         meta: { requiresAuth: true, requiresStudent: true }
@@ -105,7 +104,7 @@ const routes = [
             }
         ]
     },
-    // No Page Dound / 404 Error page, 
+    // No Page Dound / 404 Error page
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',

@@ -21,6 +21,7 @@ class Dasher extends Authenticatable
         'role',
         'profile_photo',
         'password',
+        'last_activity',
         'active_status',
     ];
 

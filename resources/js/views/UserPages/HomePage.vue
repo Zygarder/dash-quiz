@@ -8,6 +8,7 @@
         <p class="sub">{{ leaderboard.length }} participants</p>
       </div>
 
+      <!-- Current user pill -->
       <div v-if="userPosition" class="you-pill">
         #{{ userPosition }} You
       </div>
@@ -16,12 +17,9 @@
     <!-- LIST -->
     <div class="leaderboard-list">
 
-      <div 
-        v-for="(user, index) in leaderboard" 
-        :key="user.id" 
-        class="leader-item"
-        :class="[{ 'is-you': user.isYou }, index < 3 ? 'top' : '']"
-      >
+      <!-- Leaderboard entries -->
+      <div v-for="(entry, index) in leaderboard" :key="entry.id" class="leader-item"
+        :class="[{ 'is-you': entry.isYou }, index < 3 ? 'top' : '']">
 
         <!-- RANK -->
         <div class="rank">
@@ -31,31 +29,32 @@
           <span v-else>{{ index + 1 }}</span>
         </div>
 
-        <!-- USER -->
+        <!-- USER INFO -->
         <div class="user">
-          <img 
-            :src="`/storage/images/profiles/${user.profile_photo || 'default.png'}`" 
-            alt="user-image" 
-            class="avatar"
-          >
+          <img :src="`/storage/images/profiles/${entry.profile_photo || 'default.png'}`" alt="user-image"
+            class="avatar">
           <div class="info">
-            <span class="name">{{ user.name }}</span>
-            <span class="quiz">{{ user.quiz_title }}</span>
-            <span class="time" v-if="user.completed_at">{{ formatDate(user.completed_at) }}</span>
+            <!-- ✅ Shows "You" badge if current user, otherwise name -->
+            <span class="name">
+              {{ entry.displayName }}
+              <span v-if="entry.isYou" class="you-badge">You</span>
+            </span>
+            <span class="quiz">{{ entry.quiz_title }}</span>
+            <span class="time" v-if="entry.completed_at">{{ formatDate(entry.completed_at) }}</span>
           </div>
         </div>
 
         <!-- SCORE -->
         <div class="score">
           <div class="bar">
-            <div class="fill" :style="{ width: scoreWidth(user.score) }"></div>
+            <div class="fill" :style="{ width: scoreWidth(entry.score) }"></div>
           </div>
-          <span>{{ user.score }}/10</span>
+          <span>{{ entry.score }}/10</span>
         </div>
 
       </div>
 
-      <!-- EMPTY -->
+      <!-- EMPTY STATE -->
       <div v-if="!leaderboard.length" class="empty">
         <p>No rankings yet 📊</p>
       </div>
@@ -67,13 +66,17 @@
 <script setup>
 import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
+import { useUser } from "@/composables/useUser"
 
 const leaderboard = ref([])
 const isLoading = ref(false)
+const { user, fetchUser } = useUser()
+
 
 const userPosition = computed(() => {
-  const you = leaderboard.value.find(u => u.isYou)
-  return you ? leaderboard.value.indexOf(you) + 1 : null
+  if (!user.value?.id) return null
+  const idx = leaderboard.value.findIndex(u => u.id === user.value.id)
+  return idx !== -1 ? idx + 1 : null
 })
 
 const scoreWidth = (score) => `${(score / 10) * 100}%`
@@ -83,21 +86,37 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString()
 }
 
-// Fetch leaderboard data
 const getLeaderBoard = async () => {
   isLoading.value = true
   try {
     await axios.get('/sanctum/csrf-cookie')
     const { data } = await axios.get('/api/dashboard/leaderboard')
-    leaderboard.value = data.data
+
+    const currentUserId = user.value?.id ?? null
+
+    leaderboard.value = data.data.map(u => ({
+      ...u,
+      isYou: u.user_id === currentUserId,
+      displayName: u.name,
+    }))
+
+    console.log(leaderboard.value)
+
   } catch (err) {
     console.error(err.message)
   } finally {
     isLoading.value = false
   }
 }
-
-onMounted(getLeaderBoard)
+// ✅ fetchUser first, then leaderboard — order guaranteed
+onMounted(async () => {
+  try {
+    await fetchUser()
+    await getLeaderBoard()
+  } catch (err) {
+    console.error(err)
+  }
+})
 </script>
 
 <style scoped>
@@ -106,10 +125,9 @@ onMounted(getLeaderBoard)
   background: #fff;
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-/* HEADER */
 .leaderboard-header {
   display: flex;
   justify-content: space-between;
@@ -140,7 +158,6 @@ onMounted(getLeaderBoard)
   gap: 6px;
 }
 
-/* LIST */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
@@ -149,7 +166,6 @@ onMounted(getLeaderBoard)
   overflow-y: auto;
 }
 
-/* ITEM */
 .leader-item {
   display: flex;
   align-items: center;
@@ -165,19 +181,16 @@ onMounted(getLeaderBoard)
   background: #f9fafb;
 }
 
-/* TOP 3 */
 .leader-item.top {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
 }
 
-/* YOU */
 .leader-item.is-you {
   background: #eef2ff;
   border: 1px solid #6366f1;
 }
 
-/* RANK */
 .rank {
   width: 30px;
   text-align: center;
@@ -189,7 +202,6 @@ onMounted(getLeaderBoard)
   font-size: 1.3rem;
 }
 
-/* USER */
 .user {
   display: flex;
   align-items: center;
@@ -216,6 +228,20 @@ onMounted(getLeaderBoard)
   font-weight: 600;
   font-size: 0.9rem;
   color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ✅ Inline "You" badge next to the name */
+.you-badge {
+  background: #6366f1;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
 }
 
 .quiz {
@@ -228,7 +254,6 @@ onMounted(getLeaderBoard)
   color: #9ca3af;
 }
 
-/* SCORE */
 .score {
   min-width: 90px;
   text-align: right;
@@ -254,23 +279,21 @@ onMounted(getLeaderBoard)
   font-weight: 600;
 }
 
-/* EMPTY */
 .empty {
   text-align: center;
   padding: 20px;
   color: #9ca3af;
 }
 
-/* SCROLLBAR */
 .leaderboard-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .leaderboard-list::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 10px;
 }
 
-/* MOBILE */
 @media (max-width: 640px) {
   .leaderboard-header {
     flex-direction: column;

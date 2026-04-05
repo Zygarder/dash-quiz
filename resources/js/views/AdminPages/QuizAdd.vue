@@ -78,14 +78,13 @@ import axios from "axios";
 const router = useRouter();
 const loading = ref(false);
 
-// ADJUSTED: Keys now match your controller's $request->validate()
 const form = ref({
     title: "",
     description: "",
     questions: Array.from({ length: 10 }, () => ({
-        text: "", // Changed from question_text to match controller
+        text: "", 
         options: ["", "", "", ""],
-        correct_option: 0, // Changed from correct_answer to match controller
+        correct_option: 0, 
     })),
 });
 

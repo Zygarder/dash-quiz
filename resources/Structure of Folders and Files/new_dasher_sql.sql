@@ -615,10 +615,3 @@ INSERT INTO question_options (question_id, option_text, is_correct, created_at, 
 (74,'Wallpaper changes',0,NOW(),NOW()),
 (74,'Faster mouse',0,NOW(),NOW()),
 (74,'File rename',0,NOW(),NOW());
-
--- Q25
-INSERT INTO question_options (question_id, option_text, is_correct, created_at, updated_at) VALUES
-(75,'Optimize network settings and clear cache',1,NOW(),NOW()),
-(75,'Remove cables',0,NOW(),NOW()),
-(75,'Install antivirus randomly',0,NOW(),NOW()),
-(75,'Change desktop icons',0,NOW(),NOW());

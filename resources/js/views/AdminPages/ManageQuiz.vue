@@ -29,10 +29,8 @@
         <div class="spinner"></div>
         <p>Loading quizzes...</p>
       </div>
-
       <!-- Table -->
       <div v-else class="table-card">
-
         <!-- Header -->
         <div class="table-header">
           <span @click="sortBy('id')">ID</span>

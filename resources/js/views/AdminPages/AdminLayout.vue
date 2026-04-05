@@ -124,7 +124,6 @@ watch(isSidebarOpen, (val) => {
     overflow-x: auto;
 }
 
-
 /* ========================================
    RESPONSIVE BREAKPOINTS
 ======================================== */
