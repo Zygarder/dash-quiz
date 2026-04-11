@@ -8,7 +8,6 @@
         <p class="sub">{{ leaderboard.length }} participants</p>
       </div>
 
-      <!-- Current user pill -->
       <div v-if="userPosition" class="you-pill">
         #{{ userPosition }} You
       </div>
@@ -17,30 +16,39 @@
     <!-- LIST -->
     <div class="leaderboard-list">
 
-      <!-- Leaderboard entries -->
-      <div v-for="(entry, index) in leaderboard" :key="entry.id" class="leader-item"
-        :class="[{ 'is-you': entry.isYou }, index < 3 ? 'top' : '']">
+      <div v-for="(entry, index) in leaderboard" :key="entry.id" class="leader-item" :class="[
+        entry.isYou ? 'is-you' : '',
+        index < 3 ? 'top' : ''
+      ]">
 
-        <!-- RANK -->
-        <div class="rank">
-          <span v-if="index < 3" class="medal">
-            {{ ['🥇', '🥈', '🥉'][index] }}
-          </span>
-          <span v-else>{{ index + 1 }}</span>
-        </div>
+        <!-- LEFT -->
+        <div class="left">
 
-        <!-- USER INFO -->
-        <div class="user">
-          <img :src="`/storage/images/profiles/${entry.profile_photo || 'default.png'}`" alt="user-image"
-            class="avatar">
+          <!-- RANK -->
+          <div class="rank">
+            <span v-if="index < 3" class="medal">
+              {{ ['🥇', '🥈', '🥉'][index] }}
+            </span>
+            <span v-else>{{ index + 1 }}</span>
+          </div>
+
+          <!-- AVATAR -->
+          <div class="avatar-box">
+            <img :src="`/storage/images/profiles/${entry.profile_photo || 'default.png'}`" class="avatar" alt="user" />
+          </div>
+
+          <!-- INFO -->
           <div class="info">
-            <!-- ✅ Shows "You" badge if current user, otherwise name -->
-            <span class="name">
+            <div class="name">
               {{ entry.displayName }}
               <span v-if="entry.isYou" class="you-badge">You</span>
-            </span>
-            <span class="quiz">{{ entry.quiz_title }}</span>
-            <span class="time" v-if="entry.completed_at">{{ formatDate(entry.completed_at) }}</span>
+            </div>
+
+            <div class="quiz">{{ entry.quiz_title }}</div>
+
+            <div class="time" v-if="entry.completed_at">
+              {{ formatDate(entry.completed_at) }}
+            </div>
           </div>
         </div>
 
@@ -54,7 +62,6 @@
 
       </div>
 
-      <!-- EMPTY STATE -->
       <div v-if="!leaderboard.length" class="empty">
         <p>No rankings yet 📊</p>
       </div>
@@ -72,7 +79,6 @@ const leaderboard = ref([])
 const isLoading = ref(false)
 const { user, fetchUser } = useUser()
 
-
 const userPosition = computed(() => {
   if (!user.value?.id) return null
   const idx = leaderboard.value.findIndex(u => u.id === user.value.id)
@@ -81,10 +87,8 @@ const userPosition = computed(() => {
 
 const scoreWidth = (score) => `${(score / 10) * 100}%`
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = (date) =>
+  date ? new Date(date).toLocaleDateString() : ''
 
 const getLeaderBoard = async () => {
   isLoading.value = true
@@ -100,22 +104,16 @@ const getLeaderBoard = async () => {
       displayName: u.name,
     }))
 
-    console.log(leaderboard.value)
-
   } catch (err) {
-    console.error(err.message)
+    console.error(err)
   } finally {
     isLoading.value = false
   }
 }
-// ✅ fetchUser first, then leaderboard — order guaranteed
+
 onMounted(async () => {
-  try {
-    await fetchUser()
-    await getLeaderBoard()
-  } catch (err) {
-    console.error(err)
-  }
+  await fetchUser()
+  await getLeaderBoard()
 })
 </script>
 
@@ -124,57 +122,59 @@ onMounted(async () => {
   width: 100%;
   background: #fff;
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 20px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
+/* HEADER */
 .leaderboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .leaderboard-header h1 {
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-size: 1.4rem;
   font-weight: 800;
   color: #111827;
 }
 
 .sub {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #6b7280;
+  margin-top: 2px;
 }
 
+/* YOU BADGE */
 .you-pill {
   background: #6366f1;
   color: #fff;
   padding: 6px 12px;
   border-radius: 999px;
-  font-weight: 600;
   font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-weight: 600;
 }
 
+/* LIST */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 420px;
+  gap: 10px;
+  max-height: 450px;
   overflow-y: auto;
+  padding-right: 4px;
 }
 
+/* ITEM */
 .leader-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  padding: 14px;
   border-radius: 12px;
-  background: #ffffff;
   border: 1px solid #f1f5f9;
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 .leader-item:hover {
@@ -182,42 +182,44 @@ onMounted(async () => {
 }
 
 .leader-item.top {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: #f8fafc;
 }
 
 .leader-item.is-you {
   background: #eef2ff;
-  border: 1px solid #6366f1;
+  border-color: #6366f1;
 }
 
+/* LEFT SECTION */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* RANK */
 .rank {
-  width: 30px;
+  width: 28px;
   text-align: center;
   font-weight: 700;
   color: #6b7280;
 }
 
 .medal {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
-.user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-}
-
+/* AVATAR */
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  border: 2px solid #f1f5f9;
-  flex-shrink: 0;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
 }
 
+/* INFO */
 .info {
   display: flex;
   flex-direction: column;
@@ -227,21 +229,9 @@ onMounted(async () => {
 .name {
   font-weight: 600;
   font-size: 0.9rem;
-  color: #111827;
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-/* ✅ Inline "You" badge next to the name */
-.you-badge {
-  background: #6366f1;
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 999px;
-  letter-spacing: 0.03em;
 }
 
 .quiz {
@@ -254,13 +244,23 @@ onMounted(async () => {
   color: #9ca3af;
 }
 
+/* YOU BADGE */
+.you-badge {
+  background: #6366f1;
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+/* SCORE */
 .score {
-  min-width: 90px;
+  min-width: 80px;
   text-align: right;
 }
 
 .bar {
-  height: 5px;
+  height: 6px;
   background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
@@ -270,8 +270,7 @@ onMounted(async () => {
 .fill {
   height: 100%;
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
-  border-radius: 999px;
-  transition: width 0.4s ease;
+  transition: width 0.3s ease;
 }
 
 .score span {
@@ -279,12 +278,14 @@ onMounted(async () => {
   font-weight: 600;
 }
 
+/* EMPTY */
 .empty {
   text-align: center;
   padding: 20px;
   color: #9ca3af;
 }
 
+/* SCROLLBAR */
 .leaderboard-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -294,20 +295,23 @@ onMounted(async () => {
   border-radius: 10px;
 }
 
+/* MOBILE */
 @media (max-width: 640px) {
-  .leaderboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
   .leader-item {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
   }
 
   .score {
     width: 100%;
+    text-align: left;
+  }
+
+  .leaderboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }
 </style>
