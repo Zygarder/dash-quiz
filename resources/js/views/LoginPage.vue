@@ -88,28 +88,72 @@ const loading = ref(false)
 const errors = ref({})
 const generalError = ref('')
 
+// attempt limiter
+const maxAttempts = 3
+const attempts = ref(0)
+const isLocked = ref(false)
+
+//validates email
+function isValidEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return regex.test(email)
+}
+
 const handleLogin = async () => {
-  if (loading.value) return
+  if (loading.value || isLocked.value) return
 
   loading.value = true
   errors.value = {}
   generalError.value = ''
 
   try {
+    // LOCK CHECK
+    if (isLocked.value) {
+      generalError.value = 'Too many failed attempts. Try again later.'
+      loading.value = false
+      return
+    }
+
+    // VALIDATION
+    if (!form.email || !form.password) {
+      generalError.value = 'Invalid email and password'
+      loading.value = false
+      return
+    }
+
+    if (!isValidEmail(form.email)) {
+      generalError.value = 'Invalid email format.'
+      loading.value = false
+      return
+    }
+
     const { data } = await axios.post('/api/login', form)
 
+    // SUCCESS
+    attempts.value = 0
+
     localStorage.setItem('isLoggedIn', 'true')
-    if (data.role) localStorage.setItem('userRole', data.role)
+    localStorage.setItem('userRole', data.role)
 
     router.push(data.role === 'admin' ? '/admin' : '/user')
-  } catch (err) {
-    localStorage.removeItem('isLoggedIn')
 
-    if (err.response?.data?.errors) {
-      errors.value = err.response.data.errors
-    } else {
-      generalError.value = err.response?.data?.message || 'Login failed.'
+  } catch (err) {
+
+    // =========================
+    // FAILED LOGIN
+    // =========================
+    attempts.value++
+
+    generalError.value =
+      err.response?.data?.message ||
+      `Invalid email or password (${attempts.value}/${maxAttempts})`
+
+    if (attempts.value >= maxAttempts) {
+      isLocked.value = true
+      generalError.value =
+        'Too many failed attempts. Please wait or refresh the page.'
     }
+
   } finally {
     loading.value = false
   }
