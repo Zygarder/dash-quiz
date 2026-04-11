@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->call(function () {
-            Dasher::where('last_activity', '<', now()->subMinutes(2))
+            Dasher::where('role', 'dasher')
+                ->where('last_activity', '<', now()->subMinutes(2))
                 ->update(['active_status' => 0]);
         })->everyMinute();
     }
