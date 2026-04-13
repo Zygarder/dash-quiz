@@ -20,7 +20,7 @@ class DasherFactory extends Factory
             'last_name' => $lastName,
             'active_status' => 0,
             'role' => 'dasher',
-            'email' => $lastName . '@test.com',
+            'email' => $lastName . '@dashquiz.com',
             'profile_photo' => null,
             'password' => Hash::make($lastName),
         ];

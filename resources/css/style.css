@@ -109,18 +109,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-.challenge-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex: 1;
-  min-height: 80vh;
-  padding: 40px 20px;
-}
-
-
 .challenge-container h2 {
   font-size: 1.6rem;
   font-weight: 700;

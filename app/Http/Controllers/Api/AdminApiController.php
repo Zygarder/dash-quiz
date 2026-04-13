@@ -132,7 +132,7 @@ class AdminApiController extends Controller
             'last_name' => 'Enter your last name',
             'email' => 'Email is required',
             'email.unique' => 'Email is already been in use',
-            'password.misn' => 'Password atleast length of 6',
+            'password.min' => 'Password atleast length of 6',
             'password.confirmed' => 'Please, confirm your password',
         ]);
         $dasher = Dasher::create([

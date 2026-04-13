@@ -252,7 +252,6 @@ const submitAnswer = async () => {
         console.error(err)
         alert(err.response?.data?.message || "Failed to submit answer")
     }
-
 }
 
 const submitQuizResult = async () => {

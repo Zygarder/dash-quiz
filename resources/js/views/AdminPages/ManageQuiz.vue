@@ -13,14 +13,17 @@
       <!-- Header -->
       <div class="header-row">
         <div>
-          <h3 class="section-title">Manage Quizzes</h3>
+          <h3 class="section-title">
+            <i class="fas fa-layer-group"></i>
+            Manage Quizzes
+          </h3>
           <p class="section-subtitle">
             Create, edit, or manage quizzes
           </p>
         </div>
 
         <button @click="goToAddQuiz" class="add-btn">
-          + New Quiz
+          <i class="fas fa-plus"></i> New Quiz
         </button>
       </div>
 
@@ -29,22 +32,44 @@
         <div class="spinner"></div>
         <p>Loading quizzes...</p>
       </div>
-      <!-- Table -->
+
+      <!-- TABLE -->
       <div v-else class="table-card">
-        <!-- Header -->
+
+        <!-- HEADER -->
         <div class="table-header">
-          <span @click="sortBy('id')">ID</span>
-          <span @click="sortBy('title')">Title</span>
-          <span>Description</span>
-          <span>Actions</span>
+          <span @click="sortBy('id')">
+            <i class="fas fa-hashtag"></i> ID
+          </span>
+
+          <span @click="sortBy('title')">
+            <i class="fas fa-heading"></i> Title
+          </span>
+
+          <span>
+            <i class="fas fa-align-left"></i> Description
+          </span>
+
+          <span>
+            <i class="fas fa-cogs"></i> Actions
+          </span>
         </div>
 
-        <!-- Rows -->
+        <!-- ROWS -->
         <div v-if="sortedQuizzes.length">
-          <div v-for="quiz in sortedQuizzes" :key="quiz.id" class="table-row">
-            <span class="id">#{{ quiz.id }}</span>
+          <div
+            v-for="quiz in sortedQuizzes"
+            :key="quiz.id"
+            class="table-row"
+          >
+            <span class="id">
+              <i class="fas fa-id-badge"></i> #{{ quiz.id }}
+            </span>
 
-            <span class="title">{{ quiz.title }}</span>
+            <span class="title">
+              <i class="fas fa-file-alt"></i>
+              {{ quiz.title }}
+            </span>
 
             <span class="desc">
               {{ quiz.description || 'No description' }}
@@ -52,18 +77,19 @@
 
             <div class="actions">
               <button @click="goToEditQuiz(quiz.id)" class="btn edit">
-                Edit
+                <i class="fas fa-pen"></i> Edit
               </button>
 
               <button @click="deleteQuiz(quiz.id, quiz.title)" class="btn delete">
-                Delete
+                <i class="fas fa-trash"></i> Delete
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Empty -->
+        <!-- EMPTY -->
         <div v-else class="empty-state">
+          <i class="fas fa-inbox"></i>
           <p>No quizzes yet.</p>
         </div>
 
@@ -83,7 +109,6 @@ const quizzes = ref([])
 const loading = ref(true)
 const successMessage = ref('')
 
-// Sorting
 const sortKey = ref('id')
 const sortOrder = ref('asc')
 
@@ -91,38 +116,29 @@ const fetchQuizzes = async (retry = 0) => {
   try {
     const { data } = await axios.get('/api/admin/quizzes')
     quizzes.value = data.data || data
-
   } catch (e) {
-
     if (e.response?.status === 429 && retry < 3) {
       setTimeout(() => fetchQuizzes(retry + 1), 1000)
     } else {
-      console.error("Failed to fetch quizzes", e)
+      console.error(e)
     }
-
   } finally {
     loading.value = false
   }
 }
 
-/**
- *  Sorting logic
- */
 const sortedQuizzes = computed(() => {
   return [...quizzes.value].sort((a, b) => {
-    let valA = a[sortKey.value] || ''
-    let valB = b[sortKey.value] || ''
+    let A = a[sortKey.value] || ''
+    let B = b[sortKey.value] || ''
 
-    if (typeof valA === 'string') valA = valA.toLowerCase()
-    if (typeof valB === 'string') valB = valB.toLowerCase()
+    if (typeof A === 'string') A = A.toLowerCase()
+    if (typeof B === 'string') B = B.toLowerCase()
 
-    if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1
-    if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1
-    return 0
+    return sortOrder.value === 'asc' ? (A > B ? 1 : -1) : (A < B ? 1 : -1)
   })
 })
 
-// Sort handler
 const sortBy = (key) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -132,22 +148,18 @@ const sortBy = (key) => {
   }
 }
 
-// Navigation
 const goToAddQuiz = () => router.push('/admin/quizzes/create')
 const goToEditQuiz = (id) => router.push(`/admin/quizzes/${id}/edit`)
 
-// Delete
 const deleteQuiz = async (id, title) => {
   if (!confirm(`Are you sure you want to delete "${title}"?`)) return
 
   try {
     await axios.delete(`/api/admin/quizzes/${id}`)
     successMessage.value = "Quiz deleted successfully!"
-
     await fetchQuizzes()
-
     setTimeout(() => successMessage.value = '', 3000)
-  } catch (e) {
+  } catch {
     alert("Error deleting quiz.")
   }
 }
@@ -156,15 +168,11 @@ onMounted(fetchQuizzes)
 </script>
 
 <style scoped>
-.admin-section {
-  animation: fadeIn 0.3s ease;
-}
-
+/* WRAPPER */
 .page-wrapper {
-  padding: 1.75rem;
+  padding: clamp(1rem, 2vw, 1.75rem);
   background: #f8fafc;
   min-height: 100vh;
-
   display: flex;
   justify-content: center;
 }
@@ -178,14 +186,18 @@ onMounted(fetchQuizzes)
 .header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
   font-weight: 600;
   color: #1e1b4b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-subtitle {
@@ -199,9 +211,12 @@ onMounted(fetchQuizzes)
   color: white;
   border: none;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.85rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: 0.2s;
 }
 
@@ -211,15 +226,18 @@ onMounted(fetchQuizzes)
 
 /* ALERT */
 .alert-success {
-  background: #eef2ff;
-  color: #3730a3;
+  background: #ecfeff;
+  color: #0f766e;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 1rem;
   font-size: 0.85rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-/* TABLE */
+/* CARD */
 .table-card {
   background: #fff;
   border-radius: 14px;
@@ -230,8 +248,7 @@ onMounted(fetchQuizzes)
 /* HEADER */
 .table-header {
   display: grid;
-  text-align: center;
-  grid-template-columns: 80px 1.5fr 2fr 150px;
+  grid-template-columns: 80px 1.5fr 2fr 160px;
   padding: 12px 16px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -239,16 +256,21 @@ onMounted(fetchQuizzes)
   background: #f9fafb;
 }
 
+.table-header span {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ROW */
 .table-row {
   display: grid;
-  text-align: center;
-  grid-template-columns: 80px 1.5fr 2fr 150px;
-  padding: 14px 16px;
+  grid-template-columns: 80px 1.5fr 2fr 160px;
+  padding: 12px 16px;
   border-top: 1px solid #f1f5f9;
   align-items: center;
-  font-size: 12px;
-  transition: background 0.2s;
+  transition: 0.2s;
 }
 
 .table-row:hover {
@@ -257,20 +279,25 @@ onMounted(fetchQuizzes)
 
 /* TEXT */
 .id {
-  color: #6366f1;
+  color: #4f46e5;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .title {
   font-weight: 500;
-  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .desc {
   color: #6b7280;
   font-size: 0.85rem;
-  white-space: nowrap;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
@@ -283,13 +310,15 @@ onMounted(fetchQuizzes)
 
 .btn {
   font-size: 0.75rem;
-  padding: 5px 10px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* EDIT */
 .btn.edit {
   background: #eef2ff;
   color: #4f46e5;
@@ -300,7 +329,6 @@ onMounted(fetchQuizzes)
   color: white;
 }
 
-/* DELETE */
 .btn.delete {
   background: #fee2e2;
   color: #dc2626;
@@ -313,8 +341,8 @@ onMounted(fetchQuizzes)
 
 /* EMPTY */
 .empty-state {
-  padding: 3rem;
   text-align: center;
+  padding: 3rem;
   color: #9ca3af;
 }
 
@@ -330,27 +358,13 @@ onMounted(fetchQuizzes)
   border: 3px solid #e0e7ff;
   border-top: 3px solid #6366f1;
   border-radius: 50%;
-  margin: 0 auto 10px;
+  margin: auto;
   animation: spin 1s linear infinite;
 }
 
 /* ANIMATION */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .fade-slide-enter-active {
@@ -360,5 +374,21 @@ onMounted(fetchQuizzes)
 .fade-slide-enter-from {
   opacity: 0;
   transform: translateY(-5px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
 }
 </style>

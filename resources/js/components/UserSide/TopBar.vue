@@ -298,9 +298,15 @@ onMounted(() => {
   border-radius: 50%;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 320px) {
+  .page-title,
+  .user-name,
+  .user-status {
+    font-size: 12px;
+  }
+
   .navbar-container {
-    padding: 0 1rem;
+    padding: 0 .5rem;
   }
 }
 </style>

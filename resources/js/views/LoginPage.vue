@@ -139,9 +139,7 @@ const handleLogin = async () => {
 
   } catch (err) {
 
-    // =========================
     // FAILED LOGIN
-    // =========================
     attempts.value++
 
     generalError.value =

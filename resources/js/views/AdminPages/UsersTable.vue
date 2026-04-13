@@ -12,12 +12,11 @@
       <!-- Header -->
       <div class="header-row">
         <div>
-          <h3 class="section-title">Registered Dashers</h3>
+          <h3 class="section-title"><i class="fas fa-id-badge"></i>Registered Dashers</h3>
           <p class="section-subtitle">Manage all user accounts</p>
         </div>
 
-        <input type="text" v-model="searchQuery" placeholder="Search by name, email, or quizzes..."
-          class="search-input" />
+        <input type="text" v-model="searchQuery" placeholder="Search users..." class="search-input" />
       </div>
 
       <!-- Loading -->
@@ -28,63 +27,102 @@
         </div>
       </div>
 
-      <!-- Table -->
+      <!-- TABLE -->
       <div v-else class="table-card">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th @click="sortBy('id')">
-                ID
-                <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('full_name')">
-                Full Name
-                <span v-if="sortKey === 'full_name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('email')">
-                Email
-                <span v-if="sortKey === 'email'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('quizzes_taken')">
-                Quizzes Taken
-                <span v-if="sortKey === 'quizzes_taken'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('created_at')">
-                Date Registered
-                <span v-if="sortKey === 'created_at'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
+        <div class="table-scroll">
 
-          <tbody>
-            <tr v-if="paginatedUsers.length === 0">
-              <td colspan="6" class="empty-state">No users found.</td>
-            </tr>
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th @click="sortBy('id')">
+                  <span>ID</span>
+                  <i class="fas fa-sort"></i>
+                </th>
 
-            <tr v-for="user in paginatedUsers" :key="user.id">
-              <td>{{ user.id }}</td>
-              <td class="name">{{ user.first_name }} {{ user.last_name }}</td>
-              <td class="email">{{ user.email }}</td>
-              <td class="quizzes_taken">{{ user.quizzes_taken }}</td>
-              <td>{{ formatDate(user.created_at) }}</td>
-              <td class="actions-col">
-                <button @click="openEdit(user)" class="btn edit">Edit</button>
-                <button @click="confirmDelete(user.id)" class="btn delete">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <th @click="sortBy('full_name')">
+                  <span>Name</span>
+                  <i class="fas fa-user"></i>
+                </th>
+
+                <th @click="sortBy('email')">
+                  <span>Email</span>
+                  <i class="fas fa-envelope"></i>
+                </th>
+
+                <th @click="sortBy('quizzes_taken')">
+                  <span>Quizzes</span>
+                  <i class="fas fa-list-ol"></i>
+                </th>
+
+                <th @click="sortBy('created_at')">
+                  <span>Date</span>
+                  <i class="fas fa-calendar"></i>
+                </th>
+
+                <th>
+                  <span>Actions</span>
+                  <i class="fas fa-cogs"></i>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-if="paginatedUsers.length === 0">
+                <td colspan="6" class="empty-state">No users found.</td>
+              </tr>
+
+              <tr v-for="user in paginatedUsers" :key="user.id">
+                <td>{{ user.id }}</td>
+
+                <td class="name">
+                  {{ user.first_name }} {{ user.last_name }}
+                </td>
+
+                <td class="email">
+                  {{ user.email }}
+                </td>
+
+                <td>
+                  {{ user.quizzes_taken }}
+                </td>
+
+                <td>
+                  {{ formatDate(user.created_at) }}
+                </td>
+
+                <td class="actions-col">
+                  <button @click="openEdit(user)" class="btn edit">
+                    <i class="fas fa-pen"></i>
+                  </button>
+
+                  <button @click="confirmDelete(user.id)" class="btn delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
 
         <!-- Pagination -->
         <div class="pagination" v-if="totalPages > 1">
-          <button :disabled="currentPage === 1" @click="currentPage--">Prev</button>
-          <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button :disabled="currentPage === totalPages" @click="currentPage++">Next</button>
+          <button :disabled="currentPage === 1" @click="currentPage--">
+            Prev
+          </button>
+
+          <span>{{ currentPage }} / {{ totalPages }}</span>
+
+          <button :disabled="currentPage === totalPages" @click="currentPage++">
+            Next
+          </button>
         </div>
+
       </div>
     </section>
+
     <ToastNotification :message="notification.message" :type="notification.type" @clear="notification.message = ''" />
+
     <EditUserModal :user="selectedUser" :show="openEditModal" @close="openEditModal = false" @notif="handleNotify"
       @save="handleSave" />
   </div>
@@ -98,157 +136,78 @@ import EditUserModal from '@/components/AdminSide/EditUserModal.vue'
 
 const users = ref([])
 const loading = ref(true)
+
 const openEditModal = ref(false)
 const selectedUser = ref(null)
 
-// Pagination & Sorting
 const currentPage = ref(1)
 const perPage = 10
+
 const sortKey = ref('id')
 const sortOrder = ref('asc')
+
+const searchQuery = ref('')
 
 const notification = ref({
   message: '',
   type: 'success'
 })
 
-// Search
-const searchQuery = ref('')
-
-// Fetch users
 const fetchUsers = async () => {
   try {
     const response = await axios.get('/api/admin/users')
     users.value = response.data?.data
-  } catch (error) {
-    console.error('Error fetching users:', error)
   } finally {
     loading.value = false
   }
-}
-
-const handleNotify = (payload) => {
-  showToast(payload.message, payload.type)
 }
 
 const showToast = (msg, type = 'success') => {
   notification.value.message = msg
   notification.value.type = type
 
-  // Auto hide after 4 seconds
   setTimeout(() => {
-    notification.message = ''
-  }, 2000)
+    notification.value.message = ''
+  }, 2500)
 }
 
-// edit modal
 const openEdit = (user) => {
   selectedUser.value = user
   openEditModal.value = true
 }
 
-// save
-const handleSave = async (formData) => {
-  try {
-    await axios.put(`/api/admin/user/update/${selectedUser.value.id}`, formData)
-    openEditModal.value = false
-    showToast("User profile updated successfully!", "success")
-    await fetchUsers()
-  } catch (err) {
-    console.error(err)
-    showToast("Invalid inputs", "error")
-  }
-}
-
-// delete
 const confirmDelete = async (id) => {
   if (!confirm(`Delete user ID: ${id}?`)) return
-  try {
-    await axios.delete(`/api/admin/user/delete/${id}`)
-    showToast("User deleted successfully!", "success")
-    await fetchUsers()
-    setTimeout(() => successMessage.value = '', 2500)
-  } catch (error) {
-    showToast(`Failed to delete use ${id}`, "success")
-    alert('Delete failed.')
-  }
+  await axios.delete(`/api/admin/user/delete/${id}`)
+  showToast("User deleted", "success")
+  fetchUsers()
 }
 
-// Format date
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', {
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
-  }).replace(/ /g, '/')
-}
+  })
 
-// Filter + Sort
 const filteredUsers = computed(() => {
-  const query = searchQuery.value.toLowerCase()
+  const q = searchQuery.value.toLowerCase()
 
-  let filtered = users.value.filter(u => {
-    const fullName = `${u.first_name} ${u.last_name}`.toLowerCase()
-
-    return (
-      fullName.includes(query) ||
-      u.email?.toLowerCase().includes(query) ||
-      String(u.quizzes_taken || '').includes(query) ||
-      String(u.id).includes(query) // ✅ SEARCH BY ID
-    )
-  })
-
-  // Sorting
-  filtered.sort((a, b) => {
-    let A, B
-
-    if (sortKey.value === 'full_name') {
-      A = `${a.first_name} ${a.last_name}`.toLowerCase()
-      B = `${b.first_name} ${b.last_name}`.toLowerCase()
-    } else {
-      A = a[sortKey.value] ?? ''
-      B = b[sortKey.value] ?? ''
-    }
-
-    // ✅ ID numeric sort
-    if (sortKey.value === 'id') {
-      A = Number(A)
-      B = Number(B)
-    }
-
-    if (sortKey.value === 'created_at') {
-      A = new Date(A)
-      B = new Date(B)
-    }
-
-    if (sortKey.value === 'quizzes_taken') {
-      A = Number(A)
-      B = Number(B)
-    }
-
-    if (A < B) return sortOrder.value === 'asc' ? -1 : 1
-    if (A > B) return sortOrder.value === 'asc' ? 1 : -1
-    return 0
-  })
-
-  return filtered
+  return users.value.filter(u =>
+    `${u.first_name} ${u.last_name}`.toLowerCase().includes(q) ||
+    u.email?.toLowerCase().includes(q)
+  )
 })
 
-// Pagination
-const totalPages = computed(() => Math.ceil(filteredUsers.value.length / perPage))
+const totalPages = computed(() =>
+  Math.ceil(filteredUsers.value.length / perPage)
+)
 
 const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * perPage
   return filteredUsers.value.slice(start, start + perPage)
 })
 
-watch([filteredUsers, currentPage], () => {
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = totalPages.value || 1
-  }
-})
-
-// Sort
 const sortBy = (key) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -258,45 +217,39 @@ const sortBy = (key) => {
   }
 }
 
-// Lifecycle
-let interval
-
-onMounted(() => {
-  fetchUsers()
-  interval = setInterval(fetchUsers, 30000)
+watch(filteredUsers, () => {
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = 1
+  }
 })
 
-onUnmounted(() => {
-  clearInterval(interval)
-})
+onMounted(fetchUsers)
 </script>
 
 <style scoped>
-/* ===== Wrapper ===== */
+/* ===== WRAPPER ===== */
 .dashboard-wrapper {
   background: #f8fafc;
   min-height: 100vh;
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
-/* ===== Section ===== */
 .admin-section {
   max-width: 1200px;
   margin: auto;
 }
 
-/* ===== Header ===== */
+/* ===== HEADER ===== */
 .header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  /* allow wrap on smaller screens */
+  gap: 12px;
+  margin-bottom: 1rem;
 }
 
 .section-title {
-  font-size: 1.4rem;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   font-weight: 700;
   color: #1e293b;
 }
@@ -306,112 +259,140 @@ onUnmounted(() => {
   color: #64748b;
 }
 
-/* ===== Search ===== */
+/* ===== SEARCH ===== */
 .search-input {
-  padding: 8px 12px;
+  width: min(320px, 100%);
+  padding: 9px 12px;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
-  font-size: 0.85rem;
-  width: 250px;
-  margin-top: 10px;
+  outline: none;
 }
 
-/* ===== Card ===== */
+.search-input:focus {
+  border-color: #6366f1;
+}
+
+/* ===== TABLE CARD ===== */
 .table-card {
   background: white;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
-td {
-  text-align: center;
+/* IMPORTANT FIX: RESPONSIVE SCROLL */
+.table-scroll {
+  overflow-x: auto;
+  width: 100%;
 }
 
-/* ===== Table ===== */
+/* ===== TABLE ===== */
 .styled-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
-  font-size: 0.85rem;
 }
 
 .styled-table th {
-  padding: 1rem;
+  background: #f9fafb;
   font-size: 0.75rem;
   color: #64748b;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 12px;
   cursor: pointer;
+  user-select: none;
+}
+
+.styled-table th i {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  opacity: 0.6;
 }
 
 .styled-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #f8fafc;
+  padding: 12px;
+  font-size: 0.85rem;
+  text-align: center;
+  border-top: 1px solid #f1f5f9;
 }
 
 .styled-table tr:hover {
   background: #f9fafb;
 }
 
-/* ===== Cells ===== */
+/* ===== NAME / EMAIL ===== */
 .name {
-  font-weight: 500;
-  color: #1e293b;
+  font-weight: 600;
+  color: #111827;
 }
 
 .email {
-  color: #4c1d95;
+  color: #4f46e5;
 }
 
-/* ===== Buttons ===== */
+/* ===== BUTTONS ===== */
 .actions-col {
   display: flex;
-  gap: 8px;
   justify-content: center;
+  gap: 8px;
 }
 
 .btn {
-  padding: 6px 12px;
-  border-radius: 8px;
   border: none;
-  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
 }
 
-.btn.edit {
-  background: #f1f5f9;
-  color: #1e293b;
+.btn i {
+  font-size: 0.9rem;
 }
 
-.btn.edit:hover {
-  background: #4c1d95;
+/* EDIT */
+.edit {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.edit:hover {
+  background: #6366f1;
   color: white;
 }
 
-.btn.delete {
+/* DELETE */
+.delete {
   background: #fee2e2;
   color: #991b1b;
 }
 
-.btn.delete:hover {
+.delete:hover {
   background: #ef4444;
   color: white;
 }
 
-/* ===== States ===== */
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: #94a3b8;
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
 }
 
-/* ===== Loading ===== */
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+}
+
+/* ===== LOADING ===== */
 .loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem;
+  text-align: center;
+  padding: 2.5rem;
 }
 
 .spinner {
@@ -420,152 +401,32 @@ td {
   border: 3px solid #e0e7ff;
   border-top: 3px solid #6366f1;
   border-radius: 50%;
-  margin: 0 auto 10px;
+  margin: auto;
   animation: spin 1s linear infinite;
 }
 
+/* ===== EMPTY ===== */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+/* ===== ANIMATION ===== */
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* ===== Pagination ===== */
-.pagination {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  padding: 10px;
-  background-color: #f9fafb;
-}
-
-.pagination button {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  cursor: pointer;
-}
-
-.pagination button:disabled {
-  opacity: 0.5;
-}
-
-/* ===== Animation ===== */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* ===============================
-   MEDIA QUERIES
-================================= */
-
-/* Large desktops */
-@media (min-width: 1200px) {
-  .dashboard-wrapper {
-    padding: 3rem 4rem;
-  }
-
-  .section-title {
-    font-size: 1.6rem;
-  }
-
-  .styled-table th,
-  .styled-table td {
-    font-size: 12px;
-  }
-}
-
-/* Medium desktops / laptops */
-@media (max-width: 1199px) and (min-width: 1025px) {
-  .dashboard-wrapper {
-    padding: 2.5rem 3rem;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-  }
-}
-
-/* Tablets */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .dashboard-wrapper {
-    padding: 2rem;
-  }
-
-  .header-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+/* ===== MOBILE FIX ===== */
+@media (max-width: 768px) {
+  .styled-table {
+    min-width: 600px;
   }
 
   .search-input {
     width: 100%;
-  }
-
-  .styled-table th,
-  .styled-table td {
-    font-size: 0.8rem;
-    padding: 0.75rem;
-  }
-}
-
-/* Small tablets / large phones */
-@media (max-width: 768px) and (min-width: 481px) {
-  .dashboard-wrapper {
-    padding: 1.5rem;
-  }
-
-  .section-title {
-    font-size: 1.3rem;
-  }
-
-  .styled-table th,
-  .styled-table td {
-    font-size: 0.75rem;
-    padding: 0.5rem;
-  }
-
-  .search-input {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .dashboard-wrapper {
-    padding: 1rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-  }
-
-  .styled-table th,
-  .styled-table td {
-    font-size: 0.7rem;
-    padding: 0.5rem 0.25rem;
-  }
-
-  .search-input {
-    font-size: 0.75rem;
-    padding: 5px 8px;
-    width: 100%;
-  }
-
-  .actions-col {
-    flex-direction: column;
-    gap: 4px;
   }
 }
 </style>

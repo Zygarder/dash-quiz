@@ -48,17 +48,13 @@
                             required />
                     </div>
                 </div>
-
             </div>
-            <div>
-                <button type="button" @click="addQuestion" class="add-btn">
+
+            <div class="form-actions">
+                <button type="button" @click="addQuestion" class="btn-outline">
                     + Add Question
                 </button>
-            </div>
-
-            <div class="form-actions mt-4">
-
-                <button @click="updateQuiz" class="add-btn save-btn" :disabled="saving">
+                <button @click="updateQuiz" class="btn-primary" :disabled="saving">
                     {{ saving ? "Saving Changes..." : "Save Changes" }}
                 </button>
             </div>
@@ -162,6 +158,21 @@ const handleLogout = () => {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* ACTIONS */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column;
+    }
+}
+
 .form-group {
     margin-bottom: 15px;
     display: flex;
@@ -225,6 +236,27 @@ const handleLogout = () => {
     gap: 10px;
 }
 
+.btn-primary {
+    background: #6366f1;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #4f46e5;
+}
+
+.btn-outline {
+    border: 1px dashed #6366f1;
+    background: transparent;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 .option-item {
     display: flex;
     align-items: center;
@@ -276,9 +308,5 @@ const handleLogout = () => {
     padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
-}
-
-.mt-4 {
-    margin-top: 1.5rem;
 }
 </style>

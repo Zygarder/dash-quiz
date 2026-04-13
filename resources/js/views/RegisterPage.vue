@@ -13,7 +13,7 @@
                 <!-- Name row -->
                 <div class="grid-2">
                     <div class="field">
-                        <input v-model.trim="form.first_name" type="text" placeholder="First name" required
+                        <input v-model.trim="form.first_name" type="text" placeholder="First name"
                             :class="{ error: errors.first_name }" />
                         <small v-if="errors.first_name">{{ errors.first_name[0] }}</small>
                     </div>
@@ -27,22 +27,22 @@
 
                 <!-- Email -->
                 <div class="field">
-                    <input v-model.trim="form.email" type="email" placeholder="Email address" required
-                        :class="{ error: errors.email }" autocomplete="false"/>
+                    <input v-model.trim="form.email" type="email" placeholder="Email address"
+                        :class="{ error: errors.email }" autocomplete="false" />
                     <small v-if="errors.email">{{ errors.email[0] }}</small>
                 </div>
 
                 <!-- Password -->
                 <div class="field">
-                    <input v-model.trim="form.password" type="password" placeholder="Password" required
-                        :class="{ error: errors.password }" autocomplete="false"/>
+                    <input v-model.trim="form.password" type="password" placeholder="Password"
+                        :class="{ error: errors.password }" autocomplete="false" />
                     <small v-if="errors.password">{{ errors.password[0] }}</small>
                 </div>
 
                 <!-- Confirm -->
                 <div class="field">
                     <input v-model.trim="form.password_confirmation" type="password" placeholder="Confirm password"
-                        required autocomplete="false" />
+                        autocomplete="false" />
                 </div>
 
                 <div v-if="generalError" class="alert">
@@ -87,21 +87,100 @@ const errors = ref({})
 const generalError = ref('')
 const loading = ref(false)
 
+// VALIDATION 
+
+function isValidEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return regex.test(email)
+}
+
+function isStrongPassword(password) {
+    // at least 6 chars (you can improve later)
+    return password.length >= 6
+}
+
+function validateForm() {
+    errors.value = {}
+    generalError.value = ''
+
+    let valid = true
+
+    // FIRST NAME
+    if (!form.first_name.trim()) {
+        errors.value.first_name = ['First name is required']
+        valid = false
+    }
+
+    // LAST NAME
+    if (!form.last_name.trim()) {
+        errors.value.last_name = ['Last name is required']
+        valid = false
+    }
+
+    // EMAIL
+    if (!form.email.trim()) {
+        errors.value.email = ['Email is required']
+        valid = false
+    } else if (!isValidEmail(form.email)) {
+        errors.value.email = ['Invalid email format']
+        valid = false
+    }
+
+    // PASSWORD
+    if (!form.password) {
+        errors.value.password = ['Password is required']
+        valid = false
+    } else if (!isStrongPassword(form.password)) {
+        errors.value.password = ['Password must be at least 6 characters']
+        valid = false
+    }
+
+    // CONFIRM PASSWORD
+    if (form.password !== form.password_confirmation) {
+        errors.value.password_confirmation = ['Passwords do not match']
+        valid = false
+    }
+
+    return valid
+}
+
+// =========================
+// REGISTER HANDLER
+// =========================
+
 const handleRegister = async () => {
+    if (loading.value) return
+
     loading.value = true
     errors.value = {}
     generalError.value = ''
 
     try {
+        // FRONTEND VALIDATION
+        if (!validateForm()) {
+            loading.value = false
+            return
+        }
+
+        // CSRF (for Laravel Sanctum)
         await axios.get('/sanctum/csrf-cookie')
+
+        // REGISTER REQUEST
         await axios.post('/api/register', form)
+
+        // SUCCESS
         router.push('/')
+
     } catch (err) {
+
+        // BACKEND VALIDATION ERRORS
         if (err.response?.data?.errors) {
             errors.value = err.response.data.errors
         } else {
-            generalError.value = err.response?.data?.message || 'Something went wrong.'
+            generalError.value =
+                err.response?.data?.message || 'Registration failed.'
         }
+
     } finally {
         loading.value = false
     }

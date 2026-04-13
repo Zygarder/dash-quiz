@@ -91,9 +91,9 @@ watch(isSidebarOpen, (val) => {
 
 <style scoped>
 /* ROOT RESET */
-:deep(*),
-:deep(*::before),
-:deep(*::after) {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 

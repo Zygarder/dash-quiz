@@ -13,6 +13,7 @@ import UserLayout from './views/UserPages/UserLayout.vue'
 import LoginPage from './views/LoginPage.vue'
 import RegisterPage from './views/RegisterPage.vue'
 import ForgotPage from './views/ForgotPage.vue'
+import ResetPage from './views/ResetPage.vue'
 
 // Admin Pages
 import AdminDashboard from './views/AdminPages/AdminDashboard.vue'
@@ -22,6 +23,7 @@ import QuizAdd from './views/AdminPages/QuizAdd.vue'
 import QuizEdit from './views/AdminPages/QuizEdit.vue'
 import ManageQuestions from './views/AdminPages/ManageQuiz.vue'
 import AdminLayout from './views/AdminPages/AdminLayout.vue'
+
 
 const routes = [
     {
@@ -35,6 +37,10 @@ const routes = [
     {
         path: "/forgot",
         component: ForgotPage
+    },
+    {
+        path: "/reset",
+        component: ResetPage
     },
     {
         path: "/user",

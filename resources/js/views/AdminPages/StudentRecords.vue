@@ -5,11 +5,19 @@
       <!-- Header -->
       <div class="header-row">
         <div>
-          <h3 class="section-title">Dasher Records</h3>
-          <p class="section-subtitle">Viewing all completed quiz attempts</p>
+          <h3 class="section-title">
+            <i class="fas fa-clipboard-list"></i>
+            Dasher Records
+          </h3>
+          <p class="section-subtitle">
+            Viewing all completed quiz attempts
+          </p>
         </div>
 
-        <input type="text" v-model="searchQuery" placeholder="Search..." class="search-input" />
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" v-model="searchQuery" placeholder="Search..." class="search-input" />
+        </div>
       </div>
 
       <!-- Loading -->
@@ -25,50 +33,68 @@
 
         <!-- Table Header -->
         <div class="table-header">
-          <span @click="sortBy('user_name')">Dasher</span>
-          <span @click="sortBy('quiz_title')">Quiz</span>
-          <span class="text-center" @click="sortBy('score')">Score</span>
-          <span @click="sortBy('created_at')">Date</span>
+          <span @click="sortBy('user_name')">
+            <i class="fas fa-user"></i> Dasher
+          </span>
+
+          <span @click="sortBy('quiz_title')">
+            <i class="fas fa-book"></i> Quiz
+          </span>
+
+          <span class="text-center" @click="sortBy('score')">
+            <i class="fas fa-star"></i> Score
+          </span>
+
+          <span @click="sortBy('created_at')">
+            <i class="fas fa-calendar"></i> Date
+          </span>
         </div>
 
         <!-- Rows -->
         <div v-if="paginatedRecords.length">
           <div v-for="rec in paginatedRecords" :key="rec.id" class="table-row">
+
             <span class="user">
+              <i class="fas fa-user-circle"></i>
               {{ rec.user ? rec.user.first_name + ' ' + rec.user.last_name : 'User #' + rec.user_id }}
             </span>
 
             <span class="quiz">
+              <i class="fas fa-book-open"></i>
               {{ rec.quiz ? rec.quiz.title : 'Deleted Quiz' }}
             </span>
 
             <span class="text-center">
               <span class="score-badge" :class="getScoreClass(rec)">
+                <i class="fas fa-chart-line"></i>
                 {{ rec.score }} / {{ rec.total_questions || 10 }}
               </span>
             </span>
 
             <span class="date">
+              <i class="fas fa-clock"></i>
               {{ formatDate(rec.created_at) }}
             </span>
+
           </div>
         </div>
 
         <!-- Empty -->
         <div v-else class="empty-state">
+          <i class="fas fa-inbox"></i>
           <p>No records found.</p>
         </div>
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="pagination">
           <button :disabled="currentPage === 1" @click="currentPage--">
-            Prev
+            <i class="fas fa-chevron-left"></i> Prev
           </button>
 
           <span>Page {{ currentPage }} / {{ totalPages }}</span>
 
           <button :disabled="currentPage === totalPages" @click="currentPage++">
-            Next
+            Next <i class="fas fa-chevron-right"></i>
           </button>
         </div>
 
@@ -84,23 +110,19 @@ import axios from 'axios'
 const records = ref([])
 let loading = ref(false)
 
-// Pagination & Sorting
 const currentPage = ref(1)
 const perPage = 10
 const sortKey = ref('id')
 const sortOrder = ref('asc')
-// Search
 const searchQuery = ref('')
 
-// Fetch records
-const fetchRecords = async (reply = 0) => {
+const fetchRecords = async () => {
   if (loading.value) return
 
   try {
-    loading.value = true;
+    loading.value = true
     const { data } = await axios.get('/api/admin/records')
     records.value = data.data
-    console.log(records.value)
   } catch (error) {
     console.log(error)
   } finally {
@@ -108,7 +130,6 @@ const fetchRecords = async (reply = 0) => {
   }
 }
 
-// Format date
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
@@ -117,7 +138,6 @@ const formatDate = (dateString) => {
   }).replace(/ /g, '/')
 }
 
-// Score Badge Classes
 const getScoreClass = (rec) => {
   if (!rec.total_questions) return 'neutral'
   const percent = (rec.score / rec.total_questions) * 100
@@ -126,7 +146,6 @@ const getScoreClass = (rec) => {
   return 'score-low'
 }
 
-// Computed: add virtual fields for sorting
 const mappedRecords = computed(() =>
   records.value.map(r => ({
     ...r,
@@ -135,51 +154,53 @@ const mappedRecords = computed(() =>
   }))
 )
 
-// Filtered + sorted
 const filteredRecords = computed(() => {
-  let filtered = mappedRecords.value.filter(
-    r =>
-      r.user_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      r.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase())
+  let filtered = mappedRecords.value.filter(r =>
+    r.user_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    r.quiz_title.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 
   filtered.sort((a, b) => {
-    let valA = a[sortKey.value] || ''
-    let valB = b[sortKey.value] || ''
+    let A = a[sortKey.value] || ''
+    let B = b[sortKey.value] || ''
 
     if (sortKey.value === 'created_at') {
-      valA = new Date(valA)
-      valB = new Date(valB)
-    }
-    if (sortKey.value === 'score') {
-      valA = valA || 0
-      valB = valB || 0
+      A = new Date(A)
+      B = new Date(B)
     }
 
-    if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1
-    if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1
-    return 0
+    if (sortKey.value === 'score') {
+      A = A || 0
+      B = B || 0
+    }
+
+    return sortOrder.value === 'asc'
+      ? A > B ? 1 : -1
+      : A < B ? 1 : -1
   })
 
   return filtered
 })
 
-// Pagination
-const totalPages = computed(() => Math.ceil(filteredRecords.value.length / perPage))
+const totalPages = computed(() =>
+  Math.ceil(filteredRecords.value.length / perPage)
+)
+
 const paginatedRecords = computed(() => {
   const start = (currentPage.value - 1) * perPage
   return filteredRecords.value.slice(start, start + perPage)
 })
 
-// Keep page in bounds
 watch([filteredRecords, currentPage], () => {
-  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value || 1
+  if (currentPage.value > totalPages.value) {
+    currentPage.value = totalPages.value || 1
+  }
 })
 
-// Sorting
 const sortBy = (key) => {
-  if (sortKey.value === key) sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
-  else {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
     sortKey.value = key
     sortOrder.value = 'asc'
   }
@@ -191,7 +212,7 @@ onMounted(fetchRecords)
 <style scoped>
 /* WRAPPER */
 .page-wrapper {
-  padding: 1.75rem;
+  padding: clamp(1rem, 2vw, 1.75rem);
   background: #f8fafc;
   min-height: 100vh;
   display: flex;
@@ -207,15 +228,18 @@ onMounted(fetchRecords)
 .header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
   gap: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .section-title {
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
   font-weight: 600;
   color: #1e1b4b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-subtitle {
@@ -224,25 +248,27 @@ onMounted(fetchRecords)
 }
 
 /* SEARCH */
-.search-input {
-  padding: 8px 12px;
-  border-radius: 8px;
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
-  font-size: 0.85rem;
-  min-width: 180px;
 }
 
-.search-input:focus {
+.search-input {
+  border: none;
   outline: none;
-  border-color: #6366f1;
+  font-size: 0.85rem;
 }
 
-/* TABLE CARD */
+/* CARD */
 .table-card {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
@@ -258,77 +284,57 @@ onMounted(fetchRecords)
 }
 
 .table-header span {
-  text-align: center;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ROW */
 .table-row {
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 120px 160px;
-  padding: 14px 16px;
-  text-align: center;
-  border-top: 1px solid #f1f5f9;
+  padding: 12px 16px;
   align-items: center;
-  transition: background 0.2s;
+  border-top: 1px solid #f1f5f9;
+  transition: 0.2s;
 }
 
 .table-row:hover {
   background: #f9fafb;
 }
 
-/* TEXT */
-.user {
-  font-weight: 500;
-  color: #111827;
-  font-size: 12px;
+/* CELLS */
+.user, .quiz, .date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
 }
 
-.quiz {
-  color: #4f46e5;
-}
+.quiz { color: #4f46e5; }
+.date { color: #6b7280; }
 
-.date {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-.text-center {
-  text-align: center;
-}
-
-/* SCORE BADGE */
+/* SCORE */
 .score-badge {
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
 }
 
-.score-high {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.score-mid {
-  background: #fef9c3;
-  color: #854d0e;
-}
-
-.score-low {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.neutral {
-  background: #f1f5f9;
-  color: #475569;
-}
+.score-high { background: #dcfce7; color: #166534; }
+.score-mid { background: #fef9c3; color: #854d0e; }
+.score-low { background: #fee2e2; color: #991b1b; }
+.neutral { background: #f1f5f9; }
 
 /* EMPTY */
 .empty-state {
-  padding: 3rem;
   text-align: center;
-  color: #9ca3af;
+  padding: 2rem;
+  color: #94a3b8;
 }
 
 /* LOADING */
@@ -343,41 +349,38 @@ onMounted(fetchRecords)
   border: 3px solid #e0e7ff;
   border-top: 3px solid #6366f1;
   border-radius: 50%;
-  margin: 0 auto 10px;
+  margin: auto;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* PAGINATION */
 .pagination {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 14px;
+  flex-wrap: wrap;
 }
 
 .pagination button {
   padding: 6px 12px;
-  border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: white;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
 }
 
-.pagination button:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-}
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .table-header { display: none; }
 
-.pagination button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 </style>

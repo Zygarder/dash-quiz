@@ -29,17 +29,17 @@
           <div class="stats-summary">
             <div class="stat-box">
               <span>Average</span>
-              <b>{{ averageScore }}%</b>
+              {{ averageScore }}%
             </div>
 
             <div class="stat-box">
               <span>Quizzes</span>
-              <b>{{ records.length }}</b>
+              {{ records.length }}
             </div>
 
             <div class="stat-box">
               <span>Best</span>
-              <b>{{ maxScore }}/10</b>
+              {{ maxScore }} / 10
             </div>
           </div>
 
@@ -61,9 +61,9 @@
           <table class="records-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Quiz</th>
-                <th>Score</th>
+                <th>Dates</th>
+                <th>Quizzes Titles</th>
+                <th>Scores</th>
               </tr>
             </thead>
 
@@ -73,7 +73,7 @@
                 <td>{{ record.quiz_title || 'Untitled' }}</td>
                 <td>
                   <span :class="['badge', record.score >= 7 ? 'pass' : 'fail']">
-                    {{ record.score }}/10
+                    {{ record.score }} / 10
                   </span>
                 </td>
               </tr>
@@ -187,15 +187,24 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+* {
+  box-sizing: border-box;
+}
 .records-page {
   width: 100%;
 }
 
 .records-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
   background: #fff;
-  border-radius: 14px;
-  padding: clamp(1rem, 3vw, 1.8rem);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 /* HEADER */
@@ -237,41 +246,53 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-top: 20px;
+  margin: 20px 0;
 }
 
 /* CHART */
 .chart-container {
-  height: 200px;
+  height: 230px;
+
+}
+
+.chart-container canvas {
+  width: 100px;
 }
 
 /* STATS */
 .stats-summary {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  box-shadow: #23204a 0px 2px 2px 1px;
+  justify-content: space-evenly;
+  background-color: #3c3d91;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .stat-box {
   background: #f9fafb;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 5px;
   display: flex;
   justify-content: space-between;
 }
 
+.stat-box span {
+  font-weight: bold;
+}
+
 /* SEARCH */
 .filter-bar {
-  margin-top: 20px;
+  width: 100%;
   position: relative;
-  max-width: 280px;
+  display: flex;
+  margin-left: 10px;
 }
 
 .filter-bar input {
-  width: 100%;
+  max-width: 100%;
   padding: 8px 10px 8px 30px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
 }
 
 .filter-bar i {
@@ -285,20 +306,29 @@ onMounted(async () => {
 .table-wrapper {
   overflow-x: auto;
   margin-top: 20px;
+  padding: 10px;
 }
 
 .records-table {
   width: 100%;
-  border-collapse: collapse;
+  background-color: #1e1b4b;
 }
 
-.records-table th,
-.records-table td {
+
+.records-table tr {
+  padding: 10px;
+  text-align: center;
+  background: white;
+}
+
+.records-table td,
+.records-table th {
   padding: 10px;
 }
 
-.records-table tbody tr:hover {
-  background: #f9fafb;
+.records-table th {
+  color: #fff;
+  background-color: #3c3d91;
 }
 
 /* BADGE */
@@ -324,6 +354,10 @@ onMounted(async () => {
   padding: 30px;
   color: #9ca3af;
 }
+
+@media (max-width: 320px) {}
+
+@media (max-width: 425px) {}
 
 /* MOBILE */
 @media (max-width: 768px) {

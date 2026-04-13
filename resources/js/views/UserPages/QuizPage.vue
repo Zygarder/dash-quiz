@@ -295,21 +295,29 @@ onMounted(async () => {
     }
 }
 
-/* 📱 MOBILE */
-@media (max-width: 500px) {
+@media (max-width: 320px) {
+    .sidebar-shifted {
+        padding: 0;
+        padding-top: 10px;
+    }
+
     .header-content {
-        flex-direction: column;
-        align-items: flex-start;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .header-content h2 {
+        font-size: 16px;
+    }
+
+    .header-content p {
+        font-size: 10px;
     }
 
     .icon-box {
         width: 45px;
         height: 45px;
         font-size: 1.1rem;
-    }
-
-    .arrow-indicator {
-        display: none;
     }
 }
 </style>
