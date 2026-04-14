@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable; // important
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -30,6 +31,15 @@ class Dasher extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            return "http://127.0.0.1:8000/reset?token={$token}&email={$user->email}";
+        });
+    }
 
     public function get_profile()
     {

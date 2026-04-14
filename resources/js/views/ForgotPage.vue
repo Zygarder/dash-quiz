@@ -1,13 +1,14 @@
 <template>
   <main class="wrapper">
     <div class="card">
+
       <div class="header">
         <div class="logo">DQ</div>
         <h2>Forgot Password</h2>
         <p>Enter your email and we’ll send you a reset link.</p>
       </div>
 
-      <form @submit.prevent="handleReset" class="form">
+      <form @submit.prevent="sendResetLink" class="form">
         <div class="field">
           <input
             type="email"
@@ -26,6 +27,7 @@
         <span>Remembered your password?</span>
         <router-link to="/">Back to login</router-link>
       </div>
+
     </div>
   </main>
 </template>
@@ -37,12 +39,21 @@ import axios from 'axios'
 const email = ref('')
 const loading = ref(false)
 
-const handleReset = async () => {
+const sendResetLink = async () => {
   loading.value = true
+
   try {
-    await axios.post('/api/forgot-password', { email: email.value })
-  } catch (e) {
-    console.log(e)
+    await axios.post('/api/forgot-password', {
+      email: email.value
+    })
+
+    alert('Reset link sent! Please check your email.')
+
+    // clear input after success
+    email.value = ''
+  } catch (error) {
+    console.log(error)
+    alert('Failed to send reset link. Please try again.')
   } finally {
     loading.value = false
   }
@@ -50,7 +61,9 @@ const handleReset = async () => {
 </script>
 
 <style scoped>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .wrapper {
   min-height: 100vh;
@@ -68,7 +81,7 @@ const handleReset = async () => {
   border-radius: 16px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -120,7 +133,7 @@ const handleReset = async () => {
 .field input:focus {
   outline: none;
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .btn {

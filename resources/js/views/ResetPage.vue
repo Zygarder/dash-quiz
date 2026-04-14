@@ -9,31 +9,15 @@
 
       <form @submit.prevent="handleReset" class="form">
         <div class="field">
-          <input
-            type="email"
-            v-model="email"
-            placeholder="Email address"
-            required
-            readonly
-          />
+          <input type="email" v-model="email" placeholder="Email address" required readonly />
         </div>
 
         <div class="field">
-          <input
-            type="password"
-            v-model="password"
-            placeholder="New password"
-            required
-          />
+          <input type="password" v-model="password" placeholder="New password" required />
         </div>
 
         <div class="field">
-          <input
-            type="password"
-            v-model="password_confirmation"
-            placeholder="Confirm password"
-            required
-          />
+          <input type="password" v-model="password_confirmation" placeholder="Confirm password" required />
         </div>
 
         <button class="btn" :disabled="loading">
@@ -92,7 +76,9 @@ const handleReset = async () => {
 </script>
 
 <style scoped>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .wrapper {
   min-height: 100vh;
@@ -110,7 +96,7 @@ const handleReset = async () => {
   border-radius: 16px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -162,7 +148,7 @@ const handleReset = async () => {
 .field input:focus {
   outline: none;
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .btn {

@@ -5,12 +5,16 @@ use App\Http\Controllers\Api\QuizApiController;
 use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ProfileApiController;
+use App\Http\Controllers\Api\PasswordResetController;
 
 /*
 | Public Routes
 */
 Route::post('/login', [AdminApiController::class, 'login']);
 Route::post('/register', [AdminApiController::class, 'register']);
+
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
 /*
 | Authenticated Routes (Dashers/Users)
