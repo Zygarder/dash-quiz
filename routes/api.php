@@ -6,10 +6,15 @@ use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ProfileApiController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\ChatbotController;
 
 /*
 | Public Routes
 */
+
+// chat bot test
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
+
 Route::post('/login', [AdminApiController::class, 'login']);
 Route::post('/register', [AdminApiController::class, 'register']);
 

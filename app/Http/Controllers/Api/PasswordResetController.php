@@ -2,10 +2,8 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Auth\Events\PasswordReset;
 
 class PasswordResetController
 {
@@ -37,7 +35,7 @@ class PasswordResetController
         $status = Password::broker('dashers')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
-                $user->password = bcrypt($password);
+                $user->password = Hash::make($password);
                 $user->save();
             }
         );

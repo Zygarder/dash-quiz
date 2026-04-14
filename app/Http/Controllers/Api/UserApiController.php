@@ -2,10 +2,7 @@
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
-use Illuminate\Http\Request;
 use App\Models\QuizRecord;
-use App\Models\Dasher;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 class UserApiController extends Controller
 {
@@ -21,15 +18,10 @@ class UserApiController extends Controller
             ->get()
             ->map(function ($record) {
                 return [
-                    // Combine first and last name for easier display
                     'name' => "{$record->user->first_name} {$record->user->last_name}",
-                    // If user has no photo, return default image
                     'profile_photo' => $record->user->profile_photo,
-                    // Score achieved in the quiz
                     'score' => $record->score,
-                    // Title of the quiz the score belongs to
                     'quiz_title' => $record->quiz->title,
-                    // User ID can be used by frontend for profile links
                     'user_id' => $record->user_id
                 ];
             });

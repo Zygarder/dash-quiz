@@ -14,13 +14,14 @@ class DasherFactory extends Factory
     {
         $firstName = fake()->firstName();
         $lastName = fake()->unique()->lastName();
+        $email = fake()->unique()->email();
 
         return [
             'first_name' => $firstName,
             'last_name' => $lastName,
             'active_status' => 0,
             'role' => 'dasher',
-            'email' => $lastName . '@dashquiz.com',
+            'email' => $email,
             'profile_photo' => null,
             'password' => Hash::make($lastName),
         ];

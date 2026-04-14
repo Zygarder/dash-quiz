@@ -140,7 +140,6 @@ class AdminApiController extends Controller
             'last_name' => $valid['last_name'],
             'email' => $valid['email'],
             'password' => Hash::make($valid['password']),
-            'role' => 'dasher'
         ]);
         return response()->json([
             'status' => 'success',
@@ -395,7 +394,7 @@ class AdminApiController extends Controller
             }
             // <-- LOG ACTIVITY HERE (Update)
             $this->logActivity('Edit', "Quiz Title '{$request->title}' was updated");
-
+            
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Quiz updated successfully!'], 200);
         } catch (\Exception $e) {
@@ -458,7 +457,7 @@ class AdminApiController extends Controller
             'new_password' => ['nullable', 'min:6', 'confirmed'],
         ]);
 
-        // ✅ Only run if user wants to change password
+        // Only run if user wants to change password
         if ($request->filled('new_password')) {
 
             // Check current password
@@ -467,7 +466,6 @@ class AdminApiController extends Controller
                     'message' => 'Current password is incorrect'
                 ], 422);
             }
-
             $user->password = Hash::make($request->new_password);
         }
         $user->first_name = $validated['first_name'];
@@ -485,7 +483,6 @@ class AdminApiController extends Controller
     public function deleteUser($id)
     {
         $user = Dasher::findOrFail($id);
-
         if (!$user) {
             return response()->json([
                 'status' => 'error',

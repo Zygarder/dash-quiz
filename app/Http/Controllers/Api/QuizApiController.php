@@ -43,12 +43,10 @@ class QuizApiController extends Controller
 
                     // Shuffle options so the correct answer is not always in the same position
                     $options = $q->options->shuffle();
-
                     return [
                         'id' => $q->id,
-                        'text' => $q->question_text,
+                        'text' => $q->question_text,    
                         'question_number' => $index + 1, // used for displaying question order
-
                         // Send options to frontend
                         'options' => $options->values()->map(function ($opt, $optIndex) use ($optionLabels) {
                             return [

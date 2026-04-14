@@ -93,6 +93,29 @@ const maxAttempts = 3
 const attempts = ref(0)
 const isLocked = ref(false)
 
+const chat = async () => {
+  const new_chat = "ok now, tell me who do they prepare the quiz"
+
+  try {
+    const res = await axios.post('/api/chatbot', {
+      message: new_chat
+    })
+
+    console.log("RAW RESPONSE:", res.data)
+
+    const reply =
+      res.data?.candidates?.[0]?.content?.parts?.[0]?.text
+      ?? "No response from AI"
+
+    console.log("AI REPLY:", reply)
+
+  } catch (err) {
+    console.error(err.response?.data || err.message)
+  }
+}
+
+chat()
+
 //validates email
 function isValidEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
