@@ -23,7 +23,7 @@ import QuizAdd from './views/AdminPages/QuizAdd.vue'
 import QuizEdit from './views/AdminPages/QuizEdit.vue'
 import ManageQuestions from './views/AdminPages/ManageQuiz.vue'
 import AdminLayout from './views/AdminPages/AdminLayout.vue'
-import AiChat from './views/AiChat.vue'
+import Dash from './views/UserPages/DashAI.vue'
 
 const routes = [
     {
@@ -42,10 +42,7 @@ const routes = [
         path: "/reset",
         component: ResetPage
     },
-    {
-        path: "/quizbuddy",
-        component: AiChat
-    },
+
     {
         path: "/user",
         component: UserLayout,
@@ -67,6 +64,11 @@ const routes = [
             {
                 path: 'profile',
                 component: Profile,
+                meta: { requiresAuth: true, requiresStudent: true }
+            },
+            {
+                path: "dash",
+                component: Dash,
                 meta: { requiresAuth: true, requiresStudent: true }
             },
 

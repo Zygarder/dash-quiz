@@ -32,6 +32,11 @@
         <span class="nav-text">Records</span>
       </router-link>
 
+      <router-link to="/user/dash" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
+        <span class="nav-icon"><i class="fa-solid fa-robot"></i></span>
+        <span class="nav-text">Dash AI Assistant</span>
+      </router-link>
+
       <router-link to="/user/profile" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-user"></i></span>
         <span class="nav-text">Profile</span>

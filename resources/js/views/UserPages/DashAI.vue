@@ -1,9 +1,10 @@
 <template>
-    <main class="chat-wrapper">
+    <div class="chat-wrapper">
 
         <!-- HEADER -->
         <header class="chat-header">
-            🤖 Dash Quiz AI Buddy
+            <i class="fas fa-robot"></i>
+            <span>Dash AI</span>
         </header>
 
         <!-- CHAT BOX -->
@@ -15,25 +16,26 @@
                 </div>
             </div>
 
-            <!-- typing indicator -->
+            <!-- typing -->
             <div v-if="loading" class="msg ai">
-                <div class="bubble">Typing...</div>
+                <div class="bubble typing">
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
             </div>
 
         </section>
 
         <!-- INPUT -->
         <footer class="chat-input">
-
             <input v-model="input" type="text" placeholder="Ask about Dash Quiz..." @keyup.enter="sendMessage" />
 
             <button @click="sendMessage" :disabled="loading">
-                {{ loading ? "..." : "Send" }}
+                <i v-if="!loading" class="fas fa-paper-plane"></i>
+                <i v-else class="fas fa-spinner fa-spin"></i>
             </button>
-
         </footer>
 
-    </main>
+    </div>
 </template>
 
 <script setup>
@@ -47,7 +49,7 @@ const chatBox = ref(null)
 const messages = ref([
     {
         role: 'ai',
-        text: 'Hello 👋 I am your Dash Quiz AI Buddy. Ask me anything about the system.'
+        text: "Hi there 👋 I'm Dash AI, your quiz buddy. I'm here to help you with Dash Quiz, your scores, and your progress."
     }
 ])
 
@@ -84,7 +86,7 @@ const sendMessage = async () => {
         // SAFE extraction (VERY IMPORTANT)
         const reply =
             res.data?.candidates?.[0]?.content?.parts?.[0]?.text
-            ?? "No response from AI"
+            ?? "No response from Dash"
 
         messages.value.push({
             role: 'ai',
@@ -106,22 +108,30 @@ const sendMessage = async () => {
 
 <style scoped>
 .chat-wrapper {
-    height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #f9fafb;
+    height: 100%;
+    max-height: 100%;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
 }
 
 /* HEADER */
 .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
     background: #4f46e5;
     color: white;
-    padding: 14px;
     font-weight: 600;
-    text-align: center;
+    font-size: 14px;
 }
 
-/* CHAT BOX */
+/* CHAT AREA */
 .chat-box {
     flex: 1;
     padding: 15px;
@@ -129,9 +139,10 @@ const sendMessage = async () => {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    background: #f9fafb;
 }
 
-/* MESSAGE ROW */
+/* MESSAGE */
 .msg {
     display: flex;
 }
@@ -146,52 +157,74 @@ const sendMessage = async () => {
 
 /* BUBBLE */
 .bubble {
-    max-width: 70%;
+    max-width: 75%;
     padding: 10px 14px;
     border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.5;
     word-wrap: break-word;
 }
 
-/* USER STYLE */
+/* USER */
 .msg.user .bubble {
     background: #4f46e5;
     color: white;
     border-bottom-right-radius: 4px;
 }
 
-/* AI STYLE */
+/* AI */
 .msg.ai .bubble {
     background: #e5e7eb;
     color: #111827;
     border-bottom-left-radius: 4px;
 }
 
-/* INPUT AREA */
+/* typing */
+.typing {
+    opacity: 0.7;
+    font-size: 12px;
+}
+
+/* INPUT */
 .chat-input {
     display: flex;
+    gap: 8px;
     padding: 10px;
-    gap: 10px;
-    border-top: 1px solid #ddd;
-    background: white;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
 }
 
 .chat-input input {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
     outline: none;
+    transition: 0.2s;
 }
 
+.chat-input input:focus {
+    border-color: #4f46e5;
+}
+
+/* BUTTON */
 .chat-input button {
-    padding: 10px 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: none;
     background: #4f46e5;
     color: white;
-    border: none;
-    border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-input button:hover {
+    background: #6366f1;
 }
 
 .chat-input button:disabled {
