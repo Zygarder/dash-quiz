@@ -30,10 +30,10 @@ class ChatbotController extends Controller
             'message' => 'required|string|max:1000'
         ]);
 
-        $apiKey = 'AIzaSyC3idYzd06V-eKCbkvVVgMfK48nrjFZpbU';
+        $apiKey = 'AIzaSyDmdj4WoNJ_tFPoAsyJ4L_oNxc9XBBpu6k';
 
         $response = Http::post(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey,
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $apiKey,
             [
                 'system_instruction' => [
                     'parts' => [

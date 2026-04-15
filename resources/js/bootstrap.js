@@ -2,7 +2,7 @@ import axios from "axios"
 import router from "./router"
 
 // Global defaults
-axios.defaults.baseURL = "http://127.0.0.1:8000"
+axios.defaults.baseURL = window.location.origin
 axios.defaults.withCredentials = true   
 axios.defaults.withXSRFToken = true
 
