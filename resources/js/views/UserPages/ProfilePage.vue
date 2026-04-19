@@ -152,42 +152,46 @@ const onFileChange = async (e) => {
   const file = e.target.files[0]
   if (!file) return
 
-  // 1. Basic Client-side Validation
   if (!file.type.startsWith('image/')) {
     showToast("Please select a valid image file.", "error")
     return
   }
 
-  // 2. Set Local Preview immediately for better UX
   selectedFile.value = file
   preview.value = URL.createObjectURL(file)
-
   loading.value = true
 
   try {
     const formData = new FormData()
     formData.append("photo", file)
 
-    // Ensure CSRF is handled for the POST request
     await axios.get("/sanctum/csrf-cookie")
 
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
 
-    // 3. Update the user object with the new URL from the server
+    // ✅ FIXED ALIGNMENT
     if (data.photo_url && user.value) {
-      user.value.profile_photo = data.new_photo
-      showToast("Profile picture updated!", "success")
+      user.value.profile_photo = data.photo_url
     }
+
+    // ✅ CLEAR PREVIEW (important)
+    preview.value = null
+
+    // ✅ REFRESH USER (important)
+    await fetchUser(true)
+
+    showToast("Profile picture updated!", "success")
 
   } catch (error) {
     console.error("Upload Error:", error)
-    // Clear preview on failure so it doesn't look like it worked
+
     preview.value = null
 
     const errorMsg = error.response?.data?.message || "Failed to upload photo."
     showToast(errorMsg, "error")
+
   } finally {
     loading.value = false
   }

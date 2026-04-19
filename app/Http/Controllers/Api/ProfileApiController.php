@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use App\Models\QuizRecord;
 use App\Models\Dasher;
 use Illuminate\Http\Request;
@@ -85,32 +86,47 @@ class ProfileApiController extends Controller
     // Upload or update the user's profile photo
     public function uploadPhoto(Request $request)
     {
-        // Validate uploaded file
-        // Only allow image formats and limit file size
+        // 1. Validate file
         $request->validate([
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Get the logged-in user
+        // 2. Get authenticated user (dasher guard)
         $user = Auth::guard('dasher')->user();
 
-        // Generate a unique filename to prevent conflicts
-        $filename = uniqid() . '.' . $request->photo->extension();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated user.'
+            ], 401);
+        }
 
-        // Store image inside the public storage directory
-        // This allows the image to be accessible via URL
-        $request->photo->storeAs('public/images/profiles', $filename);
+        // 3. Generate safe unique filename
+        $filename = Str::uuid() . '.' . $request->photo->getClientOriginalExtension();
 
-        // Save the filename to the user's profile
+        // 4. Store file in correct public disk location
+        $path = $request->photo->storeAs(
+            'images/profiles',
+            $filename,
+            'public'
+        );
+
+        // 5. Delete old photo (optional but recommended)
+        if ($user->profile_photo) {
+            \Storage::disk('public')->delete('images/profiles/' . $user->profile_photo);
+        }
+
+        // 6. Save only filename in DB
         $user->profile_photo = $filename;
         $user->save();
 
+        // 7. Return correct public URL
         return response()->json([
             'status' => 'success',
             'message' => 'Profile photo updated successfully',
 
-            // Return the image URL for immediate frontend display
-            'photo_url' => asset('storage/public/images/profiles/' . $filename),
+            // Correct Laravel public URL
+            'photo_url' => asset('storage/' . $path),
 
             'new_photo' => $filename
         ]);
