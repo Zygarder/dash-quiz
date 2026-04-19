@@ -27,7 +27,6 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 Route::middleware(['auth:sanctum', 'active_user'])->group(function () {
 
     Route::get('/me', [UserApiController::class, 'profile']);
-    Route::post('/chatbot', [ChatbotController::class, 'chat']);
     // offline / online checker
     Route::post('/heartbeat', [AdminApiController::class, 'heartbeat']);
 

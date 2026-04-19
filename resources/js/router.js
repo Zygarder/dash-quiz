@@ -23,7 +23,6 @@ import QuizAdd from './views/AdminPages/QuizAdd.vue'
 import QuizEdit from './views/AdminPages/QuizEdit.vue'
 import ManageQuestions from './views/AdminPages/ManageQuiz.vue'
 import AdminLayout from './views/AdminPages/AdminLayout.vue'
-import Dash from './views/UserPages/DashAI.vue'
 
 const routes = [
     {
@@ -66,12 +65,6 @@ const routes = [
                 component: Profile,
                 meta: { requiresAuth: true, requiresStudent: true }
             },
-            {
-                path: "dash",
-                component: Dash,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-
         ]
     }, {
         path: '/quiz-result',
