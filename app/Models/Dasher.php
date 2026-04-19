@@ -50,6 +50,6 @@ class Dasher extends Authenticatable
 
     public function quizRecords()
     {
-        return $this->hasMany(QuizRecord::class, 'id');
+        return $this->hasMany(QuizRecord::class, 'user_id');
     }
 }
