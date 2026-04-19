@@ -1,142 +1,125 @@
 <template>
   <div class="dashboard-wrapper">
 
-    <!-- Notification -->
+    <!-- NOTIFICATION -->
     <div v-if="notification" class="notification">
-      <i class="fas fa-bell icon-notif"></i> {{ notification }}
+      <i class="fas fa-bell"></i> {{ notification }}
     </div>
 
     <div v-if="stats">
 
       <!-- STATS -->
-      <section class="admin-stats">
-        <div class="admin-card">
-          <i class="fas fa-users icon-users"></i>
-          <h4>Total Users</h4>
-          <p>{{ stats.total_users }}</p>
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-users">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Total Users</span>
+            <span class="stat-value">{{ stats.total_users }}</span>
+          </div>
         </div>
 
-        <div class="admin-card">
-          <i class="fas fa-file-alt icon-quizzes"></i>
-          <h4>Total Quizzes</h4>
-          <p>{{ stats.total_quizzes }}</p>
+        <div class="stat-card">
+          <div class="stat-icon icon-quizzes">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Total Quizzes</span>
+            <span class="stat-value">{{ stats.total_quizzes }}</span>
+          </div>
         </div>
 
-        <div class="admin-card">
-          <i class="fas fa-user-check icon-active"></i>
-          <h4>Active Users</h4>
-          <p>{{ stats.active_users }}</p>
+        <div class="stat-card">
+          <div class="stat-icon icon-active">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Active Users</span>
+            <span class="stat-value">{{ stats.active_users }}</span>
+          </div>
         </div>
       </section>
 
-      <!-- GRID -->
-      <div class="chart-leaderboard-grid">
+      <!-- CHART + LEADERBOARD -->
+      <div class="main-grid">
 
         <!-- CHART -->
-        <section class="chart-section">
-          <h3 class="section-title">
-            <i class="fas fa-chart-bar icon-chart"></i> System Analytics
-          </h3>
-
+        <section class="card chart-section">
+          <div class="card-header">
+            <span class="card-title">
+              <i class="fas fa-chart-bar"></i> System Analytics
+            </span>
+          </div>
           <div class="chart-wrapper">
             <canvas ref="chartCanvas"></canvas>
           </div>
         </section>
 
         <!-- LEADERBOARD -->
-        <section class="leaderboard">
-          <h3 class="section-title">
-            <i class="fas fa-trophy"></i> Top 10 Dashers
-          </h3>
+        <section class="card leaderboard-section">
+          <div class="card-header">
+            <span class="card-title">
+              <i class="fas fa-trophy"></i> Top 10 Dashers
+            </span>
+          </div>
 
-          <div v-if="stats.top_users?.length" class="leaderboard-list">
-
-            <div v-for="(user, index) in stats.top_users" :key="user.id" class="leader-row" :title="`${user.first_name} ${user.last_name}`">
-              <!-- Rank -->
-              <div class="rank">
-                <i v-if="index === 0" class="fas fa-crown"></i>
-                <span v-else>#{{ index + 1 }}</span>
+          <div v-if="stats.top_users?.length" class="leader-list">
+            <div v-for="(user, index) in stats.top_users" :key="user.id" class="leader-row"
+              :title="`${user.first_name} ${user.last_name}`">
+              <div class="leader-rank">
+                <i v-if="index === 0" class="fas fa-crown crown"></i>
+                <span v-else class="rank-num">#{{ index + 1 }}</span>
               </div>
 
-              <!-- User -->
-              <div class="user-info">
-                <div class="avatar">
-                  {{ user.first_name?.[0] }}{{ user.last_name?.[0] }}
-                </div>
-
-                <div class="name-block">
-                  <span class="leader-name">
-                    {{ user.first_name }} {{ user.last_name }}
-                  </span>
-                  <small>Top performer</small>
-                </div>
+              <div class="leader-avatar">
+                {{ user.first_name?.[0] }}{{ user.last_name?.[0] }}
               </div>
 
-              <!-- Score -->
-              <div class="score">
-                <i class="fas fa-star"></i>
+              <div class="leader-info">
+                <span class="leader-name">{{ user.first_name }} {{ user.last_name }}</span>
+                <small class="leader-sub">Top performer</small>
+              </div>
+
+              <div class="leader-score">
+                <i class="fas fa-star star"></i>
                 {{ user.average_score }}%
               </div>
             </div>
-
           </div>
 
-          <div v-else class="empty-state">
-            No leaderboard data yet.
-          </div>
+          <div v-else class="empty-state">No leaderboard data yet.</div>
         </section>
 
       </div>
 
       <!-- LOGS -->
-      <section class="admin-details">
-        <div class="logs-table">
+      <section class="card logs-section">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fas fa-clock"></i> Recent Activity
+          </span>
+          <div class="filter-btns">
+            <button :class="{ active: filterType === 'today' }" @click="filterType = 'today'">Today</button>
+            <button :class="{ active: filterType === 'week' }" @click="filterType = 'week'">Week</button>
+          </div>
+        </div>
 
-          <!-- HEADER -->
-          <div class="logs-header">
-            <span>
-              <i class="fas fa-clock"></i> Recent Activity
-            </span>
-
-            <div class="filter-buttons">
-              <button :class="{ active: filterType === 'today' }" @click="filterType = 'today'">
-                Today
-              </button>
-
-              <button :class="{ active: filterType === 'week' }" @click="filterType = 'week'">
-                Week
-              </button>
+        <div v-if="filteredLogs.length" class="logs-list">
+          <div v-for="log in filteredLogs" :key="log.id" class="log-item">
+            <div class="log-icon" :class="getLogType(log.type)">
+              <i :class="getLogIcon(log.type)"></i>
             </div>
-          </div>
-
-          <!-- LOG LIST -->
-          <div v-if="filteredLogs.length" class="logs-list">
-
-            <div v-for="log in filteredLogs" :key="log.id" class="log-item">
-              <!-- ICON -->
-              <div class="log-icon" :class="getLogType(log.type)">
-                <i :class="getLogIcon(log.type)"></i>
-              </div>
-
-              <!-- CONTENT -->
-              <div class="log-content">
-                <p class="log-text">{{ log.description }}</p>
-                <small>
-                  {{ formatDate(log.created_at) }} • Admin #{{ log.admin_id }}
-                </small>
-              </div>
-
-              <!-- DOT -->
-              <div class="log-dot"></div>
+            <div class="log-body">
+              <p class="log-text">{{ log.description }}</p>
+              <small class="log-meta">{{ formatDate(log.created_at) }} · Admin #{{ log.admin_id }}</small>
             </div>
-
+            <div class="log-dot"></div>
           </div>
+        </div>
 
-          <!-- EMPTY -->
-          <div v-else class="empty">
-            <i class="fas fa-inbox"></i> No logs found.
-          </div>
-
+        <div v-else class="empty-state">
+          <i class="fas fa-inbox"></i> No logs found.
         </div>
       </section>
 
@@ -145,7 +128,7 @@
     <!-- LOADING -->
     <div v-else class="loading-state">
       <div class="spinner"></div>
-      <h3>Loading dashboard...</h3>
+      <p>Loading dashboard...</p>
     </div>
 
   </div>
@@ -156,15 +139,18 @@ import { ref, computed, nextTick, onMounted } from "vue"
 import Chart from "chart.js/auto"
 import axios from "axios"
 
-const stats = ref([])
+const stats = ref(null)
 const chartCanvas = ref(null)
-let chartInstance = null
-
 const notification = ref("")
 const filterType = ref("today")
+let chartInstance = null
 
+/* =========================
+   FILTERED LOGS (ALIGNED)
+========================= */
 const filteredLogs = computed(() => {
-  if (!stats.value?.logs) return []
+  if (!stats.value?.logs?.length) return []
+
   const now = new Date()
 
   return stats.value.logs.filter(log => {
@@ -184,286 +170,351 @@ const filteredLogs = computed(() => {
   })
 })
 
-const formatDate = (date) => new Date(date).toLocaleString()
+/* =========================
+   HELPERS
+========================= */
+const formatDate = (date) =>
+  new Date(date).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 
 const getLogIcon = (type) => {
-  switch (type) {
-    case "delete": return "fas fa-trash"
-    case "create": return "fas fa-plus"
-    case "update": return "fas fa-edit"
-    default: return "fas fa-info-circle"
+  const map = {
+    delete: 'fas fa-trash',
+    create: 'fas fa-plus',
+    update: 'fas fa-edit'
   }
+  return map[type] || 'fas fa-info-circle'
 }
 
 const getLogType = (type) => ({
-  "log-delete": type === "delete",
-  "log-create": type === "create",
-  "log-update": type === "update",
+  'log-delete': type === 'delete',
+  'log-create': type === 'create',
+  'log-update': type === 'update',
+  'log-info': !['delete', 'create', 'update'].includes(type),
 })
 
+/* =========================
+   CHART (SAFE + SYNCED)
+========================= */
 const renderChart = () => {
   if (!chartCanvas.value || !stats.value) return
 
-  if (chartInstance) chartInstance.destroy()
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
 
   requestAnimationFrame(() => {
     chartInstance = new Chart(chartCanvas.value, {
       type: "bar",
       data: {
-        labels: ["System Stats"],
+        labels: ["System"],
         datasets: [
           {
-            label: "Total Users",
-            data: [stats.value.total_users],
-            backgroundColor: "#8b5cf6",
+            label: "Users",
+            data: [stats.value.total_users || 0],
+            backgroundColor: "#8b5cf6"
           },
           {
-            label: "Total Quizzes",
-            data: [stats.value.total_quizzes],
-            backgroundColor: "#16a34a",
+            label: "Quizzes",
+            data: [stats.value.total_quizzes || 0],
+            backgroundColor: "#16a34a"
           },
           {
-            label: "Active Users",
-            data: [stats.value.active_users],
-            backgroundColor: "#4b3cd1",
-          },
+            label: "Active",
+            data: [stats.value.active_users || 0],
+            backgroundColor: "#4b3cd1"
+          }
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-      },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 12, usePointStyle: true }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
     })
   })
 }
 
 const fetchStats = async () => {
   try {
-    const { data } = await axios.get("/api/admin/dashboard")
-    stats.value = data.data
+    const res = await axios.get("/api/admin/dashboard")
+
+    if (res.data.status !== "success") {
+      notification.value = "Failed to load dashboard"
+      return
+    }
+
+    // ✅ Normalize structure (IMPORTANT)
+    stats.value = {
+      total_users: res.data.data.total_users ?? 0,
+      total_quizzes: res.data.data.total_quizzes ?? 0,
+      active_users: res.data.data.active_users ?? 0,
+      logs: res.data.data.logs ?? [],
+      top_users: res.data.data.top_users ?? [],
+      admin_name: res.data.data.admin_name ?? ""
+    }
+
+    console.log("Dashboard stats:", stats.value)
 
     await nextTick()
     renderChart()
+
   } catch (err) {
-    console.error(err)
+    console.error("Dashboard error:", err)
+    notification.value = "Something went wrong"
   }
 }
 
-onMounted(() => {
-  fetchStats()
-})
+onMounted(fetchStats)
 </script>
 
 <style scoped>
-/* =========================
-   GLOBAL SAFE WRAPPER
-========================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ── WRAPPER ── */
 .dashboard-wrapper {
   width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-
-  padding: clamp(0.8rem, 2vw, 1.5rem);
-  box-sizing: border-box;
-
-  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-/* =========================
-   NOTIFICATION
-========================= */
+/* ── NOTIFICATION ── */
 .notification {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 99;
+  top: 80px;
+  right: 16px;
+  z-index: 999;
   background: #ecfdf5;
   color: #065f46;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 0.85rem;
+  border: 1px solid #a7f3d0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* =========================
-   ICON COLORS (UNCHANGED)
-========================= */
+/* ── STATS ── */
+.stats-grid {
+  display: grid;
+  margin-bottom: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
 .icon-users {
+  background: rgba(139, 92, 246, 0.1);
   color: #8b5cf6;
 }
 
 .icon-quizzes {
+  background: rgba(22, 163, 74, 0.1);
   color: #16a34a;
 }
 
 .icon-active {
+  background: rgba(75, 60, 209, 0.1);
   color: #4b3cd1;
 }
 
-.icon-chart {
-  color: #6366f1;
+.stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.icon-trophy {
-  color: #f59e0b;
-}
-
-.icon-crown {
-  color: #fbbf24;
-}
-
-.icon-star {
-  color: #22c55e;
-}
-
-.icon-clock {
-  color: #64748b;
-}
-
-.icon-empty {
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #94a3b8;
 }
 
-.icon-notif {
-  color: #10b981;
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
 }
 
-/* =========================
-   STATS GRID
-========================= */
-.admin-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-
-  margin-bottom: 1rem;
-}
-
-.admin-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  min-width: 0;
-}
-
-/* =========================
-   MAIN GRID
-========================= */
-.chart-leaderboard-grid {
+/* ── MAIN GRID ── */
+.main-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1rem;
-
-  align-items: stretch;
+  align-items: start;
 }
 
-/* =========================
-   CARDS
-========================= */
-.chart-section,
-.leaderboard,
-.admin-details {
+/* ── CARD BASE ── */
+.card {
   background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 10px;
-  min-width: 0;
-  overflow: hidden;
-
+  border-radius: 14px;
   border: 1px solid #e5e7eb;
+  overflow: hidden;
 }
 
-/* =========================
-   CHART FIX
-========================= */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title i {
+  color: #6366f1;
+}
+
+/* ── CHART ── */
+.chart-section {
+  text-align: center;
+}
+
 .chart-wrapper {
   width: 100%;
   height: 280px;
+  padding: 1rem 1.25rem 1.25rem;
   position: relative;
 }
 
-/* ===== LEADERBOARD WRAPPER ===== */
-.leaderboard {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.2rem;
-  border: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* ── LEADERBOARD ── */
+.leaderboard-section {
+  margin-bottom: 10px;
 }
 
-/* ===== LIST ===== */
-.leaderboard-list {
+.leader-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 0.8rem;
+  gap: 2px;
   max-height: 340px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 0.5rem;
 }
 
-/* ===== ROW ===== */
+.leader-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.leader-list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
 .leader-row {
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: 32px 36px 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #f1f5f9;
-  transition: 0.2s ease;
-  background: #fff;
+  transition: background 0.15s;
+  cursor: default;
 }
 
 .leader-row:hover {
   background: #f8fafc;
-  transform: translateY(-1px);
 }
 
-/* ===== RANK ===== */
-.rank {
+.leader-rank {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #64748b;
+  color: #94a3b8;
 }
 
-.rank i {
+.crown {
   color: #fbbf24;
+  font-size: 1rem;
 }
 
-/* ===== USER INFO ===== */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
+.rank-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
 }
 
-.avatar {
+.leader-avatar {
   width: 34px;
   height: 34px;
   border-radius: 8px;
   background: linear-gradient(135deg, #6366f1, #4f46e5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
 }
 
-.name-block {
+.leader-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
 .leader-name {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   font-weight: 600;
   color: #1e293b;
   white-space: nowrap;
@@ -471,113 +522,97 @@ onMounted(() => {
   text-overflow: ellipsis;
 }
 
-.name-block small {
-  font-size: 0.7rem;
+.leader-sub {
+  font-size: 0.68rem;
   color: #94a3b8;
 }
 
-/* ===== SCORE ===== */
-.score {
+.leader-score {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: #16a34a;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.score i {
+.star {
   color: #facc15;
+  font-size: 0.75rem;
 }
 
-/* ===== EMPTY ===== */
-.empty-state {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  padding: 1rem 0;
+/* ── LOGS ── */
+.logs-section {
+  margin-top: 0;
 }
 
-/* ===== LOGS CONTAINER ===== */
-.logs-table {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* ===== HEADER ===== */
-.logs-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 0.5rem;
-}
-
-/* ===== FILTER BUTTONS ===== */
-.filter-buttons {
+.filter-btns {
   display: flex;
   gap: 6px;
 }
 
-.filter-buttons button {
-  padding: 4px 10px;
+.filter-btns button {
+  padding: 4px 12px;
   font-size: 0.75rem;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   cursor: pointer;
+  font-weight: 500;
   transition: 0.2s;
+  color: #64748b;
 }
 
-.filter-buttons button.active {
+.filter-btns button.active {
   background: #6366f1;
   color: white;
   border-color: #6366f1;
 }
 
-/* ===== LOG LIST ===== */
 .logs-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
   max-height: 340px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 0.5rem;
 }
 
-/* ===== LOG ITEM ===== */
+.logs-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.logs-list::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
 .log-item {
   display: grid;
-  grid-template-columns: 36px 1fr 6px;
+  grid-template-columns: 36px 1fr 8px;
   gap: 10px;
   align-items: start;
-  padding: 10px;
+  padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #f1f5f9;
-  background: #fff;
-  transition: 0.2s ease;
+  transition: background 0.15s;
 }
 
 .log-item:hover {
   background: #f8fafc;
-  transform: translateY(-1px);
 }
 
-/* ===== ICON ===== */
 .log-icon {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
+  display: grid;
+  place-items: center;
+  font-size: 0.82rem;
+  flex-shrink: 0;
 }
 
-/* KEEP YOUR EXISTING TYPES (just better spacing) */
 .log-delete {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
@@ -593,108 +628,143 @@ onMounted(() => {
   color: #3b82f6;
 }
 
-/* ===== CONTENT ===== */
-.log-content {
+.log-info {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+}
+
+.log-body {
   min-width: 0;
 }
 
 .log-text {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: #1e293b;
-  margin: 0;
-  line-height: 1.3;
+  margin: 0 0 2px;
+  line-height: 1.4;
 }
 
-.log-content small {
+.log-meta {
   font-size: 0.7rem;
   color: #94a3b8;
 }
 
-/* ===== DOT (timeline feel) ===== */
 .log-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #e2e8f0;
-  margin-top: 10px;
+  margin-top: 14px;
+  justify-self: center;
 }
 
-/* ===== EMPTY ===== */
-.empty {
+/* ── EMPTY / LOADING ── */
+.empty-state {
   text-align: center;
-  font-size: 0.8rem;
+  padding: 2rem 1rem;
   color: #94a3b8;
-  padding: 1rem 0;
+  font-size: 0.85rem;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 1rem;
+  color: #64748b;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f1f5f9;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── RESPONSIVE ── */
+
+/* LG: ≤1024px — stack chart/leaderboard */
 @media (max-width: 1024px) {
-  .chart-leaderboard-grid {
+  .main-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .leader-row {
-    grid-template-columns: 35px 1fr auto;
-    padding: 8px;
-  }
-
-  .avatar {
-    width: 30px;
-    height: 30px;
-    font-size: 0.7rem;
-  }
-
-  .leader-name {
-    font-size: 0.8rem;
-  }
-
-  .score {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .leader-row {
-    grid-template-columns: 35px 1fr;
-  }
-
-  .score {
-    grid-column: 1 / -1;
-    justify-content: flex-end;
-    margin-top: 4px;
-  }
-}
-
-
-@media (max-width: 768px) {
-  .admin-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-wrapper {
-    padding: 0.8rem;
   }
 
   .chart-wrapper {
-    height: 240px;
+    height: 260px;
   }
 }
 
-@media (max-width: 480px) {
+/* MD: ≤768px */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-wrapper {
+    height: 220px;
+  }
+
+  .leader-row {
+    grid-template-columns: 28px 32px 1fr auto;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+}
+
+/* SM: ≤576px */
+@media (max-width: 576px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
   .chart-wrapper {
     height: 200px;
   }
+
+  .leader-row {
+    grid-template-columns: 28px 32px 1fr;
+    gap: 6px;
+  }
+
+  .leader-score {
+    grid-column: 3;
+    justify-content: flex-end;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
-/* =========================
-   SAFE BOX MODEL
-========================= */
-* {
-  box-sizing: border-box;
+/* XS: ≤400px */
+@media (max-width: 400px) {
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.35rem;
+  }
 }
 </style>
