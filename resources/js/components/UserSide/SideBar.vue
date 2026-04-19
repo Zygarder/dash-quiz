@@ -2,13 +2,7 @@
   <aside class="user-sidebar" :class="{ 'open': isSidebarOpen }">
     <!-- Logo Section -->
     <div class="logo-section">
-      <div class="logo-mark">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <line x1="3" y1="9" x2="21" y2="9" />
-          <line x1="9" y1="21" x2="9" y2="9" />
-        </svg>
-      </div>
+        <img src="./bolt.png" alt="Logo" width="32" height="32" >
       <span class="logo-text">DASH<span>QUIZ</span></span>
     </div>
 
@@ -31,12 +25,6 @@
         <span class="nav-icon"><i class="fas fa-chart-simple"></i></span>
         <span class="nav-text">Records</span>
       </router-link>
-
-      <router-link to="/user/dash" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
-        <span class="nav-icon"><i class="fa-solid fa-robot"></i></span>
-        <span class="nav-text">Dash AI Assistant</span>
-      </router-link>
-
       <router-link to="/user/profile" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
         <span class="nav-icon"><i class="fas fa-user"></i></span>
         <span class="nav-text">Profile</span>
@@ -101,8 +89,10 @@ defineEmits(['closeSidebar', 'logout'])
 /* === RESPONSIVE === */
 @media (min-width: 1025px) {
   .user-sidebar {
-    transform: none !important;
-    position: sticky;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
   }
 }
 

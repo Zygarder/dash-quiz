@@ -1,10 +1,9 @@
 <template>
   <div class="user-wrapper">
     <UserSidebar :isSidebarOpen="isSidebarOpen" @logout="handleLogout" @closeSidebar="closeSidebar" />
-    <!-- Mobile overlay -->
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen && isMobile }" @click="isSidebarOpen = false" />
 
-    <div class="main-wrapper" :class="{ 'sidebar-open': isSidebarOpen && isMobile }">
+    <div class="main-wrapper">
       <UserTopbar :currentPageTitle="currentPageTitle" @toggleSidebar="toggleSidebar" />
       <main class="user-main">
         <router-view />
@@ -19,137 +18,102 @@ import UserTopbar from '@/components/UserSide/TopBar.vue'
 import axios from 'axios'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import SuccessAlert from '@/components/ToastNotification.vue'
 import { startHeartbeat } from '@/composables/heartbeat'
 
 const router = useRouter()
-const route = useRoute()
+const route  = useRoute()
 
 const isSidebarOpen = ref(false)
-let windowWidth = ref(window.innerWidth)
+const windowWidth   = ref(window.innerWidth)
 
 const updateWindowWidth = () => {
-  windowWidth = window.innerWidth
-  if (windowWidth > 1024 && isSidebarOpen.value) {
+  windowWidth.value = window.innerWidth
+  if (windowWidth.value > 1024 && isSidebarOpen.value) {
     isSidebarOpen.value = false
   }
 }
 
-onMounted(() => window.addEventListener('resize', updateWindowWidth))
+onMounted(() => {
+  window.addEventListener('resize', updateWindowWidth)
+  startHeartbeat(router)
+})
 onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 
-const isMobile = computed(() => windowWidth <= 1024)
+const isMobile = computed(() => windowWidth.value <= 1024)
 
 const pageTitles = {
-  '/user/': 'Home',
-  '/user/quizzes': 'Quizzes',
-  '/user/records': 'Records',
-  '/user/profile': 'Profile'
+  '/user':          'Home',
+  '/user/':         'Home',
+  '/user/quizzes':  'Quizzes',
+  '/user/records':  'Records',
+  '/user/profile':  'Profile',
 }
 
 const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Home')
 
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
-const closeSidebar = () => { isSidebarOpen.value = false }
+const closeSidebar  = () => { isSidebarOpen.value = false }
 
 const handleLogout = async () => {
-
   if (confirm('Are you sure you want to logout?')) {
     await axios.post('/api/logout')
-
     localStorage.removeItem('isLoggedIn')
     localStorage.removeItem('userRole')
     router.push('/')
   }
-
 }
-
-onMounted(() => {
-  startHeartbeat(router)
-})
 </script>
 
 <style scoped>
-* {
-  padding: 0;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
 }
 
-html {
-  margin: 0
-}
-
+/* ── WRAPPER ── */
 .user-wrapper {
   display: flex;
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  overflow-x: hidden;
 }
 
+/* ── MAIN AREA (sits beside fixed sidebar) ── */
 .main-wrapper {
   flex: 1;
+  margin-left: 240px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
 }
 
+/* ── PAGE CONTENT ── */
 .user-main {
-  display: flex;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  max-width: 100%;
-  overflow-x: auto;
+  flex: 1;
+  width: 100%;
+  padding: clamp(1rem, 3vw, 2rem);
+  overflow-x: hidden;
 }
 
-/* ========================================
-   RESPONSIVE BREAKPOINTS
-======================================== */
-/* Computer: */
-@media (max-width: 1024px) {
-  .main-wrapper {
-    margin-left: 260px;
-  }
+.user-main > * {
+  width: 100%;
+  min-width: 0;
 }
 
-
-/* TABLET: Narrower sidebar */
-@media (max-width: 1024px) {
-  .main-wrapper {
-    margin-left: 260px;
-  }
-}
-
-/* MOBILE: Full-width, overlay sidebar */
-@media (max-width: 768px) {
-  .user-wrapper {
-    position: relative;
-  }
-
-  .main-wrapper {
-    margin-left: 0 !important;
-  }
-
-
-  .user-main {
-    padding: clamp(1rem, 5vw, 1.75rem);
-  }
-}
-
-/* SMALL MOBILE: Extra compact */
-@media (max-width: 480px) {
-  .user-main {
-    padding: 1rem 0.875rem;
-  }
-}
-
-/* MOBILE SIDEBAR OVERLAY */
+/* ── OVERLAY (mobile only) ── */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
   backdrop-filter: blur(4px);
 }
@@ -159,69 +123,28 @@ html {
   pointer-events: all;
 }
 
-/* MOBILE: Prevent body scroll when sidebar open */
-:deep(body.sidebar-open) {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-}
-
-/* Ensure content doesn't jump */
-.user-main>* {
-  width: 100%;
-  min-width: 0;
-}
-
-/* PERFECT RESPONSIVE PADDING SYSTEM */
-.user-main {
-  padding-left: clamp(1rem, 3.5vw, 2.5rem);
-  padding-right: clamp(1rem, 3.5vw, 2.5rem);
-  padding-top: clamp(1rem, 2vw, 1.75rem);
-  padding-bottom: clamp(1rem, 2vw, 1.75rem);
-}
-
-/* TABLET OPTIMIZATION */
+/* ── TABLET: 769px – 1024px ── */
 @media (max-width: 1024px) and (min-width: 769px) {
+  .main-wrapper {
+    margin-left: 220px;
+  }
+}
+
+/* ── MOBILE: ≤768px ── */
+@media (max-width: 768px) {
+  .main-wrapper {
+    margin-left: 0;
+  }
+
   .user-main {
-    padding-top: 1.75rem;
-    padding-bottom: 1.75rem;
+    padding: clamp(0.875rem, 4vw, 1.5rem);
   }
 }
 
-/* PREVENT HORIZONTAL SCROLL */
-.user-wrapper {
-  overflow-x: hidden;
-}
-
-.user-main {
-  overflow-x: visible;
-}
-
-/* TOUCH FRIENDLY ON MOBILE */
-@media (hover: none) and (pointer: coarse) {
-  .menu-trigger {
-    min-height: 48px;
-    min-width: 48px;
+/* ── SMALL MOBILE: ≤480px ── */
+@media (max-width: 480px) {
+  .user-main {
+    padding: 0.875rem;
   }
-}
-
-/* HIGH DPI / RETINA DISPLAYS */
-@media (-webkit-min-device-pixel-ratio: 2),
-(min-resolution: 192dpi) {
-  .user-navbar {
-    border-bottom: 1px solid rgba(102, 126, 234, 0.15);
-  }
-}
-
-/* PERFECT CONTENT WRAPPING */
-.user-main :deep(.card),
-.user-main :deep(.table-container) {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* RESPONSIVE MAX-WIDTH FOR CONTENT */
-.user-main {
-  max-width: clamp(1000px, 95vw, 1400px);
 }
 </style>
