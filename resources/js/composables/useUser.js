@@ -14,7 +14,6 @@ const fetchUser = async (force = false) => {
     try {
         const { data } = await axios.get("/api/me")
         user.value = data.results
-        console.log(user.value)
     } catch (err) {
         console.error("Failed to fetch USER:", err.response?.data?.message || err.message)
     } finally {
