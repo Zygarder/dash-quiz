@@ -186,7 +186,6 @@ class AdminApiController extends Controller
             'active_status' => 1
         ]);
 
-        return response()->json(['status' => 'ok']);
     }
 
     ###############################################
