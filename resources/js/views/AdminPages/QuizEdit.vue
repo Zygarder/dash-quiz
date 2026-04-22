@@ -134,7 +134,7 @@ const updateQuiz = async () => {
         // Use PUT or PATCH for updates depending on your Laravel route setup
         await axios.put(`/api/admin/quizzes/${route.params.id}`, form.value);
         alert("Quiz updated successfully!");
-        router.push("/admin/quizzes/manage");
+        router.push("/admin/manage-quizzes");
     } catch (e) {
         console.error("Update Error:", e.response?.data);
         alert("Error saving changes. Please try again.");
