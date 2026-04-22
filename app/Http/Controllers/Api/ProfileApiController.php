@@ -50,40 +50,6 @@ class ProfileApiController extends Controller
     }
 
     // Update user profile information
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::guard('dasher')->user();
-
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
-            'email' => 'required|email|unique:dasher,email,' . $user->id . '|max:255',
-            'password' => ['nullable', 'required_with:new_password'],
-            'new_password' => ['nullable', 'min:6', 'confirmed'],
-        ]);
-
-        if ($request->filled('new_password')) {
-            // Check current password
-            if (!Hash::check($request->password, $user->password)) {
-                return response()->json([
-                    'message' => 'Current password is incorrect'
-                ], 422);
-            }
-
-            $user->password = Hash::make($request->new_password);
-        }
-        $user->first_name = $validated['first_name'];
-        $user->last_name = $validated['last_name'];
-        $user->email = $validated['email'];
-        $user->save();
-
-        return response()->json([
-            'message' => 'User updated successfully',
-            'data' => $user // <- add this so frontend can update local state
-        ]);
-    }
-
-    // Upload or update the user's profile photo
     public function uploadPhoto(Request $request)
     {
         // 1. Validate file
@@ -91,7 +57,7 @@ class ProfileApiController extends Controller
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // 2. Get authenticated user (dasher guard)
+        // 2. Auth user
         $user = Auth::guard('dasher')->user();
 
         if (!$user) {
@@ -101,34 +67,33 @@ class ProfileApiController extends Controller
             ], 401);
         }
 
-        // 3. Generate safe unique filename
+        // 3. Generate filename
         $filename = Str::uuid() . '.' . $request->photo->getClientOriginalExtension();
 
-        // 4. Store file in correct public disk location
-        $path = $request->photo->storeAs(
+        // 4. Store file
+        $request->photo->storeAs(
             'images/profiles',
             $filename,
             'public'
         );
 
-        // 5. Delete old photo (optional but recommended)
+        // 5. Delete old photo safely
         if ($user->profile_photo) {
             \Storage::disk('public')->delete('images/profiles/' . $user->profile_photo);
         }
 
-        // 6. Save only filename in DB
+        // 6. Save ONLY filename in DB (clean architecture)
         $user->profile_photo = $filename;
         $user->save();
 
-        // 7. Return correct public URL
+        // 7. Build consistent URL
+        $photoUrl = asset('storage/images/profiles/' . $filename);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Profile photo updated successfully',
-
-            // Correct Laravel public URL
-            'photo_url' => asset('storage/' . $path),
-
-            'new_photo' => $filename
+            'new_photo' => $filename,
+            'photo_url' => $photoUrl
         ]);
     }
 

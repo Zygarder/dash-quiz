@@ -150,6 +150,7 @@ const updateProfile = async (formData) => {
 */
 const onFileChange = async (e) => {
   const file = e.target.files[0]
+  console.log("Selected file:", file)
   if (!file) return
 
   if (!file.type.startsWith('image/')) {
@@ -166,21 +167,20 @@ const onFileChange = async (e) => {
     formData.append("photo", file)
 
     await axios.get("/sanctum/csrf-cookie")
-
+  console.log("Selected file:", file)
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
 
-    // ✅ FIXED ALIGNMENT
+    // ✅ FIXED STATE UPDATE
     if (data.photo_url && user.value) {
-      user.value.profile_photo = data.photo_url
+      user.value.profile_photo = data.new_photo
+      user.value.profile_photo_url = data.photo_url
+        console.log("Selected file:", file)
     }
 
-    // ✅ CLEAR PREVIEW (important)
+    // clear preview
     preview.value = null
-
-    // ✅ REFRESH USER (important)
-    await fetchUser(true)
 
     showToast("Profile picture updated!", "success")
 
@@ -189,7 +189,9 @@ const onFileChange = async (e) => {
 
     preview.value = null
 
-    const errorMsg = error.response?.data?.message || "Failed to upload photo."
+    const errorMsg =
+      error.response?.data?.message || "Failed to upload photo."
+
     showToast(errorMsg, "error")
 
   } finally {
