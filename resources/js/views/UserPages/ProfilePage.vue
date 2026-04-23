@@ -2,25 +2,22 @@
   <div class="main-content">
     <div class="profile-card" v-if="user">
       <div class="profile-header">
-        <div :class="['avatar', { 'uploading': loading }]">
-          <img :src="preview || profileImageUrl" draggable="false" />
-          <div v-if="loading" class="avatar-loader"></div>
+        <div class="avatar-wrap">
+          <div :class="['avatar', { 'uploading': loading }]">
+            <img :src="preview || profileImageUrl" draggable="false" />
+            <div v-if="loading" class="avatar-loader"></div>
+          </div>
+          <label class="avatar-camera-badge">
+            <i class="fas fa-camera"></i>
+            <input type="file" @change="onFileChange" accept="image/*" style="display:none">
+          </label>
         </div>
 
         <h2>{{ user.first_name }}</h2>
         <small>{{ user.email }}</small>
-
-        <label class="file-label">
-          Change Photo
-          <input type="file" @change="onFileChange" accept="image/*">
-        </label>
       </div>
 
       <div class="profile-details">
-        <div class="detail-row">
-          <span class="label">Full Name</span>
-          <span class="value">{{ userFullName }}</span>
-        </div>
 
         <div class="detail-row">
           <span class="label">Date Joined</span>
@@ -35,9 +32,11 @@
 
       <div class="profile-buttons">
         <button id="edit-profile" @click="showEditModal = true">
+          <i class="fas fa-edit"></i>
           Edit Profile
         </button>
         <button id="delete" class="danger" @click="showDeleteModal = true">
+          <i class="fas fa-trash"></i>
           Delete Account
         </button>
       </div>
@@ -123,22 +122,23 @@ const formattedDate = computed(() => {
 const updateProfile = async (formData) => {
   try {
     loading.value = true
-    // Get CSRF cookie (Laravel Sanctum)
-    await axios.get("/sanctum/csrf-cookie")
-    const { data } = await axios.put("/api/profile/update", formData)
 
-    // Update local user state
+    await axios.get('/sanctum/csrf-cookie')
+    const { data } = await axios.put('/api/profile/update', formData)
+
     if (data.data && user.value) {
-      user.value.first_name = data.data.first_name
-      user.value.last_name = data.data.last_name
-      user.value.email = data.data.email
+      Object.assign(user.value, {
+        first_name: data.data.first_name,
+        last_name: data.data.last_name,
+        email: data.data.email,
+      })
     }
+
     showEditModal.value = false
-    showToast("Profile updated successfully!", "success")
+    showToast(data.message ?? 'Profile updated successfully!', 'success')
 
   } catch (err) {
-    const errorMsg = err.response?.data?.message || "Update failed"
-    showToast(errorMsg, "error")
+    showToast(err.response?.data?.message ?? 'Update failed.', 'error')
   } finally {
     loading.value = false
   }
@@ -167,16 +167,15 @@ const onFileChange = async (e) => {
     formData.append("photo", file)
 
     await axios.get("/sanctum/csrf-cookie")
-  console.log("Selected file:", file)
+    console.log("Selected file:", file)
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
 
-    // ✅ FIXED STATE UPDATE
     if (data.photo_url && user.value) {
       user.value.profile_photo = data.new_photo
       user.value.profile_photo_url = data.photo_url
-        console.log("Selected file:", file)
+      console.log("Selected file:", file)
     }
 
     // clear preview
@@ -212,7 +211,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* MAIN CONTENT WRAPPER */
 .main-content {
   display: flex;
   justify-content: center;
@@ -220,67 +218,113 @@ onMounted(async () => {
   min-height: 80vh;
 }
 
-/* PROFILE CARD */
+/* Card */
 .profile-card {
   width: 100%;
-  max-width: 450px;
-  /* Limits width on desktop */
+  max-width: 420px;
   background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  padding: 30px;
+  border-radius: 24px;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  padding: 32px 28px 28px;
   display: flex;
   flex-direction: column;
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.4s ease-out both;
 }
 
-/* HEADER SECTION */
+/* Header */
 .profile-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 25px;
+  padding-bottom: 24px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 0;
+}
+
+/* Avatar */
+.avatar-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
 }
 
 .avatar {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid #f0edff;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 10px rgba(75, 50, 168, 0.1);
+  border: 3px solid #4b32a8;
+  background: #eeedfe;
 }
 
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.avatar-loader {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(75, 50, 168, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-camera-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #4b32a8;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.avatar-camera-badge:hover {
+  background: #3e2983;
 }
 
 .profile-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #1a1a1a;
+  letter-spacing: -0.02em;
 }
 
 .profile-header small {
   color: #6b7280;
-  font-size: 0.9rem;
-  margin-top: 4px;
+  font-size: 0.8rem;
+  margin-top: 3px;
 }
 
+/* Change photo button */
 .file-label {
-  margin-top: 15px;
-  font-size: 0.8rem;
+  margin-top: 14px;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #4b32a8;
   cursor: pointer;
-  padding: 8px 16px;
+  padding: 7px 16px;
   border: 1.5px solid #4b32a8;
   border-radius: 50px;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s, color 0.18s;
 }
 
 .file-label:hover {
@@ -292,51 +336,58 @@ onMounted(async () => {
   display: none;
 }
 
-/* DETAILS SECTION */
+/* Details */
 .profile-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  padding: 24px 0;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 18px;
+  padding: 13px 16px;
   background: #f9faff;
   border-radius: 12px;
   border: 1px solid #f0edff;
 }
 
 .detail-row .label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: #8e8eb2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .detail-row .value {
   font-weight: 700;
   color: #1a1a1a;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
-/* BUTTONS SECTION */
+/* Buttons */
 .profile-buttons {
-  margin-top: 30px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 button {
-  padding: 12px;
+  padding: 12px 10px;
   border-radius: 10px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   border: none;
-  transition: transform 0.1s, opacity 0.2s;
+  transition: transform 0.12s, background 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  letter-spacing: 0.01em;
 }
 
 button:active {
@@ -345,7 +396,11 @@ button:active {
 
 #edit-profile {
   background: #4b32a8;
-  color: white;
+  color: #fff;
+}
+
+#edit-profile:hover {
+  background: #3a2480;
 }
 
 #delete {
@@ -358,11 +413,11 @@ button:active {
   background: #fff5f5;
 }
 
-/* ANIMATION */
+/* Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
 
   to {
@@ -371,15 +426,14 @@ button:active {
   }
 }
 
-/* RESPONSIVE FIX */
+/* Responsive */
 @media (max-width: 480px) {
   .profile-buttons {
     grid-template-columns: 1fr;
-    /* Stack buttons on small phones */
   }
 
   .profile-card {
-    padding: 20px;
+    padding: 24px 20px 20px;
   }
 }
 </style>

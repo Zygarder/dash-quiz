@@ -1,43 +1,53 @@
 <template>
-  <div v-if="show" class="modal">
-    <div class="modal-content">
-      <h3>Edit Profile</h3>
-      <p>Update your information below.</p>
+  <div v-if="show" class="modal-overlay" @click.self="$emit('close')">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>Edit Profile</h3>
+        <p>Manage your account settings and email preferences.</p>
+      </header>
 
-      <div class="edit-fields">
-        <label for="first_name">First Name</label>
-        <input id="first_name" v-model="form.first_name" type="text" autocomplete="off" />
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="first_name">First Name</label>
+            <input id="first_name" v-model="form.first_name" type="text" placeholder="Jane" />
+          </div>
+
+          <div class="field">
+            <label for="last_name">Last Name</label>
+            <input id="last_name" v-model="form.last_name" type="text" placeholder="Doe" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input id="email" v-model="form.email" type="email" />
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field">
+          <label for="password">Current Password</label>
+          <input id="password" v-model="form.password" type="password" placeholder="••••••••" />
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="new_password">New Password</label>
+            <input id="new_password" v-model="form.new_password" type="password" />
+          </div>
+
+          <div class="field">
+            <label for="password_confirmation">Confirm Password</label>
+            <input id="password_confirmation" v-model="form.new_password_confirmation" type="password" />
+          </div>
+        </div>
       </div>
 
-      <div class="edit-fields">
-        <label for="last_name">Last Name</label>
-        <input id="last_name" v-model="form.last_name" type="text" autocomplete="off" />
-      </div>
-
-      <div class="edit-fields">
-        <label for="email">Email</label>
-        <input id="email" v-model="form.email" type="email" autocomplete="off" />
-      </div>
-
-      <div class="edit-fields">
-        <label for="password">Password</label>
-        <input id="password" v-model="form.password" type="password" autocomplete="off" />
-      </div>
-
-      <div class="edit-fields">
-        <label for="password">New Password</label>
-        <input id="new_password" v-model="form.new_password" type="password" autocomplete="off" />
-      </div>
-
-      <div class="edit-fields">
-        <label for="password_confirmation">Confirm Password</label>
-        <input id="password_confirmation" v-model="form.new_password_confirmation" type="password" autocomplete="off" />
-      </div>
-
-      <div class="modal-buttons">
-        <button class="cancel-btn" @click="$emit('close')">Cancel</button>
-        <button class="save-btn" @click="handleSave">Save Changes</button>
-      </div>
+      <footer class="modal-footer">
+        <button class="btn btn-ghost" @click="$emit('close')">Cancel</button>
+        <button class="btn btn-primary" @click="handleSave">Save Changes</button>
+      </footer>
     </div>
   </div>
 </template>
@@ -47,11 +57,15 @@ import { ref, watch } from 'vue'
 
 const props = defineProps({
   show: Boolean,
+  loading: Boolean,
   user: {
     type: Object,
     default: () => ({})
   }
 })
+
+const emit = defineEmits(['save', 'close', 'notify'])
+
 const form = ref({
   first_name: '',
   last_name: '',
@@ -61,17 +75,14 @@ const form = ref({
   new_password_confirmation: ''
 })
 
-const emit = defineEmits(['save', 'close'])
-
-// Watch for when the modal opens to sync data
 watch(
   () => props.user,
   (user) => {
     if (user) {
       form.value = {
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
+        first_name: user.first_name ?? '',
+        last_name: user.last_name ?? '',
+        email: user.email ?? '',
         password: '',
         new_password: '',
         new_password_confirmation: ''
@@ -81,107 +92,161 @@ watch(
   { immediate: true }
 )
 
-
-// ✅ Save handle
 const handleSave = () => {
-  // 1. Password Match Validation
+  // Client-side password match check
   if (form.value.new_password || form.value.new_password_confirmation) {
     if (form.value.new_password !== form.value.new_password_confirmation) {
-      emit('notify', { message: "Passwords do not match!", type: "error" })
+      emit('notify', { message: 'Passwords do not match.', type: 'error' })
       return
     }
   }
 
-  // 2. Prepare Clean Payload
-  const payload = { ...form.value }
-
-  // 3. Remove password fields if they are empty (so we don't update them)
-  if (!payload.password) {
-    delete payload.password
-    delete payload.new_password
-    delete payload.new_password_confirmation
+  const payload = {
+    first_name: form.value.first_name,
+    last_name: form.value.last_name,
+    email: form.value.email,
   }
 
+  // Only include password fields if the user actually filled them
+  if (form.value.new_password) {
+    payload.password = form.value.new_password
+    payload.password_confirmation = form.value.new_password_confirmation
+  }
+
+  // Let the parent handle close — after the API call resolves
   emit('save', payload)
-  emit('close')
 }
 </script>
 
-
-
 <style scoped>
-/* Reusing the core alignment logic */
-.modal {
+/* Overlay remains the same as requested */
+.modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1004;
+  padding: 20px;
 }
 
-.modal-content {
-  background: white;
-  padding: 2rem;
+/* Modern Minimal Card */
+.modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
   border-radius: 12px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* New Input Styles */
-.edit-fields {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  text-align: left;
-  margin: 10px 0;
+  overflow: hidden;
 }
 
-.edit-fields label {
-  font-size: 0.9rem;
-  font-weight: bold;
+.modal-header {
+  padding: 24px 24px 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.modal-header p {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.modal-body {
+  padding: 0 24px 24px;
+}
+
+/* Layout Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid #f3f4f6;
+  margin: 24px 0 8px;
+}
+
+/* Inputs */
+label {
+  font-size: 0.813rem;
+  font-weight: 500;
+  color: #374151;
   margin-bottom: 6px;
-  color: #555;
 }
 
-.edit-fields input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
+input {
+  appearance: none;
+  background-color: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.938rem;
+  color: #1f2937;
+  transition: all 0.2s ease;
 }
 
-/* Button Alignment */
-.modal-buttons {
+input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input::placeholder {
+  color: #9ca3af;
+}
+
+/* Footer & Buttons */
+.modal-footer {
+  padding: 16px 24px;
+  background-color: #f9fafb;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
-button {
-  padding: 10px 18px;
-  cursor: pointer;
-  border-radius: 6px;
-  border: none;
+.btn {
+  font-size: 0.875rem;
   font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid transparent;
 }
 
-.cancel-btn {
-  background-color: #f3f4f6;
+.btn-ghost {
+  background: transparent;
   color: #4b5563;
 }
 
-.save-btn {
-  background-color: #3b82f6;
-  /* Blue for "Save" */
+.btn-ghost:hover {
+  background: #f3f4f6;
+}
+
+.btn-primary {
+  background-color: #111827;
+  /* Modern dark neutral instead of bright blue */
   color: white;
 }
 
-.save-btn:hover {
-  background-color: #2563eb;
+.btn-primary:hover {
+  background-color: #1f2937;
 }
 </style>
