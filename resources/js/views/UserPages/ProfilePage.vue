@@ -218,8 +218,6 @@ onMounted(async () => {
   justify-content: center;
   align-items: center;
   min-height: 80vh;
-  /* Adjust based on your layout */
-  padding: 20px;
 }
 
 /* PROFILE CARD */
