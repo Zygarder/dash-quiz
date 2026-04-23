@@ -2,7 +2,7 @@
   <aside class="user-sidebar" :class="{ 'open': isSidebarOpen }">
     <!-- Logo Section -->
     <div class="logo-section">
-        <img src="./bolt.png" alt="Logo" width="32" height="32" >
+        <img src="/public/bolt.png" alt="Logo" width="32" height="32" >
       <span class="logo-text">DASH<span>QUIZ</span></span>
     </div>
 
