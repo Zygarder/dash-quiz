@@ -97,6 +97,39 @@ class ProfileApiController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::guard('dasher')->user();
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:dasher,email,' . $user->id,
+            'password' => 'nullable|min:6|confirmed',
+        ], [
+            'password.min' => 'Password must be at least 6 characters.',
+        ]);
+
+        // Only hash & update password if it was provided
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile updated successfully',
+            'data' => [
+                'first_name' => $user->fresh()->first_name,
+                'last_name' => $user->fresh()->last_name,
+                'email' => $user->fresh()->email,
+            ],
+        ]);
+    }
+
     // Allow users to delete their own account
     public function selfDeleteAccount()
     {
