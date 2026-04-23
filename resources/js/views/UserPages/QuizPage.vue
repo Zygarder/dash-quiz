@@ -27,25 +27,25 @@
                     </div>
 
                     <div v-else class="quiz-grid">
-                        <router-link v-for="quiz in quizzes" :key="quiz.id" :title=quiz.description
+                        <router-link v-for="(quiz, index) in quizzes" :key="quiz.id" :title=quiz.description
                             :to="{ name: 'quiz-start', params: { quiz_id: quiz.id } }" class="quiz-card">
                             <div class="card-inner">
                                 <div class="icon-wrapper">
-                                    <i class="fas fa-microchip"></i>
+                                    <i :class="quiz.icons"></i>
                                 </div>
 
                                 <div class="quiz-content">
-                                    <h3>{{ quiz.description }}</h3>
+                                    <h3>{{ quiz.title }}</h3>
                                     <div class="quiz-meta">
                                         <span class="meta-item">
                                             <i class="fas fa-list-ol"></i>
                                             {{ quiz.total_questions || 10 }}
-                                            <span>Q</span>
+                                            <span>Questions</span>
                                         </span>
                                         <span class="meta-item difficulty"
                                             :class="quiz.difficulty?.toLowerCase() || 'beginner'">
                                             <i class="fas fa-signal"></i>
-                                            {{ quiz.difficulty || "Beginner" }}
+                                            {{ quiz.difficulty }}
                                         </span>
                                     </div>
                                 </div>
@@ -79,6 +79,8 @@ const { fetchUser } = useUser()
 const quizzes = ref([])
 const loading = ref(false)
 
+const icons = ['fa-solid fa-microchip', 'fa-solid fa-desktop', 'fa-solid fa-cogs']
+
 const fetchQuizzes = async () => {
     if (loading.value) return
 
@@ -86,6 +88,11 @@ const fetchQuizzes = async () => {
         loading.value = true
         const { data } = await axios.get('/api/quizzes')
         quizzes.value = data.data
+        quizzes.value.forEach((quiz, index) => {
+            quiz.total_questions = quiz.questions ? quiz.questions.length : 10,
+            quiz.icons = icons[index]
+        })
+        console.log('Fetched quizzes:', quizzes.value)
     } catch (err) {
         console.error('Failed to fetch quizzes:', err)
     } finally {
@@ -216,10 +223,7 @@ onMounted(async () => {
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 4px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: wrap;
 }
 
 /* META */
@@ -231,7 +235,6 @@ onMounted(async () => {
 
 .meta-item {
     font-size: 0.7rem;
-    font-weight: 600;
     color: #64748b;
     display: flex;
     align-items: center;
