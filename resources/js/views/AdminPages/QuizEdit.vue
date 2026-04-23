@@ -137,7 +137,6 @@ const updateQuiz = async () => {
         router.push("/admin/manage-quizzes");
     } catch (e) {
         console.error("Update Error:", e.response?.data);
-        alert("Error saving changes. Please try again.");
     } finally {
         saving.value = false;
     }

@@ -75,7 +75,7 @@
                             <footer class="action-bar">
                                 <button @click="submitAnswer" class="btn-submit" :disabled="!selectedAnswer">
                                     <span>{{ currentIndex + 1 === questions.length ? 'Finish Quiz' : 'Continue'
-                                    }}</span>
+                                        }}</span>
                                     <svg v-if="currentIndex + 1 !== questions.length" xmlns="http://www.w3.org/2000/svg"
                                         width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -145,7 +145,6 @@ const fetchQuiz = async () => {
 
         if (data.status === 'success' && data.quiz) {
             const quizData = data.quiz
-            console.log(quizData)
 
             quiz.value = {
                 title: quizData.title || 'Untitled Quiz',
@@ -161,9 +160,6 @@ const fetchQuiz = async () => {
             } else {
                 questions.value = []
             }
-
-            console.log("Questions Loaded:", questions.value)
-            console.log("Options for Question 1:", questions.value[0]?.options)
 
             if (questions.value.length === 0) {
                 error.value = 'This quiz has no questions available.'
@@ -243,9 +239,6 @@ const submitAnswer = async () => {
             // go to result page if no more questions
             await submitQuizResult()
         }
-
-        // console.log("Current Index:", currentIndex.value)
-        // console.log("Next Question:", questions.value[currentIndex.value])
 
     } catch (err) {
 
