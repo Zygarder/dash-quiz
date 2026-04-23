@@ -5,7 +5,7 @@
     <header class="auth-header">
       <div class="header-inner">
         <div class="brand">
-          <div class="logo">DQ</div>
+          <img src="/public/bolt.png" alt="Logo" width="32" height="32">
           <span class="brand-name">Dash<span>Quiz</span></span>
         </div>
         <span class="portal">Assessment Portal</span>
@@ -27,7 +27,7 @@
       <!-- LOGIN CARD -->
       <section class="form-section">
         <form class="card" @submit.prevent="handleLogin">
-          <h2>Welcome back</h2>
+          <h2>Welcome!</h2>
 
           <div class="field">
             <input type="email" v-model.trim="form.email" placeholder="Email address"
