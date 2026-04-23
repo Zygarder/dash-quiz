@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\Password;
 
 class PasswordResetController
 {
-    // STEP 1: send reset link
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email'
+            'email' => 'required|email|exists:dashers,email'
         ]);
 
         $status = Password::broker('dashers')->sendResetLink(
@@ -23,13 +22,15 @@ class PasswordResetController
             : response()->json(['message' => 'Failed to send link'], 400);
     }
 
-    // STEP 2: reset password
     public function resetPassword(Request $request)
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'email' => 'required|email|exists:dashers,email',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'password.min' => 'Password must be at least 6 characters',
+            'password.confirmed' => 'Password confirmation does not match',
         ]);
 
         $status = Password::broker('dashers')->reset(
