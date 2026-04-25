@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\ChatbotController;
 
 
 Route::post('/login', [AdminApiController::class, 'login']);
+Route::post('/mobile/login', [AdminApiController::class, 'mobileLogin']);
+
 Route::post('/register', [AdminApiController::class, 'register']);
 
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
