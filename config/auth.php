@@ -99,6 +99,7 @@ return [
     */
 
     'passwords' => [
+        //this user is just a sample, sample lang ba for referece, wala ni siya gigamit sa app
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
@@ -106,10 +107,13 @@ return [
             'throttle' => 60,
         ],
         'dashers' => [
+            //check provider name, dapat match sa providers array
             'provider' => 'dashers',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
+            // check kung nag exist ba ang table name sa database, dapat match sa table name sa database
+            'table' => 'password_reset_tokens', 
+            'expire' => 5,
+            // check kung pila ka minutes valid ang reset token, dapat match sa expire time sa password reset link sa email
+            'throttle' => 5,
         ],
     ],
 
