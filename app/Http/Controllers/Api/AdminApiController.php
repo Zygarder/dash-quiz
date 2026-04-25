@@ -116,6 +116,38 @@ class AdminApiController extends Controller
             'message' => 'Invalid email or password.'
         ], 401);
     }
+
+    ###############################################
+    # MOBILE LOGIN API 
+    ###############################################
+    public function mobileLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (!Auth::guard('dasher')->attempt($credentials)) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        $user = Auth::guard('dasher')->user();
+
+        $token = $user->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'status' => 'success',
+            'token' => $token,
+            'user' => [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ]);
+    }
     ###############################################
     # REGISTER API
     ###############################################
@@ -393,7 +425,7 @@ class AdminApiController extends Controller
             }
             // <-- LOG ACTIVITY HERE (Update)
             $this->logActivity('Edit', "Quiz Title '{$request->title}' was updated");
-            
+
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Quiz updated successfully!'], 200);
         } catch (\Exception $e) {
