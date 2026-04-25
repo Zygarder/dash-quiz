@@ -10,7 +10,7 @@ class PasswordResetController
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:dashers,email'
+            'email' => 'required|email|exists:dasher,email'
         ]);
 
         $status = Password::broker('dashers')->sendResetLink(
@@ -26,7 +26,7 @@ class PasswordResetController
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email|exists:dashers,email',
+            'email' => 'required|email|exists:dasher,email',
             'password' => 'required|min:6|confirmed',
         ], [
             'password.min' => 'Password must be at least 6 characters',
