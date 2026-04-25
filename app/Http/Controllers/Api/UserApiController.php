@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Quiz;
 use App\Models\QuizRecord;
 use Illuminate\Support\Facades\Auth;
@@ -41,38 +42,38 @@ class UserApiController extends Controller
             'data' => $quizzes
         ]);
     }
-    public function profile()
+    public function profile(Request $request)
     {
-        if (Auth::guard('dasher')->check()) {
-            $user = Auth::guard('dasher')->user();
+        $user = $request->user();
 
-            // Update online status
-            $user->update([
-                'active_status' => 1,
-                'last_activity' => now()
-            ]);
-
+        if (!$user) {
             return response()->json([
-                'status' => 'success',
-                'results' => [
-                    'id' => $user->id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'role' => $user->role,
-                    'full_name' => "{$user->first_name} {$user->last_name}",
-                    'email' => $user->email,
-                    'profile_photo' => $user->profile_photo ?? 'default.png',
-                    'created_at' => $user->created_at->format('F j, Y'),
-                    'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
-                    'active_status' => $user->active_status, // optional for frontend
-                ]
-            ]);
+                'status' => 'error',
+                'message' => 'Unauthenticated.'
+            ], 401);
         }
 
+        // update online status
+        $user->update([
+            'active_status' => 1,
+            'last_activity' => now()
+        ]);
+
         return response()->json([
-            'status' => 'error',
-            'message' => 'Unauthenticated.'
-        ], 401);
+            'status' => 'success',
+            'results' => [
+                'id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'role' => $user->role,
+                'full_name' => "{$user->first_name} {$user->last_name}",
+                'email' => $user->email,
+                'profile_photo' => $user->profile_photo ?? 'default.png',
+                'created_at' => $user->created_at?->format('F j, Y'),
+                'quizzes_taken' => QuizRecord::where('user_id', $user->id)->count(),
+                'active_status' => $user->active_status,
+            ]
+        ]);
     }
 
 
