@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable; // important
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 
 class Dasher extends Authenticatable
 {
-    use Notifiable, HasFactory;
+    use HasApiTokens, Notifiable, HasFactory;
 
     protected $table = 'dasher';
 
@@ -27,19 +27,10 @@ class Dasher extends Authenticatable
     ];
 
     protected $hidden = [
-        'active',
+        'active_status',
         'password',
         'remember_token',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        ResetPassword::createUrlUsing(function ($user, string $token) {
-            return "http://127.0.0.1:8000/reset?token={$token}&email={$user->email}";
-        });
-    }
 
     public function get_profile()
     {
