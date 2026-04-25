@@ -72,7 +72,6 @@ const handleDelete = async () => {
   justify-content: center;
   align-items: center;
   z-index: 1004;
-  padding: 20px;
 }
 
 .modal-card {
@@ -80,12 +79,13 @@ const handleDelete = async () => {
   width: 100%;
   max-width: 440px;
   border-radius: 12px;
+  margin: 20px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 20px;
 }
 
 .icon-header {

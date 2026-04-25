@@ -128,7 +128,6 @@ const handleSave = () => {
   justify-content: center;
   align-items: center;
   z-index: 1004;
-  padding: 20px;
 }
 
 /* Modern Minimal Card */
@@ -166,8 +165,7 @@ const handleSave = () => {
 
 /* Layout Grid */
 .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 16px;
 }
 
@@ -248,5 +246,11 @@ input::placeholder {
 
 .btn-primary:hover {
   background-color: #1f2937;
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    flex-direction: column;
+  }
 }
 </style>
