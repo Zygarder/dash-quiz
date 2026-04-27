@@ -124,7 +124,7 @@ const handleLogin = async () => {
     attempts.value = 0
 
     // Force refresh user from session — don't trust localStorage for role
-    await fetchUser()
+    await fetchUser(true)
 
     router.push(data.role === 'admin' ? '/admin' : '/user')
 
