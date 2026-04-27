@@ -19,12 +19,15 @@ import axios from 'axios'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { startHeartbeat } from '@/composables/heartbeat'
+import { useUser } from '@/composables/useUser'
 
 const router = useRouter()
-const route  = useRoute()
+const route = useRoute()
+
+const { user, fetchUser } = useUser()
 
 const isSidebarOpen = ref(false)
-const windowWidth   = ref(window.innerWidth)
+const windowWidth = ref(window.innerWidth)
 
 const updateWindowWidth = () => {
   windowWidth.value = window.innerWidth
@@ -33,33 +36,48 @@ const updateWindowWidth = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('resize', updateWindowWidth)
-  startHeartbeat(router)
+
+  // Load user once
+  if (!user.value) {
+    try {
+      await fetchUser()
+    } catch {
+      user.value = null
+    }
+  }
+
+  // Start heartbeat only if logged in
+  if (user.value) {
+    startHeartbeat(router)
+  }
 })
+
 onUnmounted(() => window.removeEventListener('resize', updateWindowWidth))
 
 const isMobile = computed(() => windowWidth.value <= 1024)
 
 const pageTitles = {
-  '/user':          'Home',
-  '/user/':         'Home',
-  '/user/quizzes':  'Quizzes',
-  '/user/records':  'Records',
-  '/user/profile':  'Profile',
+  '/user': 'Home',
+  '/user/': 'Home',
+  '/user/quizzes': 'Quizzes',
+  '/user/records': 'Records',
+  '/user/profile': 'Profile',
 }
 
 const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Home')
 
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
-const closeSidebar  = () => { isSidebarOpen.value = false }
+const closeSidebar = () => { isSidebarOpen.value = false }
 
 const handleLogout = async () => {
-  if (confirm('Are you sure you want to logout?')) {
+  try {
     await axios.post('/api/logout')
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userRole')
-    router.push('/')
+    user.value = null
+    router.replace('/')
+  } catch (error) {
+    console.error('Logout failed:', error)
   }
 }
 </script>
@@ -101,7 +119,7 @@ const handleLogout = async () => {
   overflow-x: hidden;
 }
 
-.user-main > * {
+.user-main>* {
   width: 100%;
   min-width: 0;
 }
