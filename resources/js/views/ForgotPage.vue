@@ -12,9 +12,11 @@
         <div class="field">
           <input
             type="email"
+            name="email"
             v-model="email"
             placeholder="Email address"
             required
+            autocomplete="off"
           />
         </div>
 

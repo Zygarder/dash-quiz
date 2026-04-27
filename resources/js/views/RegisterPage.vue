@@ -1,71 +1,73 @@
 <template>
-    <main class="auth-wrapper">
-        <nav>
-            Register New Account
-        </nav>
-        <section class="auth-card">
-            <header class="auth-header">
-                <h1>Create account</h1>
-                <p>Join Dash Quiz</p>
-            </header>
+    <div class="auth-wrapper">
 
-            <form @submit.prevent="handleRegister" class="form">
-                <!-- Name row -->
+        <header class="auth-header">
+            <div class="header-inner">
+                <div class="brand">
+                    <img src="/public/bolt.png" alt="Logo" width="32" height="32">
+                    <span class="brand-name">Dash<span>Quiz</span></span>
+                </div>
+                <span class="portal">Assessment Portal</span>
+            </div>
+        </header>
+
+        <main class="container">
+            <form class="card" @submit.prevent="handleRegister">
+                <h2>Create account</h2>
+                <p class="subtitle">Join Dash Quiz — it's free</p>
+
                 <div class="grid-2">
                     <div class="field">
-                        <input v-model.trim="form.first_name" type="text" placeholder="First name"
-                            :class="{ error: errors.first_name }" />
+                        <input v-model.trim="form.first_name" type="text" name="first_name" placeholder="First name"
+                            :class="{ error: errors.first_name }" autocomplete="off"/>
                         <small v-if="errors.first_name">{{ errors.first_name[0] }}</small>
                     </div>
-
                     <div class="field">
-                        <input v-model.trim="form.last_name" type="text" placeholder="Last name"
-                            :class="{ error: errors.last_name }" />
+                        <input v-model.trim="form.last_name" type="text" name="last_name" placeholder="Last name"
+                            :class="{ error: errors.last_name }" autocomplete="off"/>
                         <small v-if="errors.last_name">{{ errors.last_name[0] }}</small>
                     </div>
                 </div>
 
-                <!-- Email -->
                 <div class="field">
-                    <input v-model.trim="form.email" type="email" placeholder="Email address"
-                        :class="{ error: errors.email }" autocomplete="false" />
+                    <input v-model.trim="form.email" type="email" name="email" placeholder="Email address"
+                        :class="{ error: errors.email }" autocomplete="off" />
                     <small v-if="errors.email">{{ errors.email[0] }}</small>
                 </div>
 
-                <!-- Password -->
                 <div class="field">
-                    <input v-model.trim="form.password" type="password" placeholder="Password"
-                        :class="{ error: errors.password }" autocomplete="false" />
+                    <input v-model.trim="form.password" type="password" name="password" placeholder="Password"
+                        :class="{ error: errors.password }" autocomplete="off" />
                     <small v-if="errors.password">{{ errors.password[0] }}</small>
                 </div>
 
-                <!-- Confirm -->
                 <div class="field">
-                    <input v-model.trim="form.password_confirmation" type="password" placeholder="Confirm password"
-                        autocomplete="false" />
+                    <input v-model.trim="form.password_confirmation" type="password" name="confirm_password" placeholder="Confirm password"
+                        autocomplete="off" />
+                    <small v-if="errors.password_confirmation">{{ errors.password_confirmation[0] }}</small>
                 </div>
 
                 <div v-if="generalError" class="alert">
                     {{ generalError }}
                 </div>
 
-                <button class="btn" :disabled="loading">
+                <button class="btn" type="submit" :disabled="loading">
                     <span v-if="!loading">Create account</span>
-                    <span v-else>Creating...</span>
+                    <span v-else class="loader"></span>
                 </button>
 
-                <p class="meta">
-                    Already have an account?
-                    <router-link to="/">Login</router-link>
-                </p>
+                <div class="btn-login">
+                    Already have an account? &nbsp;
+                    <router-link to="/" class="login-link">Login</router-link>
+                </div>
             </form>
-        </section>
+        </main>
 
-        <!-- FOOTER -->
         <footer class="auth-footer">
             © {{ new Date().getFullYear() }} Dash Quiz • SNSU Capstone Project
         </footer>
-    </main>
+
+    </div>
 </template>
 
 <script setup>
@@ -87,100 +89,49 @@ const errors = ref({})
 const generalError = ref('')
 const loading = ref(false)
 
-// VALIDATION 
-
 function isValidEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-    return regex.test(email)
-}
-
-function isStrongPassword(password) {
-    // at least 6 chars (you can improve later)
-    return password.length >= 6
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
 }
 
 function validateForm() {
     errors.value = {}
     generalError.value = ''
-
     let valid = true
 
-    // FIRST NAME
-    if (!form.first_name.trim()) {
-        errors.value.first_name = ['First name is required']
-        valid = false
-    }
+    if (!form.first_name) { errors.value.first_name = ['First name is required']; valid = false }
+    if (!form.last_name) { errors.value.last_name = ['Last name is required']; valid = false }
 
-    // LAST NAME
-    if (!form.last_name.trim()) {
-        errors.value.last_name = ['Last name is required']
-        valid = false
-    }
-
-    // EMAIL
-    if (!form.email.trim()) {
-        errors.value.email = ['Email is required']
-        valid = false
+    if (!form.email) {
+        errors.value.email = ['Email is required']; valid = false
     } else if (!isValidEmail(form.email)) {
-        errors.value.email = ['Invalid email format']
-        valid = false
+        errors.value.email = ['Invalid email format']; valid = false
     }
 
-    // PASSWORD
     if (!form.password) {
-        errors.value.password = ['Password is required']
-        valid = false
-    } else if (!isStrongPassword(form.password)) {
-        errors.value.password = ['Password must be at least 6 characters']
-        valid = false
+        errors.value.password = ['Password is required']; valid = false
+    } else if (form.password.length < 6) {
+        errors.value.password = ['Password must be at least 6 characters']; valid = false
     }
 
-    // CONFIRM PASSWORD
     if (form.password !== form.password_confirmation) {
-        errors.value.password_confirmation = ['Passwords do not match']
-        valid = false
+        errors.value.password_confirmation = ['Passwords do not match']; valid = false
     }
 
     return valid
 }
 
-// =========================
-// REGISTER HANDLER
-// =========================
-
 const handleRegister = async () => {
     if (loading.value) return
+    if (!validateForm()) return
 
     loading.value = true
-    errors.value = {}
-    generalError.value = ''
 
     try {
-        // FRONTEND VALIDATION
-        if (!validateForm()) {
-            loading.value = false
-            return
-        }
-
-        // CSRF (for Laravel Sanctum)
         await axios.get('/sanctum/csrf-cookie')
-
-        // REGISTER REQUEST
         await axios.post('/api/register', form)
-
-        // SUCCESS
         router.push('/')
-
-    } catch (err) {
-
-        // BACKEND VALIDATION ERRORS
-        if (err.response?.data?.errors) {
-            errors.value = err.response.data.errors
-        } else {
-            generalError.value =
-                err.response?.data?.message || 'Registration failed.'
-        }
-
+    } catch {
+        generalError.value = 'Registration failed. Please try again.'
     } finally {
         loading.value = false
     }
@@ -188,7 +139,6 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-/* Reset fix for overflow issues */
 * {
     box-sizing: border-box;
 }
@@ -197,79 +147,114 @@ const handleRegister = async () => {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    background: #fff;
+    background: #ffffff;
 }
 
-nav {
-    height: auto;
-    padding: 10px;
-    position: relative;
-    left: 0;
-    top: 0;
-    color: white;
-    background-color: #6366f1;
-    width: 100%;
-    display: flex;
-}
-
-.auth-card {
-    width: 100%;
-    max-width: 420px;
-    padding: 28px;
-    border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    background: #fff;
-    border: 1px solid #e5e7eb;
-}
-
+/* ── Header (matches login exactly) ── */
 .auth-header {
-    text-align: center;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
 }
 
-.auth-header h1 {
-    font-size: 1.6rem;
-    margin-bottom: 4px;
+.header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.auth-header p {
-    font-size: 0.85rem;
-    color: #646973;
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.form {
+.brand-name {
+    font-weight: 800;
+    color: #111827;
+}
+
+.brand-name span {
+    color: #6366f1;
+}
+
+.portal {
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ── Main ── */
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    width: 100%;
+}
+
+/* ── Card ── */
+.card {
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 20px 40px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
+.card h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 1.4rem;
+}
+
+.subtitle {
+    color: #9ca3af;
+    font-size: 13px;
+    margin-top: -6px;
+}
+
+/* ── Grid — fix expanding inputs ── */
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    min-width: 0;
 }
 
 .field {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .field input {
     width: 100%;
-    padding: 12px 14px;
+    min-width: 0;
+    padding: 11px 14px;
     border-radius: 10px;
-    border: 1px solid #d1d5db;
-    background: #fff;
+    border: 1.5px solid #e5e7eb;
     font-size: 14px;
-    transition: 0.2s;
+    color: #111827;
+    background: #fafafa;
+    transition: all 0.15s;
 }
 
 .field input:focus {
     outline: none;
     border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    background: #fff;
 }
 
 .field input.error {
@@ -277,63 +262,90 @@ nav {
 }
 
 .field small {
-    color: #ef4444;
     font-size: 11px;
+    color: #ef4444;
 }
 
 .alert {
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
-    padding: 10px;
-    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 10px 14px;
+    border-radius: 10px;
     font-size: 13px;
-    text-align: center;
+    border-left: 3px solid #ef4444;
 }
 
+/* ── Buttons ── */
 .btn {
-    margin-top: 6px;
     padding: 12px;
-    border: none;
     border-radius: 10px;
+    border: none;
     background: #4f46e5;
     color: white;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
 }
 
 .btn:hover {
-    background: #6366f1;
+    background: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
 .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
-.meta {
-    text-align: center;
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Login link (kept your text, polished wrapper) ── */
+.btn-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 13px;
-    color: #9ca3af;
+    color: #6b7280;
 }
 
-.meta a {
-    color: #818cf8;
+.login-link {
     text-decoration: none;
+    color: #4f46e5;
+    font-weight: 600;
 }
 
-.meta a:hover {
+.login-link:hover {
     text-decoration: underline;
+    color: #4338ca;
 }
 
-/* FOOTER */
+/* ── Footer (matches login exactly) ── */
 .auth-footer {
     text-align: center;
-    padding: 10px;
-    width: 100%;
+    padding: 12px;
     background-color: #6366f1;
     font-size: 12px;
-    color: #e5e7eb;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 @media (max-width: 500px) {

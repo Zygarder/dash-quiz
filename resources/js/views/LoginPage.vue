@@ -28,15 +28,16 @@
           <p class="subtitle">Sign in to your account</p>
 
           <div class="field">
-            <label>Email address</label>
-            <input type="email" v-model.trim="form.email" placeholder="@example.com" :class="{ error: errors.email }" />
+            <label for="email">Email address</label>
+            <input id="email" type="email" v-model.trim="form.email" placeholder="@example.com"
+              :class="{ error: errors.email }" autocomplete="off" />
             <small v-if="errors.email">{{ errors.email[0] }}</small>
           </div>
 
           <div class="field">
-            <label>Password</label>
-            <input type="password" v-model.trim="form.password" placeholder="••••••" :class="{ error: errors.password }"
-              autocomplete="off" />
+            <label for="password">Password</label>
+            <input id="password" type="password" v-model.trim="form.password" placeholder="••••••"
+              :class="{ error: errors.password }" autocomplete="off" />
             <small v-if="errors.password">{{ errors.password[0] }}</small>
           </div>
 
@@ -133,9 +134,9 @@ const handleLogin = async () => {
     if (attempts.value >= maxAttempts) {
       isLocked.value = true
       generalError.value = 'Too many failed attempts. Please wait 30 seconds.'
-      timeout(30)
+      timeout(30) // 30 seconds
     } else {
-      generalError.value = `Invalid email or password. (${attempts.value}/${maxAttempts})`
+      generalError.value = `Invalid email or password.`
     }
 
   } finally {

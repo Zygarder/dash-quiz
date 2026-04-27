@@ -9,15 +9,18 @@
 
       <form @submit.prevent="handleReset" class="form">
         <div class="field">
-          <input type="email" v-model="email" placeholder="Email address" required readonly />
+          <input type="email" name="email" v-model="email" placeholder="Email address" required readonly
+            disabled="true" autocomplete="off"/>
         </div>
 
         <div class="field">
-          <input type="password" v-model="password" placeholder="New password" required />
+          <input type="password" name="password" v-model="password" placeholder="New password" required
+            autocomplete="off" />
         </div>
 
         <div class="field">
-          <input type="password" v-model="password_confirmation" placeholder="Confirm password" required />
+          <input type="password" name="password_confirmation" v-model="password_confirmation"
+            placeholder="Confirm password" required autocomplete="off" />
         </div>
 
         <button class="btn" :disabled="loading">
