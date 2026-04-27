@@ -28,7 +28,7 @@
 
                     <div v-else class="quiz-grid">
                         <router-link v-for="(quiz, index) in quizzes" :key="quiz.id" :title=quiz.description
-                            :to="{ name: 'quiz-start', params: { quiz_id: quiz.id } }" class="quiz-card">
+                            :to="`/quiz/${quiz.id}`" class="quiz-card">
                             <div class="card-inner">
                                 <div class="icon-wrapper">
                                     <i :class="quiz.icons"></i>
@@ -92,7 +92,6 @@ const fetchQuizzes = async () => {
             quiz.total_questions = quiz.questions ? quiz.questions.length : 10,
             quiz.icons = icons[index]
         })
-        console.log('Fetched quizzes:', quizzes.value)
     } catch (err) {
         console.error('Failed to fetch quizzes:', err)
     } finally {
