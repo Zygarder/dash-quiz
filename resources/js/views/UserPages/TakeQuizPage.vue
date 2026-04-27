@@ -73,9 +73,10 @@
 
                             <!-- Action Bar -->
                             <footer class="action-bar">
-                                <button @click="submitAnswer" class="btn-submit" :disabled="!selectedAnswer">
+                                <button @click="submitAnswer" class="btn-submit"
+                                    :disabled="!selectedAnswer || submitting">
                                     <span>{{ currentIndex + 1 === questions.length ? 'Finish Quiz' : 'Continue'
-                                        }}</span>
+                                    }}</span>
                                     <svg v-if="currentIndex + 1 !== questions.length" xmlns="http://www.w3.org/2000/svg"
                                         width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -101,6 +102,7 @@ const router = useRouter()
 
 const quiz = ref({ title: '', total_questions: 0 })
 const questions = ref([])
+const submitting = ref(false)
 // set current question number -> from localStorage save data, prevent from starting to one if refresh
 const currentIndex = ref(parseInt(localStorage.getItem('quiz_current_index')) || 0)
 const selectedAnswer = ref(null)
@@ -205,11 +207,10 @@ const confirmExit = () => {
 }
 
 const submitAnswer = async () => {
-    // no selected answer yet
-    if (!selectedAnswer.value) return
+    if (!selectedAnswer.value || submitting.value) return
 
+    submitting.value = true
     try {
-        // send answer
         const payload = {
             question_id: currentQuestion.value.id,
             answer_id: selectedAnswer.value
@@ -217,33 +218,24 @@ const submitAnswer = async () => {
 
         const { data } = await axios.post('/api/quiz/answer', payload)
 
-        // add score if correct
         if (data.correct) {
             score.value++
-            // Sync score to storage
             localStorage.setItem('quiz_score', score.value)
         }
 
-        // reset selected option
         selectedAnswer.value = null
-
-        // Sync index to storage
         localStorage.setItem('quiz_current_index', currentIndex.value)
 
-        //moves to next question
         if (currentIndex.value < questions.value.length - 1) {
-            //incerement
             currentIndex.value++
-
         } else {
-            // go to result page if no more questions
             await submitQuizResult()
         }
 
     } catch (err) {
-
-        console.error(err)
         alert(err.response?.data?.message || "Failed to submit answer")
+    } finally {
+        submitting.value = false
     }
 }
 
