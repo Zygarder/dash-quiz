@@ -104,7 +104,7 @@ const showToast = (msg, type = 'success') => {
 
   // Auto hide after 4 seconds
   setTimeout(() => {
-    notification.message = ''
+    notification.value.message = ''
   }, 2000)
 }
 
@@ -123,7 +123,6 @@ const updateProfile = async (formData) => {
   try {
     loading.value = true
 
-    await axios.get('/sanctum/csrf-cookie')
     const { data } = await axios.put('/api/profile/update', formData)
 
     if (data.data && user.value) {
@@ -165,31 +164,24 @@ const onFileChange = async (e) => {
     const formData = new FormData()
     formData.append("photo", file)
 
-    await axios.get("/sanctum/csrf-cookie")
+    // Required for Sanctum stateful auth in production
+    await axios.get('/sanctum/csrf-cookie')
+
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
 
-    if (data.photo_url && user.value) {
+    if (data.new_photo && user.value) {
+      // Only update profile_photo — userAvatar computed reads this
       user.value.profile_photo = data.new_photo
-      user.value.profile_photo_url = data.photo_url
     }
 
-    // clear preview
     preview.value = null
-
     showToast("Profile picture updated!", "success")
 
-  } catch (error) {
-    console.error("Upload Error:", error)
-
+  } catch {
     preview.value = null
-
-    const errorMsg =
-      error.response?.data?.message || "Failed to upload photo."
-
-    showToast(errorMsg, "error")
-
+    showToast("Failed to upload photo.", "error")
   } finally {
     loading.value = false
   }
