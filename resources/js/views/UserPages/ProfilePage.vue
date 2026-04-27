@@ -164,9 +164,7 @@ const onFileChange = async (e) => {
     const formData = new FormData()
     formData.append("photo", file)
 
-    const { data } = await axios.post("/api/profile/photo", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    })
+    const { data } = await axios.post("/api/profile/photo", formData)
 
     if (data.new_photo && user.value) {
       // Only update profile_photo — userAvatar computed reads this
