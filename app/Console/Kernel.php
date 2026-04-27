@@ -12,13 +12,16 @@ class Kernel extends ConsoleKernel
      * Define the application's command schedule.
      */
     protected function schedule(Schedule $schedule): void
-    {
-        $schedule->call(function () {
-            Dasher::where('role', 'dasher')
-                ->where('last_activity', '<', now()->subMinutes(2))
-                ->update(['active_status' => 0]);
-        })->everyMinute();
-    }
+{
+    $schedule->call(function () {
+        Dasher::where('active_status', 1)
+            ->whereNotNull('last_activity')
+            ->where('last_activity', '<', now()->subMinutes(2))
+            ->update([
+                'active_status' => 0
+            ]);
+    })->everyMinute();
+}
 
     /**
      * Register the commands for the application.
