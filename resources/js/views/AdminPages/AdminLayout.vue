@@ -19,9 +19,12 @@ import AdminTopbar from '@/components/AdminSide/AdminTopBar.vue'
 import axios from 'axios'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useUser } from '@/composables/useUser'
 
 const router = useRouter()
 const route = useRoute()
+
+const { user } = useUser()
 
 const isSidebarOpen = ref(false)
 const windowWidth = ref(window.innerWidth)
@@ -48,24 +51,37 @@ const pageTitles = {
 
 const currentPageTitle = computed(() => pageTitles[route.path] ?? 'Dashboard')
 
-const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
-const closeSidebar = () => { isSidebarOpen.value = false }
+const toggleSidebar = () => (isSidebarOpen.value = !isSidebarOpen.value)
+const closeSidebar = () => (isSidebarOpen.value = false)
 
 const handleLogout = async () => {
-    if (confirm('Are you sure you want to logout?')) {
+    if (!confirm('Are you sure you want to logout?')) return
+
+    try {
         await axios.post('/api/logout')
-        localStorage.removeItem('isLoggedIn')
-        localStorage.removeItem('userRole')
-        router.push('/')
+
+        // 🧠 clear frontend auth state
+        user.value = null
+
+        // 🧠 clear any stored tokens/session data
+        localStorage.clear()
+
+        // 🧠 remove axios auth header (important if you set it globally)
+        delete axios.defaults.headers.common['Authorization']
+
+        router.replace('/')
+    } catch (err) {
+        console.error('Logout failed:', err)
+
+        // fallback safety logout
+        user.value = null
+        localStorage.clear()
+        router.replace('/')
     }
 }
 
 watch(isSidebarOpen, (val) => {
-    if (val && isMobile.value) {
-        document.body.classList.add('sidebar-open')
-    } else {
-        document.body.classList.remove('sidebar-open')
-    }
+    document.body.classList.toggle('sidebar-open', val && isMobile.value)
 })
 </script>
 
