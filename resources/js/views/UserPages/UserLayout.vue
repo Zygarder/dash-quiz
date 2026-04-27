@@ -73,9 +73,11 @@ const closeSidebar = () => { isSidebarOpen.value = false }
 
 const handleLogout = async () => {
   try {
-    await axios.post('/api/logout')
-    user.value = null
-    router.replace('/')
+    if (confirm('Are you sure you want to logout?')) {
+      await axios.post('/api/logout')
+      user.value = null
+      router.replace('/')
+    }
   } catch (error) {
     console.error('Logout failed:', error)
   }
