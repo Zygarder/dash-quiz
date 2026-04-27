@@ -150,7 +150,6 @@ const updateProfile = async (formData) => {
 */
 const onFileChange = async (e) => {
   const file = e.target.files[0]
-  console.log("Selected file:", file)
   if (!file) return
 
   if (!file.type.startsWith('image/')) {
@@ -167,7 +166,6 @@ const onFileChange = async (e) => {
     formData.append("photo", file)
 
     await axios.get("/sanctum/csrf-cookie")
-    console.log("Selected file:", file)
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
@@ -175,7 +173,6 @@ const onFileChange = async (e) => {
     if (data.photo_url && user.value) {
       user.value.profile_photo = data.new_photo
       user.value.profile_photo_url = data.photo_url
-      console.log("Selected file:", file)
     }
 
     // clear preview
