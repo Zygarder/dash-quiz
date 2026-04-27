@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUser } from '@/composables/useUser'
 
 // User Pages
 import HomePage from './views/UserPages/HomePage.vue'
@@ -9,7 +10,7 @@ import TakeQuizPage from './views/UserPages/TakeQuizPage.vue'
 import QuizResult from './views/UserPages/QuizResult.vue'
 import UserLayout from './views/UserPages/UserLayout.vue'
 
-// Landing Page
+// Auth Pages
 import LoginPage from './views/LoginPage.vue'
 import RegisterPage from './views/RegisterPage.vue'
 import ForgotPage from './views/ForgotPage.vue'
@@ -25,132 +26,75 @@ import ManageQuestions from './views/AdminPages/ManageQuiz.vue'
 import AdminLayout from './views/AdminPages/AdminLayout.vue'
 
 const routes = [
-    {
-        path: "/",
-        component: LoginPage,
-    },
-    {
-        path: "/register",
-        component: RegisterPage,
-    },
-    {
-        path: "/forgot",
-        component: ForgotPage
-    },
-    {
-        path: "/reset",
-        component: ResetPage
-    },
+    { path: '/', component: LoginPage },
+    { path: '/register', component: RegisterPage },
+    { path: '/forgot', component: ForgotPage },
+    { path: '/reset', component: ResetPage },
 
     {
-        path: "/user",
+        path: '/user',
         component: UserLayout,
         children: [
-            {
-                path: '',
-                component: HomePage,
-                meta: { requiresAuth: true, requiresStudent: true }
-            }, {
-                path: 'records',
-                component: Records,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-            {
-                path: 'quizzes',
-                component: QuizPage,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
-            {
-                path: 'profile',
-                component: Profile,
-                meta: { requiresAuth: true, requiresStudent: true }
-            },
+            { path: '', component: HomePage, meta: { requiresAuth: true, requiresStudent: true } },
+            { path: 'records', component: Records, meta: { requiresAuth: true, requiresStudent: true } },
+            { path: 'quizzes', component: QuizPage, meta: { requiresAuth: true, requiresStudent: true } },
+            { path: 'profile', component: Profile, meta: { requiresAuth: true, requiresStudent: true } },
         ]
-    }, {
-        path: '/quiz-result',
-        component: QuizResult,
-        meta: { requiresAuth: true, requiresStudent: true }
     },
-    {
-        path: '/quiz/:quiz_id',
-        name: 'quiz-start',
-        component: TakeQuizPage,
-        meta: { requiresAuth: true, requiresStudent: true }
-    },
-    // Admin routes
+
+    { path: '/quiz-result', component: QuizResult, meta: { requiresAuth: true, requiresStudent: true } },
+    { path: '/quiz/:quiz_id', name: 'quiz-start', component: TakeQuizPage, meta: { requiresAuth: true, requiresStudent: true } },
+
     {
         path: '/admin',
         component: AdminLayout,
         meta: { requiresAuth: true, requiresAdmin: true },
         children: [
-            {
-                path: '', // /admin/dashboard
-                component: AdminDashboard
-            },
-            {
-                path: 'users',
-                component: UsersTable
-            },
-            {
-                path: 'records',
-                component: StudentRecords
-            },
-            {
-                path: 'quizzes/create',
-                component: QuizAdd
-            },
-            {
-                path: 'quizzes/:id/edit',
-                component: QuizEdit
-            },
-            {
-                path: 'manage-quizzes',
-                component: ManageQuestions
-            }
+            { path: '', component: AdminDashboard },
+            { path: 'users', component: UsersTable },
+            { path: 'records', component: StudentRecords },
+            { path: 'quizzes/create', component: QuizAdd },
+            { path: 'quizzes/:id/edit', component: QuizEdit },
+            { path: 'manage-quizzes', component: ManageQuestions }
         ]
     },
-    // No Page Dound / 404 Error page
+
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import('./views/404.vue')
     }
-
 ]
 
-// 1. Create the router instance first
 const router = createRouter({
     history: createWebHistory(),
     routes
 })
 
-// Attach the guard to the 'router' instance
-router.beforeEach((to, from, next) => {
-    const isAuthenticated = localStorage.getItem('isLoggedIn') === 'true';
-    const userRole = localStorage.getItem('userRole');
+router.beforeEach(async (to, from, next) => {
+    const { user, fetchUser } = useUser()
 
-    // 1. Unauthenticated users must go to Login
-    if (to.meta.requiresAuth && !isAuthenticated) {
-        return next({ path: '/' });
+    const guestRoutes = ['/', '/register', '/forgot', '/reset']
+    const requiresAuth = to.meta.requiresAuth
+
+    // Fetch session once if not cached yet
+    if (!user.value) {
+        await fetchUser()
     }
 
-    // 2. Prevent logged-in users from seeing the Login/Register page
-    if ((to.path === '/' || to.path === '/register') && isAuthenticated) {
-        return next(userRole === 'admin' ? '/admin' : '/user');
+    // 1. PROTECTED ROUTES
+    if (requiresAuth) {
+        if (!user.value) return next('/')
+        if (to.meta.requiresAdmin && user.value.role !== 'admin') return next('/user')
+        if (to.meta.requiresStudent && user.value.role === 'admin') return next('/admin')
     }
 
-    // 3. Admin Protection: Stop students from seeing Admin pages
-    if (to.meta.requiresAdmin && userRole !== 'admin') {
-        return next({ path: '/user' });
+    // 2. GUEST ROUTES — redirect logged-in users away
+    if (guestRoutes.includes(to.path) && user.value) {
+        return next(user.value.role === 'admin' ? '/admin' : '/user')
     }
 
-    // 4. Student Protection: Stop admins from seeing Student pages
-    if (to.meta.requiresStudent && userRole === 'admin') {
-        return next({ path: '/admin' });
-    }
-
-    // Default: Allow through
-    next();
-});
+    next()
+})
 
 export default router
