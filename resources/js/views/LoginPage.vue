@@ -1,7 +1,6 @@
 <template>
   <div class="auth-wrapper">
 
-    <!-- HEADER -->
     <header class="auth-header">
       <div class="header-inner">
         <div class="brand">
@@ -12,11 +11,10 @@
       </div>
     </header>
 
-    <!-- MAIN -->
     <main class="container">
 
-      <!-- HERO -->
       <section class="hero">
+        <div class="hero-badge">✦ SNSU Capstone Project</div>
         <h1>
           Learning is <span>better</span><br />
           when we do it <span>together</span>
@@ -24,20 +22,21 @@
         <p>Practice, learn, and improve your skills with Dash Quiz.</p>
       </section>
 
-      <!-- LOGIN CARD -->
       <section class="form-section">
         <form class="card" @submit.prevent="handleLogin">
-          <h2>Welcome!</h2>
+          <h2>Welcome back!</h2>
+          <p class="subtitle">Sign in to your account</p>
 
           <div class="field">
-            <input type="email" v-model.trim="form.email" placeholder="Email address"
-              :class="{ error: errors.email }" />
+            <label>Email address</label>
+            <input type="email" v-model.trim="form.email" placeholder="@example.com" :class="{ error: errors.email }" />
             <small v-if="errors.email">{{ errors.email[0] }}</small>
           </div>
 
           <div class="field">
-            <input type="password" v-model.trim="form.password" placeholder="Password"
-              :class="{ error: errors.password }" autocomplete="false" />
+            <label>Password</label>
+            <input type="password" v-model.trim="form.password" placeholder="••••••" :class="{ error: errors.password }"
+              autocomplete="off" />
             <small v-if="errors.password">{{ errors.password[0] }}</small>
           </div>
 
@@ -45,18 +44,16 @@
             {{ generalError }}
           </div>
 
-          <button class="btn" type="submit" :disabled="loading">
+          <button class="btn" type="submit" :disabled="loading || isLocked">
             <span v-if="!loading">Login</span>
             <span v-else class="loader"></span>
           </button>
 
           <div class="footer-links">
             <router-link to="/forgot" class="forgot-link">Forgot password?</router-link>
-
             <div class="divider">
               <div class="line"></div>or<div class="line"></div>
             </div>
-
             <router-link to="/register" class="btn-register">Create account</router-link>
           </div>
         </form>
@@ -64,7 +61,6 @@
 
     </main>
 
-    <!-- FOOTER -->
     <footer class="auth-footer">
       © {{ new Date().getFullYear() }} Dash Quiz • SNSU Capstone Project
     </footer>
@@ -75,81 +71,71 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUser } from '@/composables/useUser'
 import axios from 'axios'
 
 const router = useRouter()
+const { fetchUser } = useUser()
 
-const form = reactive({
-  email: '',
-  password: ''
-})
-
+const form = reactive({ email: '', password: '' })
 const loading = ref(false)
 const errors = ref({})
 const generalError = ref('')
 
-// attempt limiter
 const maxAttempts = 3
 const attempts = ref(0)
 const isLocked = ref(false)
 
-//validates email
 function isValidEmail(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function timeout(seconds) {
+  setTimeout(() => {
+    attempts.value = 0
+    isLocked.value = false
+  }, seconds * 1000)
 }
 
 const handleLogin = async () => {
   if (loading.value || isLocked.value) return
 
-  loading.value = true
   errors.value = {}
   generalError.value = ''
 
+  // Validate BEFORE setting loading — so early returns don't leave button stuck
+  if (!form.email || !form.password) {
+    generalError.value = 'Please enter your email and password.'
+    return
+  }
+
+  if (!isValidEmail(form.email)) {
+    generalError.value = 'Please enter a valid email address.'
+    return
+  }
+
+  loading.value = true
+
   try {
-    // LOCK CHECK
-    if (isLocked.value) {
-      generalError.value = 'Too many failed attempts. Try again later.'
-      loading.value = false
-      return
-    }
-
-    // VALIDATION
-    if (!form.email || !form.password) {
-      generalError.value = 'Invalid email and password'
-      loading.value = false
-      return
-    }
-
-    if (!isValidEmail(form.email)) {
-      generalError.value = 'Invalid email format.'
-      loading.value = false
-      return
-    }
-
+    await axios.get('/sanctum/csrf-cookie')
     const { data } = await axios.post('/api/login', form)
 
-    // SUCCESS
     attempts.value = 0
 
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('userRole', data.role)
+    // Force refresh user from session — don't trust localStorage for role
+    await fetchUser()
 
     router.push(data.role === 'admin' ? '/admin' : '/user')
 
-  } catch (err) {
-
-    // FAILED LOGIN
+  } catch {
     attempts.value++
-
-    generalError.value =
-      err.response?.data?.message ||
-      `Invalid email or password (${attempts.value}/${maxAttempts})`
 
     if (attempts.value >= maxAttempts) {
       isLocked.value = true
-      generalError.value =
-        'Too many failed attempts. Please wait or refresh the page.'
+      generalError.value = 'Too many failed attempts. Please wait 30 seconds.'
+      timeout(30)
+    } else {
+      generalError.value = `Invalid email or password. (${attempts.value}/${maxAttempts})`
     }
 
   } finally {
@@ -170,7 +156,6 @@ const handleLogin = async () => {
   background: #ffffff;
 }
 
-/* HEADER */
 .auth-header {
   border-bottom: 1px solid #e5e7eb;
   background: #ffffff;
@@ -191,18 +176,6 @@ const handleLogin = async () => {
   gap: 10px;
 }
 
-.logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #6366f1;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-}
-
 .brand-name {
   font-weight: 800;
   color: #111827;
@@ -215,9 +188,11 @@ const handleLogin = async () => {
 .portal {
   font-size: 12px;
   color: #6b7280;
+  background: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
-/* MAIN */
 .container {
   flex: 1;
   max-width: 1100px;
@@ -225,35 +200,28 @@ const handleLogin = async () => {
   padding: 40px 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 60px;
+  align-items: center;
 }
 
-.hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  color: #6366f1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
 }
 
 .hero h1 {
   font-size: 2.6rem;
   font-weight: 800;
   color: #111827;
-}
-
-.btn-register {
-  padding: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 10px;
-  background: #1b8023;
-  cursor: pointer;
-}
-
-.btn-register:hover {
-  background-color: #1e9328;
+  line-height: 1.2;
 }
 
 .hero span {
@@ -261,29 +229,25 @@ const handleLogin = async () => {
 }
 
 .hero p {
-  margin-top: 12px;
+  margin-top: 14px;
   color: #6b7280;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-/* CARD */
 .form-section {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.form-footer {
-  width: 100%;
-  background-color: orange;
-}
-
 .card {
   width: 100%;
   max-width: 380px;
-  padding: 28px;
-  border-radius: 16px;
+  padding: 32px;
+  border-radius: 20px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 20px 40px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -292,19 +256,43 @@ const handleLogin = async () => {
 .card h2 {
   margin: 0;
   color: #111827;
+  font-size: 1.4rem;
+}
+
+.subtitle {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: -8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
 }
 
 .field input {
   width: 100%;
-  padding: 12px;
+  padding: 11px 14px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #e5e7eb;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: all 0.15s;
 }
 
 .field input:focus {
   outline: none;
   border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: #fff;
 }
 
 .field input.error {
@@ -319,8 +307,10 @@ const handleLogin = async () => {
 .alert {
   background: #fef2f2;
   color: #b91c1c;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  border-left: 3px solid #ef4444;
 }
 
 .btn {
@@ -334,10 +324,20 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+  letter-spacing: 0.01em;
 }
 
 .btn:hover {
-  background: #6366f1;
+  background: #4338ca;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .loader {
@@ -356,14 +356,16 @@ const handleLogin = async () => {
 }
 
 .footer-links {
-  text-align: center;
-  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .forgot-link {
-  margin-top: 10px;
+  text-align: center;
   text-decoration: none;
   color: #6366f1;
+  font-size: 13px;
 }
 
 .forgot-link:hover {
@@ -371,8 +373,7 @@ const handleLogin = async () => {
 }
 
 .divider {
-  margin: 15px 0;
-  color: #9ca3af;
+  color: #d1d5db;
   font-size: 12px;
   display: flex;
   justify-content: center;
@@ -382,23 +383,41 @@ const handleLogin = async () => {
 
 .line {
   width: 100%;
-  background-color: grey;
+  background-color: #e5e7eb;
   height: 1px;
 }
 
-/* FOOTER */
-.auth-footer {
-  text-align: center;
-  padding: 10px;
-  background-color: #6366f1;
-  font-size: 12px;
-  color: #e5e7eb;
+.btn-register {
+  padding: 11px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 10px;
+  background: #16a34a;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.15s;
 }
 
-/* RESPONSIVE */
+.btn-register:hover {
+  background: #15803d;
+}
+
+.auth-footer {
+  text-align: center;
+  padding: 12px;
+  background-color: #6366f1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 @media (max-width: 768px) {
   .container {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .hero {
