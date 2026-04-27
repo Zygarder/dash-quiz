@@ -164,9 +164,6 @@ const onFileChange = async (e) => {
     const formData = new FormData()
     formData.append("photo", file)
 
-    // Required for Sanctum stateful auth in production
-    await axios.get('/sanctum/csrf-cookie')
-
     const { data } = await axios.post("/api/profile/photo", formData, {
       headers: { "Content-Type": "multipart/form-data" }
     })
