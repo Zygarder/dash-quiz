@@ -15,11 +15,15 @@ class UpdateLastActivity
      */
     public function handle($request, Closure $next)
     {
-        if (auth()->check()) {
-            auth()->user()->update([
-                'last_activity' => now(),
-                'active_status' => 1
-            ]);
+        $user = $request->user();
+
+        if ($user) {
+            if (!$user->last_activity || $user->last_activity->lt(now()->subMinute())) {
+                $user->update([
+                    'last_activity' => now(),
+                    'active_status' => 1
+                ]);
+            }
         }
 
         return $next($request);
