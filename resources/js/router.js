@@ -74,23 +74,22 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
     const { user, fetchUser } = useUser()
 
-    const guestRoutes = ['/', '/register', '/forgot', '/reset']
-    const requiresAuth = to.meta.requiresAuth
+    // Only fetch when needed — protected routes and guest redirect check
+    const needsUserCheck = to.meta.requiresAuth || ['/', '/register', '/forgot', '/reset'].includes(to.path)
 
-    // Fetch session once if not cached yet
-    if (!user.value) {
+    if (needsUserCheck && !user.value) {
         await fetchUser()
     }
 
-    // 1. PROTECTED ROUTES
-    if (requiresAuth) {
+    // Protected routes — must be authenticated
+    if (to.meta.requiresAuth) {
         if (!user.value) return next('/')
         if (to.meta.requiresAdmin && user.value.role !== 'admin') return next('/user')
         if (to.meta.requiresStudent && user.value.role === 'admin') return next('/admin')
     }
 
-    // 2. GUEST ROUTES — redirect logged-in users away
-    if (guestRoutes.includes(to.path) && user.value) {
+    // Redirect already-authenticated users away from guest pages
+    if (['/', '/register', '/forgot', '/reset'].includes(to.path) && user.value) {
         return next(user.value.role === 'admin' ? '/admin' : '/user')
     }
 
