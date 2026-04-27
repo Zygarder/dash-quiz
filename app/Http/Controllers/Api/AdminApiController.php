@@ -184,40 +184,68 @@ class AdminApiController extends Controller
     ###############################################
     public function logout(Request $request)
     {
-        $user = Auth::guard('dasher')->user();
-        if ($user) {
-            $user->update(['active_status' => 0]);
+        $user = $request->user();
 
-            Auth::guard('dasher')->logout();
+        if ($user) {
+            $user->update([
+                'active_status' => 0,
+                'last_activity' => now()
+            ]);
+
+            // delete Sanctum token(s)
+            $user->tokens()->delete();
         }
+
+        Auth::guard('dasher')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Return true or a status to let the calling function know it finished
-        return true;
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logged out successfully'
+        ]);
     }
 
     public function heartbeat(Request $request)
     {
-        $user = Auth::guard('dasher')->user();
-        // ADD THIS: Check if the user even exists first
+        $user = $request->user();
+
+        // Not authenticated
         if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthenticated'], 401);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthenticated'
+            ], 401);
         }
 
-        // 1. Check if the Scheduler marked them offline FIRST
+        // If scheduler already marked offline → force logout
         if ($user->active_status != 1) {
-            $this->logout($request);
-            return response()->json(['status' => 'error'], 403);
+
+            $user->tokens()->delete();
+
+            Auth::guard('dasher')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Session expired'
+            ], 403);
         }
 
-        // 2. ONLY IF they are active, update the timestamp
-        $user->update([
-            'last_activity' => now(),
-            'active_status' => 1
-        ]);
+        // Throttle DB updates (avoid spam)
+        if (!$user->last_activity || $user->last_activity->lt(now()->subSeconds(30))) {
+            $user->update([
+                'last_activity' => now(),
+                'active_status' => 1
+            ]);
+        }
 
+        return response()->json([
+            'status' => 'ok'
+        ]);
     }
 
     ###############################################
