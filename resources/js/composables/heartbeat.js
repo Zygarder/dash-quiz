@@ -1,16 +1,35 @@
 import axios from "axios";
+import { useUser } from "./useUser";
 
-const time = 1 * 60 * 1000 // 1 min
+const time = 1 * 60 * 1000;
 
-export const startHeartbeat = (router) => { // Accept router here
-    setInterval(async () => {
-        if (!window.location.origin) return; // Skip if origin is not set (e.g., during SSR or certain test environments)
+let heartbeat = null;
+
+export const startHeartbeat = (router) => {
+    const { user } = useUser();
+
+    if (heartbeat) {
+        clearInterval(heartbeat);
+        heartbeat = null;
+    }
+
+    heartbeat = setInterval(async () => {
+        // STOP completely if no user
+        if (!user.value) return;
+
+        //  STOP on guest routes
+        const guestRoutes = ['/', '/register', '/forgot', '/reset'];
+        if (guestRoutes.includes(router.currentRoute.value.path)) return;
+
         try {
-            await axios.post('/api/heartbeat');
+            await axios.post("/api/heartbeat");
         } catch (err) {
-            if (err.response?.status === 403 || err.response?.status === 401) {
+            if ([401, 403].includes(err.response?.status)) {
+                clearInterval(heartbeat);
+                heartbeat = null;
+
                 localStorage.clear();
-                router.push('/');
+                router.push("/");
             }
         }
     }, time);
