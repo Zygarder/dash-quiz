@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable; // important
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\QuizRecord;
 
 class Dasher extends Authenticatable
 {
@@ -24,6 +25,11 @@ class Dasher extends Authenticatable
         'password',
         'last_activity',
         'active_status',
+    ];
+
+    protected $casts = [
+        'last_activity' => 'datetime',
+        'active_status' => 'boolean',
     ];
 
     protected $hidden = [
