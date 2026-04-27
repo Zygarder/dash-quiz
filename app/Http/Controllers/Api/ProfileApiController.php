@@ -4,102 +4,52 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
-use App\Models\QuizRecord;
 use App\Models\Dasher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileApiController extends Controller
 {
-    // Get the currently authenticated user's profile
-    public function getProfile()
-    {
-        // Get logged-in user using the "dasher" authentication guard
-        $user = Auth::guard('dasher')->user();
-
-        // Count how many quizzes the user has taken
-        // This is used for profile statistics
-        $quizzes_count = QuizRecord::where('user_id', $user->id)->count();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'id' => $user->id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-
-                // Create a full name field for easier display in frontend
-                'full_name' => $user->first_name . ' ' . $user->last_name,
-
-                'email' => $user->email,
-
-                // Return profile image path if it exists
-                // otherwise return null so frontend knows there is no image
-                'profile_photo' => $user->profile_photo
-                    ? '/storage/images/profiles/' . $user->profile_photo
-                    : null,
-
-                // Format registration date to a readable format
-                'created_at' => $user->created_at->format('F j, Y'),
-
-                // Total quizzes taken by the user
-                'quizzes_taken' => $quizzes_count
-            ]
-        ]);
-    }
 
     // Update user profile information
     public function uploadPhoto(Request $request)
     {
-        // 1. Validate file
         $request->validate([
             'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // 2. Auth user
-        $user = Auth::guard('dasher')->user();
+        $user = $request->user();
 
         if (!$user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthenticated user.'
+                'message' => 'Unauthenticated.'
             ], 401);
         }
 
-        // 3. Generate filename
         $filename = Str::uuid() . '.' . $request->photo->getClientOriginalExtension();
 
-        // 4. Store file
-        $request->photo->storeAs(
-            'images/profiles',
-            $filename,
-            'public'
-        );
+        $request->photo->storeAs('images/profiles', $filename, 'public');
 
-        // 5. Delete old photo safely
         if ($user->profile_photo) {
-            \Storage::disk('public')->delete('images/profiles/' . $user->profile_photo);
+            Storage::disk('public')->delete('images/profiles/' . $user->profile_photo);
         }
 
-        // 6. Save ONLY filename in DB (clean architecture)
         $user->profile_photo = $filename;
         $user->save();
 
-        // 7. Build consistent URL
-        $photoUrl = asset('storage/images/profiles/' . $filename);
-
         return response()->json([
             'status' => 'success',
-            'message' => 'Profile photo updated successfully',
+            'message' => 'Profile photo updated successfully.',
             'new_photo' => $filename,
-            'photo_url' => $photoUrl
+            'photo_url' => asset('storage/images/profiles/' . $filename),
         ]);
     }
 
     public function updateProfile(Request $request)
     {
-        $user = Auth::guard('dasher')->user();
+        $user = $request->user();
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
@@ -131,10 +81,10 @@ class ProfileApiController extends Controller
     }
 
     // Allow users to delete their own account
-    public function selfDeleteAccount()
+    public function selfDeleteAccount(Request $request)
     {
         // Get logged-in user's ID
-        $user_id = Auth::guard('dasher')->user()->id;
+        $user_id = $request->user()->id;
 
         // Find the user record
         $user = Dasher::findOrFail($user_id);
