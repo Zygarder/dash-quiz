@@ -31,7 +31,7 @@ class DragDropController extends Controller
 
         return response()->json([
             'question' => $question,
-            'items' => $items
+            'items' => $items->shuffle(), // Shuffle the items to randomize their order
         ]);
     }
 
@@ -71,10 +71,7 @@ class DragDropController extends Controller
         |
         */
 
-            $correctItems = DragDrop::where(
-                'question_id',
-                $question->id
-            )
+            $correctItems = DragDrop::where('question_id', $question->id)
                 ->orderBy('correct_position')
                 ->get();
 
@@ -102,15 +99,14 @@ class DragDropController extends Controller
 
             $score = 0;
             $total = count($correctOrder);
+            $correctItems = [];
 
 
             foreach ($submittedAnswers as $index => $itemId) {
 
-                if (
-                    isset($correctOrder[$index]) &&
-                    $correctOrder[$index] == $itemId
-                ) {
+                if (isset($correctOrder[$index]) && $correctOrder[$index] == $itemId) {
                     $score++;
+                    $correctItems[] = $itemId;
                 }
             }
 
@@ -135,6 +131,7 @@ class DragDropController extends Controller
                 'score' => $score,
                 'total' => $total,
                 'is_correct' => $isCorrect,
+                'correctList' => $correctItems,
                 'submitted_order' => $submittedAnswers,
             ]);
         } catch (\Exception $e) {
