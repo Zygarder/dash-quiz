@@ -9,21 +9,21 @@
         <h2 class="page-title">{{ currentPageTitle }}</h2>
       </div>
       <div v-if="route.path !== '/admin/settings'">
-      <div class="user-section">
-        <div class="user-meta" v-if="showUserMeta">
-          <span class="user-name">{{ userFullName }}</span>
-          <span class="user-status">Online</span>
-        </div>
-
-
-        <router-link to="/admin/settings">
-          <div class="avatar-container">
-            <img :src="userAvatar" class="avatar-img" alt="avatar" />
-            <span class="pulse-indicator"></span>
+        <div class="user-section">
+          <div class="user-meta" v-if="showUserMeta">
+            <span class="user-name">{{ userFullName }}</span>
+            <span class="user-status">Online</span>
           </div>
-        </router-link>
+
+
+          <router-link to="/admin/settings">
+            <div class="avatar-container">
+              <img :src="userAvatar" class="avatar-img" alt="avatar" />
+              <span class="pulse-indicator"></span>
+            </div>
+          </router-link>
+        </div>
       </div>
-    </div>
     </div>
   </header>
 </template>
@@ -61,7 +61,7 @@ const showUserMeta = computed(() => windowWidth.value > 640)
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 99;
   height: 64px;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(20px);
