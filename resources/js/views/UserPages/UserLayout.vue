@@ -36,12 +36,22 @@ const updateWindowWidth = () => {
   }
 }
 
+
+
 onMounted(async () => {
   window.addEventListener('resize', updateWindowWidth)
 
   // Load user once
   if (!user.value) {
     try {
+
+      if (!user.value) {
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('dash-quiz') || key.startsWith('quiz')) {
+            localStorage.removeItem(key)
+          }
+        })
+      }
       await fetchUser()
     } catch {
       user.value = null
@@ -73,10 +83,19 @@ const closeSidebar = () => { isSidebarOpen.value = false }
 
 const handleLogout = async () => {
   try {
+
     if (confirm('Are you sure you want to logout?')) {
+      await axios.get('/sanctum/csrf-cookie')
       await axios.post('/api/logout')
       user.value = null
-      router.replace('/')
+
+      //remove all quiz-related caches on logout to prevent stale data if another user logs in on same device
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('dash-quiz') || key.startsWith('quiz')) {
+          localStorage.removeItem(key)
+        }
+      })
+      router.push('/')
     }
   } catch (error) {
     console.error('Logout failed:', error)
@@ -135,7 +154,6 @@ const handleLogout = async () => {
   pointer-events: none;
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  backdrop-filter: blur(4px);
 }
 
 .sidebar-overlay.active {
