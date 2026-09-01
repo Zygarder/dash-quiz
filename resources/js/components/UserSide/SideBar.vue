@@ -1,34 +1,62 @@
 <template>
-  <aside class="user-sidebar" :class="{ 'open': isSidebarOpen }">
+  <aside class="user-sidebar" :class="{ open: isSidebarOpen }">
     <!-- Logo Section -->
     <div class="logo-section">
-        <img src="/public/bolt.png" alt="Logo" width="32" height="32" >
-      <span class="logo-text">DASH<span>QUIZ</span></span>
+      <img src="/public/lightning.png" alt="DASHQUIZ Logo" width="32" height="32">
+
+      <span class="logo-text">
+        DASH<span>QUIZ</span>
+      </span>
     </div>
 
     <!-- Menu Label -->
-    <div class="nav-label">MAIN MENU</div>
+    <div class="nav-label">
+      MAIN MENU
+    </div>
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
+
       <router-link to="/user" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
-        <span class="nav-icon"><i class="fas fa-home"></i></span>
-        <span class="nav-text">Home</span>
+        <span class="nav-icon">
+          <i class="fas fa-home"></i>
+        </span>
+
+        <span class="nav-text">
+          Home
+        </span>
       </router-link>
 
       <router-link to="/user/quizzes" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
-        <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
-        <span class="nav-text">Quizzes</span>
+        <span class="nav-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </span>
+
+        <span class="nav-text">
+          Quizzes
+        </span>
       </router-link>
 
       <router-link to="/user/records" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
-        <span class="nav-icon"><i class="fas fa-chart-simple"></i></span>
-        <span class="nav-text">Records</span>
+        <span class="nav-icon">
+          <i class="fas fa-chart-simple"></i>
+        </span>
+
+        <span class="nav-text">
+          Records
+        </span>
       </router-link>
+
       <router-link to="/user/profile" exact-active-class="active" @click="$emit('closeSidebar')" class="nav-link">
-        <span class="nav-icon"><i class="fas fa-user"></i></span>
-        <span class="nav-text">Profile</span>
+        <span class="nav-icon">
+          <i class="fas fa-user"></i>
+        </span>
+
+        <span class="nav-text">
+          Profile
+        </span>
       </router-link>
+
     </nav>
 
     <!-- Spacer -->
@@ -36,290 +64,428 @@
 
     <!-- Footer -->
     <div class="sidebar-footer">
-      <div class="user-badge">
-        <div class="user-avatar">U</div>
-        <div class="user-info">
-          <span class="user-name">User</span>
-          <span class="user-role">Student</span>
-        </div>
-      </div>
       <button class="logout-btn" @click="$emit('logout')" title="Logout">
-        <i class="fas fa-power-off"></i>
+        <i class="fas fa-power-off"></i> Log out
       </button>
     </div>
   </aside>
 </template>
 
+
 <script setup>
 defineProps({
   isSidebarOpen: Boolean
 })
-defineEmits(['closeSidebar', 'logout'])
+
+defineEmits([
+  'closeSidebar',
+  'logout'
+])
 </script>
 
+
 <style scoped>
+/* =========================================
+   FROSTED NOIR PALETTE
+========================================= */
+
 .user-sidebar {
-  --bg-primary: #1e1b4b;
-  --bg-hover: rgba(99, 102, 241, 0.1);
-  --accent: #818cf8;
-  --accent-active: #6366f1;
-  --logo-accent: #8b5cf6;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #4b5563;
-  --border: rgba(255, 255, 255, 0.05);
-  --user-avatar: linear-gradient(135deg, #6366f1, #4f46e5);
+
+  --white: #FFFFFF;
+  --black: #000000;
+  --gray-light: #D3D3D3;
+  --gray: #A9A9A9;
+  --gray-dark: #696969;
+
+  --bg-primary: #FFFFFF;
+  --bg-hover: #F5F5F5;
+  --bg-active: #D3D3D3;
+
+  --text-primary: #000000;
+  --text-secondary: #696969;
+  --text-muted: #A9A9A9;
+
+  --border: #D3D3D3;
 
   width: 240px;
-  background: #1e1b4b;
+
+  background: var(--bg-primary);
+
   position: fixed;
+
   left: 0;
   top: 0;
+
   display: flex;
   flex-direction: column;
-  height: auto;
+
+  height: 100vh;
+
   padding: 1.5rem;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1001;
+
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  z-index: 1000;
+
   border-right: 1px solid var(--border);
+
   overflow-y: auto;
-  font-family: 'Inter', -apple-system, sans-serif;
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+
+  box-sizing: border-box;
 }
 
-/* === RESPONSIVE === */
-@media (min-width: 1025px) {
-  .user-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-  }
-}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
 
 @media (max-width: 1024px) and (min-width: 769px) {
-  .user-sidebar {
 
+  .user-sidebar {
     width: 220px;
-    height: 100vh;
     padding: 1.25rem;
   }
+
 }
+
 
 @media (max-width: 768px) {
+
   .user-sidebar {
+
     transform: translateX(-100%);
+
     width: 280px;
-    height: 100%;
+
+    height: 100vh;
+
     padding: 1.25rem;
   }
 
   .user-sidebar.open {
+
     transform: translateX(0);
-    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.4);
+
+    box-shadow:
+      12px 0 40px rgba(0, 0, 0, 0.15);
   }
+
 }
+
 
 @media (max-width: 480px) {
+
   .user-sidebar.open {
-    width: 100vh;
+
+    width: 100%;
+
     max-width: 280px;
   }
+
 }
 
-/* === LOGO === */
+
+/* =========================================
+   LOGO
+========================================= */
+
 .logo-section {
+
   display: flex;
+
   align-items: center;
+
   gap: 12px;
+
   margin-bottom: 2.5rem;
+
   padding-right: 0.5rem;
 }
 
-.logo-mark {
+.logo-section img {
+
   width: 32px;
   height: 32px;
-  background: #8b5cf6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+  object-fit: contain;
+
   flex-shrink: 0;
 }
 
-.logo-mark svg {
-  stroke: white;
-}
-
 .logo-text {
+
   font-weight: 800;
+
   font-size: 1.1rem;
-  color: #f8fafc;
+
+  color: var(--black);
+
   letter-spacing: 0.5px;
 }
 
 .logo-text span {
-  color: var(--accent);
+
+  color: var(--gray-dark);
 }
 
-/* === NAV LABEL === */
+
+/* =========================================
+   NAV LABEL
+========================================= */
+
 .nav-label {
+
   font-size: 0.7rem;
+
   font-weight: 700;
-  color: #4b5563;
+
+  color: var(--gray);
+
   letter-spacing: 1.5px;
+
   margin-bottom: 1rem;
+
   padding-left: 0.25rem;
 }
 
-/* === NAVIGATION === */
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
 .sidebar-nav {
+
   display: flex;
+
   flex-direction: column;
-  gap: 4px;
+
+  gap: 5px;
 }
+
 
 .nav-link {
+
+  position: relative;
+
   display: flex;
+
   align-items: center;
+
   gap: 12px;
+
   padding: 12px 12px 12px 16px;
-  border-radius: 10px;
+
+  border-radius: 8px;
+
   color: var(--text-secondary);
+
   text-decoration: none;
+
   font-weight: 500;
+
   font-size: 0.9375rem;
-  transition: all 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
+
+
+/* Hover */
 
 .nav-link:hover {
+
   background: var(--bg-hover);
-  color: #f8fafc;
-  border-left-color: var(--accent);
-  padding-left: 19px;
-  margin-left: -3px;
+
+  color: var(--black);
+
+  transform: translateX(2px);
 }
+
+
+/* Active */
 
 .nav-link.active {
-  background: var(--bg-hover);
-  color: #f8fafc;
-  border-left-color: #6366f1;
+
+  background: var(--bg-active);
+
+  color: var(--black);
+
+  font-weight: 600;
+
+  box-shadow:
+    inset 3px 0 0 var(--black);
 }
 
+
 .nav-link.active .nav-icon {
-  color: var(--accent);
+
+  color: var(--black);
 }
+
+
+/* =========================================
+   ICONS
+========================================= */
 
 .nav-icon {
+
   width: 18px;
+
   font-size: 0.9375rem;
-  opacity: 0.8;
+
+  color: var(--gray-dark);
+
+  opacity: 0.9;
+
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.nav-link:hover .nav-icon,
-.nav-link.active .nav-icon {
+
+.nav-link:hover .nav-icon {
+
+  color: var(--black);
+
   opacity: 1;
 }
 
+
+.nav-link.active .nav-icon {
+
+  color: var(--black);
+
+  opacity: 1;
+}
+
+
 .nav-text {
-  opacity: 0.9;
+
+  opacity: 1;
 }
 
-/* === SPACER === */
+
+/* =========================================
+   SPACER
+========================================= */
+
 .sidebar-spacer {
-  height: 40%;
+
+  flex: 1;
+
+  min-height: 40px;
 }
 
-/* === FOOTER === */
+
+/* =========================================
+   FOOTER
+========================================= */
+
 .sidebar-footer {
+
   padding-top: 1rem;
+
+  padding-bottom: 0.25rem;
+
   border-top: 1px solid var(--border);
+
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
-  padding-bottom: 1rem;
+
   gap: 12px;
 }
 
-.user-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
 
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-  color: white;
-  flex-shrink: 0;
-}
-
-.user-info {
-  min-width: 0;
-}
-
-.user-name {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #f8fafc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: 0.6875rem;
-  color: #4b5563;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* =========================================
+   LOGOUT
+========================================= */
 
 .logout-btn {
-  background: none;
+
+  background: var(--white);
+
   border: 1px solid var(--border);
+
   border-radius: 8px;
-  color: #ef4444;
+
+  color: #696969;
+
   cursor: pointer;
+
   font-size: 1rem;
+
   padding: 0.625rem;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
-  transition: all 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
   flex-shrink: 0;
-  width: 40px;
+
+  width: 100%;
   height: 40px;
 }
 
+
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: #ef4444;
-  transform: scale(1.05);
+
+  background: #000000;
+
+  border-color: #000000;
+
+  color: #FFFFFF;
+
+  transform: scale(1.04);
 }
 
-/* === SCROLLBAR === */
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
 .user-sidebar::-webkit-scrollbar {
+
   width: 4px;
 }
 
+
 .user-sidebar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+
+  background: transparent;
 }
+
 
 .user-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+
+  background: #D3D3D3;
+
+  border-radius: 4px;
 }
 
+
 .user-sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+
+  background: #A9A9A9;
 }
 </style>

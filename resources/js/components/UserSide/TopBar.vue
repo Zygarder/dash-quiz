@@ -52,141 +52,403 @@ const isMobile = computed(() => screenWidth.value <= 768)
 </script>
 
 <style scoped>
-/* ── BASE ── */
+/* =========================================================
+   FROSTED NOIR
+   #FFFFFF — White
+   #000000 — Black
+   #A9A9A9 — Gray
+   #D3D3D3 — Light Gray
+   #696969 — Dim Gray
+========================================================= */
+
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 99;
+
   height: 64px;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(211, 211, 211, 0.8);
+
   display: flex;
   align-items: center;
+
   flex-shrink: 0;
 }
 
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
 .navbar-container {
   width: 100%;
-  padding: 0 clamp(1rem, 2.5vw, 1.5rem);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   height: 100%;
+
+  padding: 0 clamp(14px, 2.5vw, 24px);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* ── LEFT ── */
+
+/* =========================================================
+   LEFT SECTION
+========================================================= */
+
 .left-section {
+  min-width: 0;
+
   display: flex;
   align-items: center;
-  gap: clamp(10px, 2vw, 18px);
-  min-width: 0;
+
+  gap: 12px;
 }
+
+
+/* =========================================================
+   MENU BUTTON
+========================================================= */
+
+.menu-trigger {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  background: #ffffff;
+
+  border: 1px solid #d3d3d3;
+  border-radius: 9px;
+
+  color: #696969;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+.menu-trigger:hover {
+  background: #f5f5f5;
+  border-color: #a9a9a9;
+  color: #000000;
+}
+
+
+.menu-trigger:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================================================
+   PAGE TITLE
+========================================================= */
 
 .page-title {
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
-  font-weight: 700;
-  background: black;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  min-width: 0;
+
   margin: 0;
+
+  color: #000000;
+
+  font-size: clamp(16px, 2.5vw, 19px);
+  line-height: 1.2;
+
+  font-weight: 750;
+
+  letter-spacing: -0.025em;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.menu-trigger {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, transform 0.2s;
-}
 
-.menu-trigger:hover {
-  background: rgba(102, 126, 234, 0.2);
-  transform: scale(1.05);
-}
+/* =========================================================
+   USER SECTION
+========================================================= */
 
-/* ── RIGHT ── */
 .user-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+
+  gap: 11px;
+
   flex-shrink: 0;
 }
+
+
+/* =========================================================
+   USER META
+========================================================= */
 
 .user-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1px;
+
+  gap: 2px;
 }
 
+
 .user-name {
-  font-size: clamp(0.8rem, 2vw, 0.9rem);
-  font-weight: 600;
-  color: #1e293b;
+  max-width: 150px;
+
+  color: #000000;
+
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
 }
 
+
 .user-status {
-  font-size: 0.7rem;
-  color: #10b981;
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #696969;
+
+  font-size: 10px;
+  font-weight: 600;
 }
+
+
+.user-status::before {
+  content: "";
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #696969;
+}
+
+
+/* =========================================================
+   AVATAR
+========================================================= */
 
 .avatar-container {
   position: relative;
+
+  width: 38px;
+  height: 38px;
+
   padding: 2px;
-  border: 2px solid rgba(102, 126, 234, 0.15);
-  border-radius: 50%;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  cursor: pointer;
+
   display: block;
+
+  background: #ffffff;
+
+  border: 1px solid #d3d3d3;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
+
 
 .avatar-container:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  border-color: #696969;
+
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.12);
+
+  transform: translateY(-1px);
 }
 
-.avatar-img {
-  width: clamp(34px, 5vw, 40px);
-  height: clamp(34px, 5vw, 40px);
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
+
+.avatar-container:active {
+  transform: scale(0.96);
 }
+
+
+/* =========================================================
+   AVATAR IMAGE
+========================================================= */
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+}
+
+
+/* =========================================================
+   STATUS INDICATOR
+========================================================= */
 
 .status-indicator {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 9px;
-  height: 9px;
-  background: #10b981;
-  border: 2px solid white;
+
+  right: 0;
+  bottom: 1px;
+
+  width: 8px;
+  height: 8px;
+
+  background: #000000;
+
+  border: 2px solid #ffffff;
+
   border-radius: 50%;
 }
 
-/* ── SMALL MOBILE ── */
-@media (max-width: 480px) {
-  .user-meta {
-    display: none;
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    height: 60px;
+  }
+
+
+  .navbar-container {
+    padding: 0 16px;
+  }
+
+
+  .page-title {
+    font-size: 17px;
+  }
+
+
+  .user-section {
+    gap: 9px;
+  }
+
+
+  .avatar-container {
+    width: 36px;
+    height: 36px;
   }
 }
 
-@media (max-width: 320px) {
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .navbar {
+    height: 58px;
+  }
+
+
   .navbar-container {
-    padding: 0 0.5rem;
+    padding: 0 13px;
+  }
+
+
+  .left-section {
+    gap: 10px;
+  }
+
+
+  .menu-trigger {
+    width: 34px;
+    height: 34px;
+
+    font-size: 13px;
+  }
+
+
+  .page-title {
+    font-size: 16px;
+  }
+
+
+  .user-meta {
+    display: none;
+  }
+
+
+  .avatar-container {
+    width: 34px;
+    height: 34px;
+  }
+
+
+  .status-indicator {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 320px) {
+
+  .navbar-container {
+    padding: 0 9px;
+  }
+
+
+  .page-title {
+    max-width: 170px;
+  }
+
+
+  .menu-trigger {
+    width: 32px;
+    height: 32px;
+  }
+
+
+  .avatar-container {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .menu-trigger,
+  .avatar-container {
+    transition: none;
   }
 }
 </style>
