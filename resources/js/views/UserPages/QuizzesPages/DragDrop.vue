@@ -10,8 +10,8 @@
                 </button>
 
                 <div>
-                    <span class="assessment-label">COC 1 Assessment</span>
-                    <h1>Drag & Drop</h1>
+                    <span class="assessment-label">COC 1 • Field Simulation</span>
+                    <h1>Virtual Hands-On</h1>
                 </div>
             </div>
 
@@ -29,7 +29,7 @@
         <!-- QUESTION -->
         <main class="assessment-container">
 
-            <section class="question-card">
+            <section class="question-card scenario-card">
 
                 <div class="question-meta">
 
@@ -45,12 +45,20 @@
 
                 </div>
 
-                <h2>{{ question.question_text }}</h2>
+                <div class="scenario-heading">
+                    <span class="scenario-kicker"><i class="fas fa-triangle-exclamation"></i> Live service scenario</span>
+                    <h2>{{ question.question_text || 'Prepare the workstation for the next installation step.' }}</h2>
+                </div>
 
                 <p class="question-help">
-                    Drag the items into the correct order. It can be changed later before submission. Once you submit,
-                    you cannot change your answer.
+                    You are the technician on shift. Build the correct procedure on the workbench, then submit it for review.
+                    You can reposition any step until you submit.
                 </p>
+
+                <div class="scenario-status">
+                    <span><i class="fas fa-desktop"></i> Workstation offline</span>
+                    <span><i class="fas fa-shield-halved"></i> Procedure check required</span>
+                </div>
 
             </section>
 
@@ -63,8 +71,9 @@
 
                     <div class="panel-header">
                         <div>
-                            <h3>Items</h3>
-                            <p>Drag an item to the answer area.</p>
+                            <span class="panel-eyebrow">Technician tray</span>
+                            <h3>Available steps</h3>
+                            <p>Select a step or drag it to the workbench.</p>
                         </div>
 
                         <span class="item-count">
@@ -75,8 +84,8 @@
 
                     <div class="items-list">
 
-                        <div v-for="item in availableItems" :key="item.id" class="drag-item" draggable="true"
-                            @dragstart="startDrag(item)" @dragend="draggedItem = null">
+                        <button v-for="item in availableItems" :key="item.id" class="drag-item" draggable="true"
+                            type="button" @click="placeItem(item)" @dragstart="startDrag(item)" @dragend="clearDrag">
 
                             <span class="drag-handle">
                                 <i class="fas fa-grip-vertical"></i>
@@ -90,11 +99,12 @@
                                 {{ item.text }}
                             </span>
 
-                        </div>
+                            <span class="item-action">Add <i class="fas fa-arrow-right"></i></span>
+                        </button>
 
                         <div v-if="availableItems.length === 0" class="empty-items">
-                            <i class="fas fa-check-circle"></i>
-                            <span>All items placed</span>
+                            <i class="fas fa-circle-check"></i>
+                            <span>Tray is clear</span>
                         </div>
 
                     </div>
@@ -107,8 +117,9 @@
 
                     <div class="panel-header">
                         <div>
-                            <h3>Your Answer</h3>
-                            <p>Place the steps in the correct order.</p>
+                            <span class="panel-eyebrow">Procedure workbench</span>
+                            <h3>Build the sequence</h3>
+                            <p>Use the arrows for precise repositioning.</p>
                         </div>
 
                         <span class="answer-count">
@@ -122,7 +133,7 @@
                         <!-- ANSWER ITEMS -->
                         <div v-for="(item, index) in answerItems" :key="item.id"
                             :class="{ 'right-answer': item.isCorrect }" class="answer-item" draggable="true"
-                            @dragstart="startAnswerDrag(item, index)" @dragover.prevent @drop.stop="moveItem(index)">
+                            @dragstart="startAnswerDrag(item, index)" @dragend="clearDrag" @dragover.prevent @drop.stop="moveItem(index)">
 
                             <span class="answer-number">
                                 {{ index + 1 }}
@@ -130,6 +141,21 @@
 
                             <span class="answer-text">
                                 {{ item.text }}
+                            </span>
+
+                            <span class="answer-controls">
+                                <button type="button" title="Move step up" :disabled="isDisabled || index === 0"
+                                    @click.stop="moveAnswer(index, -1)">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <button type="button" title="Move step down" :disabled="isDisabled || index === answerItems.length - 1"
+                                    @click.stop="moveAnswer(index, 1)">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <button type="button" title="Return step to tray" :disabled="isDisabled"
+                                    @click.stop="removeItem(index)">
+                                    <i class="fas fa-rotate-left"></i>
+                                </button>
                             </span>
 
                             <span class="answer-handle">
@@ -142,13 +168,13 @@
                         <!-- EMPTY DROP -->
                         <div v-if="answerItems.length === 0" class="drop-placeholder">
                             <div class="drop-icon">
-                                <i class="fas fa-arrow-down"></i>
+                                <i class="fas fa-hand-pointer"></i>
                             </div>
 
-                            <strong>Drop items here</strong>
+                            <strong>Place your first step</strong>
 
                             <span>
-                                Drag the steps from the left into this area.
+                                Tap Add or drag a step into the workbench.
                             </span>
                         </div>
 
@@ -156,7 +182,7 @@
                         <!-- DROP MORE -->
                         <div v-else class="drop-more" @dragover.prevent @drop="dropItem">
                             <i class="fas fa-plus"></i>
-                            Drop here to add
+                            Drop here to add another step
                         </div>
 
                     </div>
@@ -176,7 +202,7 @@
 
                 <button v-if="!isDisabled" class="submit-btn" :disabled="answerItems.length !== items.length || isDisabled"
                     @click="submitAnswer">
-                    Submit Answer
+                    Submit Procedure
                     <i class="fas fa-arrow-right"></i>
                 </button>
                 <button v-else class="submit-btn" @click="router.push(`/user/quizzes/assessment/${quizId}`)">
@@ -313,6 +339,19 @@ const startDrag = (item) => {
     draggedAnswerIndex.value = null
 }
 
+const clearDrag = () => {
+    draggedItem.value = null
+    draggedAnswerIndex.value = null
+}
+
+const placeItem = (item) => {
+    if (isDisabled.value || answerItems.value.some(answer => answer.id === item.id)) {
+        return
+    }
+
+    answerItems.value.push(item)
+}
+
 /*
 |--------------------------------------------------------------------------
 | DRAG EXISTING ANSWER
@@ -348,8 +387,7 @@ const dropItem = () => {
      * don't add it again.
      */
     if (draggedAnswerIndex.value !== null) {
-        draggedItem.value = null
-        draggedAnswerIndex.value = null
+        clearDrag()
 
         return
     }
@@ -362,10 +400,10 @@ const dropItem = () => {
     )
 
     if (!alreadyExists) {
-        answerItems.value.push(draggedItem.value)
+        placeItem(draggedItem.value)
     }
 
-    draggedItem.value = null
+    clearDrag()
 }
 
 /*
@@ -386,8 +424,7 @@ const moveItem = (targetIndex) => {
     const sourceIndex = draggedAnswerIndex.value
 
     if (sourceIndex === targetIndex) {
-        draggedItem.value = null
-        draggedAnswerIndex.value = null
+        clearDrag()
 
         return
     }
@@ -403,8 +440,30 @@ const moveItem = (targetIndex) => {
         movedItem
     )
 
-    draggedItem.value = null
-    draggedAnswerIndex.value = null
+    clearDrag()
+}
+
+const moveAnswer = (index, direction) => {
+    if (isDisabled.value) {
+        return
+    }
+
+    const targetIndex = index + direction
+
+    if (targetIndex < 0 || targetIndex >= answerItems.value.length) {
+        return
+    }
+
+    const movedItem = answerItems.value.splice(index, 1)[0]
+    answerItems.value.splice(targetIndex, 0, movedItem)
+}
+
+const removeItem = (index) => {
+    if (isDisabled.value) {
+        return
+    }
+
+    answerItems.value.splice(index, 1)
 }
 
 /*
@@ -548,14 +607,49 @@ onMounted(() => {
 
 <style scoped>
 /* =========================================================
-   PAGE
+   FROSTED NOIR
+   #FFFFFF  White
+   #000000  Black
+   #A9A9A9  Silver
+   #D3D3D3  Light Gray
+   #696969  Dim Gray
 ========================================================= */
 
 .drag-drop-page {
+    --black: #000000;
+    --white: #ffffff;
+    --gray-100: #f7f7f7;
+    --gray-200: #eeeeee;
+    --gray-300: #d3d3d3;
+    --gray-400: #a9a9a9;
+    --gray-500: #696969;
+
+    --text-primary: #000000;
+    --text-secondary: #696969;
+    --text-muted: #a9a9a9;
+
+    --border: #d3d3d3;
+    --surface: #ffffff;
+    --surface-soft: #f7f7f7;
+
+    --success: #000000;
+    --success-bg: #eeeeee;
+
     min-height: 100vh;
-    background: #f8fafc;
-    color: #1e293b;
-    padding-bottom: 40px;
+    padding-bottom: 50px;
+
+    min-height: 100vh;
+  
+    color: var(--text-primary);
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 }
 
 
@@ -564,22 +658,37 @@ onMounted(() => {
 ========================================================= */
 
 .assessment-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 18px clamp(18px, 4vw, 50px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     gap: 30px;
+
+    padding: 14px 24px;
+
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border-bottom: 1px solid var(--border);
 }
 
 
+/* =========================================================
+   HEADER LEFT
+========================================================= */
+
 .header-left {
+    min-width: 0;
+
     display: flex;
     align-items: center;
-    gap: 14px;
+
+    gap: 12px;
 }
 
 
@@ -587,69 +696,121 @@ onMounted(() => {
     width: 36px;
     height: 36px;
 
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
+    flex: 0 0 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border);
     border-radius: 9px;
 
-    color: #64748b;
+    background: var(--white);
+    color: var(--text-secondary);
+
     cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
 }
 
 
 .back-btn:hover {
-    color: #4f46e5;
-    border-color: #c7d2fe;
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white);
 }
 
 
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
 .assessment-label {
     display: block;
-    color: #6366f1;
-    font-size: 11px;
-    font-weight: 600;
+
     margin-bottom: 2px;
+
+    color: var(--gray-500);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 
 .header-left h1 {
     margin: 0;
+
+    color: var(--black);
+
     font-size: 18px;
-    font-weight: 650;
+    line-height: 1.2;
+    font-weight: 750;
+
+    letter-spacing: -0.025em;
 }
 
 
+/* =========================================================
+   PROGRESS
+========================================================= */
+
 .progress-info {
-    width: 190px;
-    color: #64748b;
-    font-size: 11px;
+    width: 210px;
+
+    flex: 0 0 auto;
+
+    color: var(--gray-500);
+
+    font-size: 10px;
+    font-weight: 600;
 }
 
 
 .progress-bar {
     width: 100%;
-    height: 5px;
-    background: #e5e7eb;
-    border-radius: 10px;
+    height: 4px;
+
     margin-top: 7px;
+
     overflow: hidden;
+
+    background: var(--gray-200);
+
+    border-radius: 999px;
 }
 
 
 .progress-fill {
     height: 100%;
-    background: #6366f1;
+
+    background: var(--black);
+
     border-radius: inherit;
-    transition: width .3s ease;
+
+    transition: width 0.35s ease;
 }
 
 
 /* =========================================================
-   CONTAINER
+   MAIN
 ========================================================= */
 
 .assessment-container {
-    width: min(1000px, calc(100% - 30px));
-    margin: 28px auto;
+    width: min(980px, calc(100% - 40px));
+
+    margin: 26px auto 0;
 }
 
 
@@ -658,16 +819,22 @@ onMounted(() => {
 ========================================================= */
 
 .question-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    padding: 24px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 22px;
 }
 
 
 .question-meta {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
     gap: 7px;
+
     margin-bottom: 14px;
 }
 
@@ -676,65 +843,78 @@ onMounted(() => {
 .difficulty {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 
     padding: 5px 9px;
 
-    border-radius: 7px;
+    border-radius: 6px;
 
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 9px;
+    line-height: 1;
+
+    font-weight: 700;
 }
 
 
 .category {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--gray-200);
+    color: var(--gray-500);
 }
 
 
 .difficulty {
-    background: #eef2ff;
-    color: #4f46e5;
+    background: var(--black);
+    color: var(--white);
 }
 
 
 .difficulty.medium {
-    background: #fff7ed;
-    color: #ea580c;
-}
-
-.right-answer {
-    background: #ecfdf5;
-    color: #059669;
+    background: var(--gray-400);
+    color: var(--black);
 }
 
 
 .difficulty.hard {
-    background: #fef2f2;
-    color: #dc2626;
+    background: var(--gray-500);
+    color: var(--white);
 }
 
 
 .difficulty-dot {
     width: 5px;
     height: 5px;
+
     border-radius: 50%;
+
     background: currentColor;
 }
 
 
 .question-card h2 {
+    max-width: 820px;
+
     margin: 0;
-    font-size: 19px;
+
+    color: var(--black);
+
+    font-size: clamp(17px, 2vw, 21px);
     line-height: 1.45;
+
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
 }
 
 
 .question-help {
-    margin: 7px 0 0;
-    font-size: 12px;
-    color: #64748b;
+    max-width: 760px;
+
+    margin: 9px 0 0;
+
+    color: var(--gray-500);
+
+    font-size: 11px;
+    line-height: 1.6;
 }
 
 
@@ -744,107 +924,151 @@ onMounted(() => {
 
 .workspace {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
 
-    margin-top: 14px;
+    grid-template-columns:
+        minmax(0, 1fr) minmax(0, 1fr);
+
+    gap: 12px;
+
+    margin-top: 12px;
 }
 
+
+/* =========================================================
+   PANELS
+========================================================= */
 
 .items-panel,
 .answer-panel {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    min-width: 0;
+
+    padding: 17px;
+
+    background: var(--white);
+
+    border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px;
 }
 
 
+/* =========================================================
+   PANEL HEADER
+========================================================= */
+
 .panel-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
 
-    margin-bottom: 14px;
+    gap: 12px;
+
+    margin-bottom: 12px;
 }
 
 
 .panel-header h3 {
     margin: 0;
-    font-size: 13px;
+
+    color: var(--black);
+
+    font-size: 12px;
+    font-weight: 750;
 }
 
 
 .panel-header p {
     margin: 3px 0 0;
-    font-size: 10px;
-    color: #94a3b8;
+
+    color: var(--gray-400);
+
+    font-size: 9px;
+    line-height: 1.4;
 }
 
 
 .item-count,
 .answer-count {
-    min-width: 25px;
-    height: 25px;
+    width: 26px;
+    height: 26px;
+
+    min-width: 26px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: #f1f5f9;
-    color: #64748b;
-
+    border: 1px solid var(--border);
     border-radius: 7px;
 
-    font-size: 10px;
-    font-weight: 600;
+    background: var(--gray-100);
+
+    color: var(--gray-500);
+
+    font-size: 9px;
+    font-weight: 700;
 }
 
 
 /* =========================================================
-   DRAG ITEMS
+   ITEMS
 ========================================================= */
 
 .items-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+
+    gap: 7px;
 }
 
 
 .drag-item {
+    min-width: 0;
+
     display: flex;
     align-items: center;
-    gap: 10px;
 
-    padding: 11px;
+    gap: 9px;
 
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
+    padding: 10px;
+
+    background: var(--gray-100);
+
+    border: 1px solid var(--gray-200);
     border-radius: 9px;
 
     cursor: grab;
 
-    font-size: 12px;
+    font-size: 11px;
 
-    transition: .15s ease;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
 }
 
 
 .drag-item:hover {
-    border-color: #c7d2fe;
-    background: #f5f7ff;
+    background: var(--white);
+
+    border-color: var(--gray-400);
+
+    transform: translateY(-1px);
 }
 
 
 .drag-item:active {
     cursor: grabbing;
+
+    transform: scale(0.99);
 }
 
 
-.drag-handle,
-.answer-handle {
-    color: #94a3b8;
+.drag-handle {
+    flex: 0 0 auto;
+
+    color: var(--gray-400);
+
+    font-size: 10px;
 }
 
 
@@ -852,22 +1076,33 @@ onMounted(() => {
     width: 22px;
     height: 22px;
 
+    flex: 0 0 22px;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border: 1px solid var(--border);
     border-radius: 6px;
 
-    background: #ffffff;
-    color: #64748b;
+    background: var(--white);
+
+    color: var(--gray-500);
 
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 
 .item-text {
+    min-width: 0;
     flex: 1;
+
+    color: var(--gray-500);
+
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
 }
 
 
@@ -878,17 +1113,34 @@ onMounted(() => {
 .drop-zone {
     min-height: 280px;
 
-    padding: 10px;
+    padding: 8px;
 
-    border: 1.5px dashed #cbd5e1;
-    border-radius: 10px;
+    background: var(--gray-100);
 
-    background: #f8fafc;
+    border: 1px dashed var(--gray-300);
+    border-radius: 9px;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
 }
 
 
+.drop-zone:hover {
+    background: var(--white);
+
+    border-color: var(--gray-400);
+}
+
+
+/* =========================================================
+   EMPTY DROP
+========================================================= */
+
 .drop-placeholder {
     min-height: 250px;
+
+    padding: 20px;
 
     display: flex;
     flex-direction: column;
@@ -896,69 +1148,104 @@ onMounted(() => {
     justify-content: center;
 
     text-align: center;
-
-    color: #94a3b8;
 }
 
 
 .drop-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
+
+    margin-bottom: 10px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border: 1px solid var(--border);
     border-radius: 10px;
 
-    background: #eef2ff;
-    color: #6366f1;
+    background: var(--white);
 
-    margin-bottom: 10px;
+    color: var(--gray-500);
+
+    font-size: 12px;
 }
 
 
 .drop-placeholder strong {
-    font-size: 12px;
-    color: #64748b;
+    color: var(--gray-500);
+
+    font-size: 11px;
+    font-weight: 700;
 }
 
 
 .drop-placeholder span {
-    font-size: 10px;
-    margin-top: 3px;
+    max-width: 220px;
+
+    margin-top: 4px;
+
+    color: var(--gray-400);
+
+    font-size: 9px;
+    line-height: 1.5;
 }
 
 
 /* =========================================================
-   ANSWER ITEM
+   ANSWER ITEMS
 ========================================================= */
 
 .answer-item {
+    min-width: 0;
+
     display: flex;
     align-items: center;
-    gap: 9px;
 
-    padding: 11px;
+    gap: 8px;
 
-    margin-bottom: 7px;
+    margin-bottom: 6px;
+    padding: 10px;
 
-    background: #ffffff;
+    background: var(--white);
 
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     border-radius: 9px;
 
     cursor: grab;
 
-    font-size: 12px;
+    font-size: 11px;
 
-    transition: .15s ease;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.answer-item:last-child {
+    margin-bottom: 0;
 }
 
 
 .answer-item:hover {
-    border-color: #c7d2fe;
-    box-shadow: 0 2px 7px rgba(15, 23, 42, .05);
+    border-color: var(--gray-500);
+
+    transform: translateY(-1px);
+}
+
+
+.answer-item:active {
+    cursor: grabbing;
+}
+
+
+/* CORRECT ANSWER */
+
+.answer-item.right-answer {
+    background: var(--gray-200);
+
+    border-color: var(--gray-400);
 }
 
 
@@ -966,27 +1253,57 @@ onMounted(() => {
     width: 24px;
     height: 24px;
 
+    flex: 0 0 24px;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
     border-radius: 6px;
 
-    background: #eef2ff;
-    color: #4f46e5;
+    background: var(--black);
 
-    font-size: 10px;
+    color: var(--white);
+
+    font-size: 9px;
     font-weight: 700;
 }
 
 
+.right-answer .answer-number {
+    background: var(--white);
+
+    border: 1px solid var(--gray-400);
+
+    color: var(--black);
+}
+
+
 .answer-text {
+    min-width: 0;
     flex: 1;
+
+    color: var(--gray-500);
+
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+
+.right-answer .answer-text {
+    color: var(--black);
+
+    font-weight: 600;
 }
 
 
 .answer-handle {
-    cursor: grab;
+    flex: 0 0 auto;
+
+    color: var(--gray-400);
+
+    font-size: 10px;
 }
 
 
@@ -995,21 +1312,37 @@ onMounted(() => {
 ========================================================= */
 
 .drop-more {
-    border: 1px dashed #cbd5e1;
-    border-radius: 7px;
+    margin-top: 7px;
 
     padding: 7px;
 
+    border: 1px dashed var(--gray-300);
+    border-radius: 7px;
+
     text-align: center;
 
-    color: #94a3b8;
+    color: var(--gray-400);
 
     font-size: 9px;
+
+    transition:
+        color 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+
+.drop-more:hover {
+    color: var(--black);
+
+    border-color: var(--gray-500);
+
+    background: var(--white);
 }
 
 
 /* =========================================================
-   EMPTY
+   EMPTY ITEMS
 ========================================================= */
 
 .empty-items {
@@ -1020,11 +1353,12 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
 
-    gap: 5px;
+    gap: 6px;
 
-    color: #10b981;
+    color: var(--gray-500);
 
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
 }
 
 
@@ -1034,57 +1368,132 @@ onMounted(() => {
 
 .assessment-actions {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
-    margin-top: 16px;
+    gap: 12px;
+
+    margin-top: 14px;
 }
 
 
 .reset-btn,
 .submit-btn {
-    border: none;
-    border-radius: 9px;
+    min-height: 39px;
 
-    padding: 9px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    font-size: 11px;
+    gap: 7px;
+
+    padding: 8px 14px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+    font-weight: 700;
 
     cursor: pointer;
 
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease,
+        opacity 0.15s ease;
 }
 
 
+/* RESET */
+
 .reset-btn {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    color: #64748b;
+    background: var(--white);
+
+    border: 1px solid var(--border);
+
+    color: var(--gray-500);
 }
 
 
 .reset-btn:hover {
-    color: #334155;
-    background: #f8fafc;
+    background: var(--gray-200);
+
+    border-color: var(--gray-400);
+
+    color: var(--black);
 }
 
 
+/* SUBMIT */
+
 .submit-btn {
-    background: #4f46e5;
-    color: #ffffff;
+    border: 1px solid var(--black);
+
+    background: var(--black);
+
+    color: var(--white);
 }
 
 
 .submit-btn:hover:not(:disabled) {
-    background: #4338ca;
+    background: var(--gray-500);
+
+    border-color: var(--gray-500);
+
+    transform: translateY(-1px);
+}
+
+
+.submit-btn:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 
 .submit-btn:disabled {
-    opacity: .45;
+    opacity: 0.35;
+
     cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .assessment-header {
+        padding: 14px 20px;
+    }
+
+
+    .assessment-container {
+        width: min(100% - 28px, 980px);
+
+        margin-top: 20px;
+    }
+
+
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+
+
+    .items-panel,
+    .answer-panel {
+        padding: 15px;
+    }
+
+
+    .drop-zone {
+        min-height: 240px;
+    }
+
+
+    .drop-placeholder {
+        min-height: 210px;
+    }
 }
 
 
@@ -1092,28 +1501,422 @@ onMounted(() => {
    MOBILE
 ========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 600px) {
 
-    .assessment-header {
-        align-items: flex-start;
-        flex-direction: column;
+    .drag-drop-page {
+        padding-bottom: 25px;
     }
 
-    .progress-info {
+
+    /* HEADER */
+
+    .assessment-header {
+        position: relative;
+
+        padding: 13px 15px;
+
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 12px;
+    }
+
+
+    .header-left {
         width: 100%;
     }
 
-    .workspace {
-        grid-template-columns: 1fr;
+
+    .back-btn {
+        width: 34px;
+        height: 34px;
+
+        flex-basis: 34px;
     }
 
-    .question-card h2 {
+
+    .assessment-label {
+        font-size: 8px;
+    }
+
+
+    .header-left h1 {
         font-size: 16px;
     }
 
-    .assessment-container {
-        width: min(100% - 20px, 1000px);
+
+    .progress-info {
+        width: 100%;
+
+        font-size: 9px;
     }
 
+
+    .progress-bar {
+        height: 4px;
+    }
+
+
+    /* CONTAINER */
+
+    .assessment-container {
+        width: calc(100% - 20px);
+
+        margin: 13px auto 0;
+    }
+
+
+    /* QUESTION */
+
+    .question-card {
+        padding: 15px;
+
+        border-radius: 12px;
+    }
+
+
+    .question-meta {
+        margin-bottom: 11px;
+    }
+
+
+    .category,
+    .difficulty {
+        padding: 5px 8px;
+
+        font-size: 8px;
+    }
+
+
+    .question-card h2 {
+        font-size: 15px;
+    }
+
+
+    .question-help {
+        font-size: 10px;
+    }
+
+
+    /* WORKSPACE */
+
+    .workspace {
+        gap: 9px;
+
+        margin-top: 9px;
+    }
+
+
+    .items-panel,
+    .answer-panel {
+        padding: 13px;
+
+        border-radius: 12px;
+    }
+
+
+    .panel-header {
+        margin-bottom: 10px;
+    }
+
+
+    .panel-header h3 {
+        font-size: 11px;
+    }
+
+
+    .panel-header p {
+        font-size: 8px;
+    }
+
+
+    /* ITEMS */
+
+    .drag-item {
+        padding: 9px;
+
+        gap: 7px;
+
+        font-size: 10px;
+    }
+
+
+    .item-number {
+        width: 21px;
+        height: 21px;
+
+        flex-basis: 21px;
+    }
+
+
+    /* DROP */
+
+    .drop-zone {
+        min-height: 210px;
+
+        padding: 6px;
+    }
+
+
+    .drop-placeholder {
+        min-height: 190px;
+
+        padding: 14px;
+    }
+
+
+    .drop-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+
+    /* ANSWERS */
+
+    .answer-item {
+        padding: 9px;
+
+        gap: 7px;
+
+        font-size: 10px;
+    }
+
+
+    .answer-number {
+        width: 22px;
+        height: 22px;
+
+        flex-basis: 22px;
+    }
+
+
+    /* ACTIONS */
+
+    .assessment-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+
+        gap: 7px;
+
+        margin-top: 11px;
+    }
+
+
+    .reset-btn,
+    .submit-btn {
+        width: 100%;
+
+        min-height: 40px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .assessment-container {
+        width: calc(100% - 16px);
+    }
+
+
+    .question-card {
+        padding: 13px;
+    }
+
+
+    .items-panel,
+    .answer-panel {
+        padding: 11px;
+    }
+
+
+    .question-card h2 {
+        font-size: 14px;
+    }
+
+
+    .drag-item,
+    .answer-item {
+        font-size: 9.5px;
+    }
+
+
+    .panel-header p {
+        display: none;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+.drag-drop-page {
+        background: linear-gradient(rgba(211, 211, 211, 0.8) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(211, 211, 211, 0.8) 1px, transparent 1px), #f4f4f2;
+        background-size: 28px 28px;
+}
+
+.assessment-header {
+    background: rgba(244, 244, 242, 0.92);
+}
+
+.scenario-card {
+    position: relative;
+    overflow: hidden;
+    background: #101010;
+    border-color: #101010;
+    color: var(--white);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+}
+
+.scenario-card::after {
+    position: absolute;
+    right: -42px;
+    bottom: -58px;
+    width: 180px;
+    height: 180px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    content: '';
+}
+
+.scenario-card h2,
+.scenario-card .question-help {
+    position: relative;
+    z-index: 1;
+}
+
+.scenario-card h2 {
+    color: var(--white);
+}
+
+.scenario-card .question-help {
+    color: #b9b9b9;
+}
+
+.scenario-kicker,
+.panel-eyebrow {
+    display: block;
+    color: #8e8e8e;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.scenario-kicker {
+    margin-bottom: 8px;
+    color: #d3d3d3;
+}
+
+.scenario-status {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 16px;
+    color: #d3d3d3;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.scenario-status i {
+    margin-right: 5px;
+    color: #a9a9a9;
+}
+
+.items-panel,
+.answer-panel {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+.panel-eyebrow {
+    margin-bottom: 4px;
+    color: var(--gray-400);
+    font-size: 8px;
+}
+
+.drag-item {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--gray-200);
+    font-family: inherit;
+    text-align: left;
+}
+
+.item-action {
+    flex: 0 0 auto;
+    color: var(--gray-400);
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.item-action i {
+    margin-left: 3px;
+}
+
+.answer-controls {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 3px;
+}
+
+.answer-controls button {
+    width: 25px;
+    height: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    background: var(--gray-100);
+    color: var(--gray-500);
+    cursor: pointer;
+}
+
+.answer-controls button:hover:not(:disabled) {
+    border-color: var(--black);
+    background: var(--black);
+    color: var(--white);
+}
+
+.answer-controls button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.answer-item.right-answer .answer-controls button {
+    background: var(--white);
+}
+
+@media (max-width: 600px) {
+    .scenario-status {
+        gap: 7px 12px;
+        font-size: 9px;
+    }
+
+    .answer-controls button {
+        width: 27px;
+        height: 27px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .drag-item,
+    .answer-item,
+    .submit-btn,
+    .reset-btn,
+    .back-btn,
+    .progress-fill {
+        transition: none;
+    }
 }
 </style>
