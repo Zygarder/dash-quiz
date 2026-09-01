@@ -25,8 +25,6 @@
       <!-- Result -->
       <div v-else-if="record" class="result-card">
 
-        <div class="celebration-icon">🎉</div>
-
         <!-- SCORE -->
         <div class="score-summary">
           <h2 class="score-number">
@@ -128,136 +126,512 @@ const reTake = () => {
 </script>
 
 <style scoped>
+/* =========================================================
+   FROSTED NOIR
+   #FFFFFF - White
+   #000000 - Black
+   #A9A9A9 - Gray
+   #D3D3D3 - Light Gray
+   #696969 - Dim Gray
+   ========================================================= */
+
 .quiz-result-page {
+  --white: #ffffff;
+  --black: #000000;
+  --gray: #a9a9a9;
+  --light-gray: #d3d3d3;
+  --dark-gray: #696969;
+
+  --surface: #ffffff;
+  --surface-soft: #f7f7f7;
+  --surface-muted: #eeeeee;
+
+  --border: #d3d3d3;
+  --text-primary: #000000;
+  --text-secondary: #696969;
+  --text-muted: #a9a9a9;
+
   min-height: 100vh;
-  background: #f8fafc;
-  font-family: "Inter", sans-serif;
+  background: var(--surface-soft);
+  color: var(--text-primary);
+
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   display: flex;
   flex-direction: column;
 }
 
-/* TOP BAR */
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
 .top-bar {
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--border);
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .nav-content {
+  width: 100%;
   max-width: 800px;
+
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0.8rem 1.25rem;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .brand-text {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #1e293b;
+  color: var(--black);
+
+  font-size: 0.82rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  text-decoration: none;
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
+
   border-radius: 50%;
-  border: 2px solid #6366f1;
+
+  border: 2px solid var(--light-gray);
+
+  background: var(--surface-muted);
+
   object-fit: cover;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* MAIN */
+.profile-link:hover .user-avatar {
+  border-color: var(--dark-gray);
+  transform: scale(1.04);
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
 .container {
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1rem;
-}
 
-/* CARD */
-.result-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 3rem 2rem;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  max-width: 420px;
   width: 100%;
-  border: 1px solid #f1f5f9;
+  max-width: 800px;
+
+  margin: 0 auto;
+
+  padding: 2rem 1.25rem 3rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.celebration-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+
+/* =========================================================
+   RESULT CARD
+   ========================================================= */
+
+.result-card {
+  width: 100%;
+  max-width: 430px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  padding: 2.5rem 2rem;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.05);
+
+  animation: resultEnter 0.35s ease-out both;
 }
 
-/* SCORE */
+/* =========================================================
+   SCORE
+   ========================================================= */
+
+.score-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .score-number {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1e293b;
   margin: 0;
+
+  color: var(--black);
+
+  font-size: clamp(2rem, 7vw, 2.75rem);
+  line-height: 1;
+
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
 .score-text {
-  color: #64748b;
+  margin: 0.7rem 0 0;
+
+  color: var(--dark-gray);
+
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   TIME
+   ========================================================= */
+
+.time-text {
+  margin: 0.7rem 0 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.45rem 0.75rem;
+
+  background: var(--surface-muted);
+
+  border-radius: 7px;
+
+  color: var(--dark-gray);
+
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+
+.feedback-msg {
+  margin: 2rem 0;
+
+  padding: 1rem;
+
+  background: var(--surface-soft);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.feedback-msg p {
+  margin: 0;
+
+  color: var(--dark-gray);
+
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 0.75rem;
+
   margin-top: 0.5rem;
 }
 
-/* TIME */
-.time-text {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #6366f1;
+
+/* Primary */
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 46px;
+
+  padding: 0.75rem 1rem;
+
+  background: var(--black);
+  color: var(--white);
+
+  border: 1px solid var(--black);
+  border-radius: 9px;
+
+  text-decoration: none;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--dark-gray);
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+
+/* Secondary */
+
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 46px;
+
+  padding: 0.75rem 1rem;
+
+  background: var(--white);
+  color: var(--dark-gray);
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: var(--surface-muted);
+
+  border-color: var(--gray);
+
+  color: var(--black);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   LOADING STATE
+   ========================================================= */
+
+.result-card>p {
+  margin: 0;
+
+  color: var(--dark-gray);
+
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
-/* FEEDBACK */
-.feedback-msg {
-  margin: 2rem 0;
-  color: #64748b;
-  font-style: italic;
-  font-size: 0.95rem;
+
+/* =========================================================
+   FOCUS / ACCESSIBILITY
+   ========================================================= */
+
+.btn-primary:focus-visible,
+.btn-outline:focus-visible,
+.profile-link:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 3px;
 }
 
-/* ACTIONS */
-.action-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes resultEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.btn-primary {
-  background: #1e293b;
-  color: #fff;
-  text-decoration: none;
-  padding: 1rem;
-  border-radius: 12px;
-  font-weight: 700;
-  transition: 0.2s;
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .nav-content {
+    padding: 0.75rem 1rem;
+  }
+
+  .container {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .result-card {
+    max-width: 440px;
+  }
 }
 
-.btn-outline {
-  background: transparent;
-  border: 2px solid #e2e8f0;
-  color: #64748b;
-  padding: 1rem;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .nav-content {
+    padding: 0.7rem 0.85rem;
+  }
+
+  .brand-text {
+    font-size: 0.72rem;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .container {
+    padding: 1rem 0.75rem 2rem;
+
+    align-items: flex-start;
+  }
+
+  .result-card {
+    margin-top: 1rem;
+
+    padding: 2rem 1rem;
+
+    border-radius: 15px;
+  }
+
+  .celebration-icon {
+    width: 56px;
+    height: 56px;
+
+    margin-bottom: 1rem;
+
+    font-size: 1.5rem;
+  }
+
+  .score-number {
+    font-size: 2.15rem;
+  }
+
+  .score-text {
+    font-size: 0.8rem;
+  }
+
+  .time-text {
+    font-size: 0.72rem;
+  }
+
+  .feedback-msg {
+    margin: 1.5rem 0;
+
+    padding: 0.85rem;
+  }
+
+  .feedback-msg p {
+    font-size: 0.78rem;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    width: 100%;
+  }
 }
 
-.btn-primary:hover,
-.btn-outline:hover {
-  transform: translateY(-2px);
-}
 
-.btn-outline:hover {
-  border-color: #6366f1;
-  color: #6366f1;
+/* =========================================================
+   VERY SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 340px) {
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .result-card {
+    padding: 1.75rem 0.85rem;
+  }
+
+  .brand-text {
+    font-size: 0.65rem;
+  }
+
+  .score-number {
+    font-size: 2rem;
+  }
 }
 </style>

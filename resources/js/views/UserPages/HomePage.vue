@@ -21,14 +21,20 @@
         </div>
       </div>
 
-
+      <div v-if="userPosition" class="rank-pill">
+        <span class="rank-pill-dot"></span>
+        Rank #{{ userPosition }}
+      </div>
     </div>
 
-    <div class="lb-search">
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input v-model="searchQuery" placeholder="Search participant..." class="search-input" />
-      <div class="lb-filters-row">
-        <div class="filter-label">Filter Results</div>
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input v-model="searchQuery" placeholder="Search participant..." class="search-input" />
+      </div>
+
+      <div class="filter-box">
+        <span class="filter-box-label">Quiz</span>
         <div class="select-wrapper">
           <select v-model="selectedQuiz" class="quiz-select">
             <option v-for="quiz in availableQuizzes" :key="quiz" :value="quiz">
@@ -36,12 +42,6 @@
             </option>
           </select>
           <span class="select-arrow"></span>
-        </div>
-      </div>
-      <div class="lb-controls">
-        <div v-if="userPosition" class="you-pill">
-          <span class="you-dot"></span>
-          Current Rank #{{ userPosition }}
         </div>
       </div>
     </div>
@@ -108,12 +108,12 @@
           <div class="item-right">
             <div class="score-ring-wrap">
               <svg class="score-ring" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" stroke-width="3" />
-                <circle cx="18" cy="18" r="15.9" fill="none" :stroke="entry.score >= 7 ? '#6366f1' : '#f43f5e'"
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#EDEDED" stroke-width="3" />
+                <circle cx="18" cy="18" r="15.9" fill="none" :stroke="entry.score >= 7 ? '#000000' : '#A9A9A9'"
                   stroke-width="3" stroke-linecap="round" stroke-dasharray="100"
                   :stroke-dashoffset="100 - (entry.score / 10 * 100)" transform="rotate(-10 18 18)" />
                 <text x="18" y="22" text-anchor="middle" font-size="9" font-weight="700"
-                  :fill="entry.score >= 7 ? '#6366f1' : '#f43f5e'">
+                  :fill="entry.score >= 7 ? '#000000' : '#696969'">
                   {{ entry.score }}
                 </text>
               </svg>
@@ -134,19 +134,22 @@
 </template>
 
 <script setup>
-import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
 import { useUser } from "@/composables/useUser"
 import { useGreetMessages } from '@/composables/useGreetMessages'
+import { useUserRequests } from '@/composables/useUserRequests'
 
 const { greetMessage } = useGreetMessages()
-const leaderboard = ref([])
+const { getLeaderBoard, leaderboard } = useUserRequests()
 const isLoading = ref(false)
 const searchQuery = ref('')
 const selectedQuiz = ref('') // Tracks active dropdown value
 const { user, fetchUser, userFullName } = useUser()
 
-
+onMounted(async () => {
+  await fetchUser()
+  getLeaderBoard()
+})
 
 // Dynamically grab all unique quiz titles from the raw dataset
 const availableQuizzes = computed(() => {
@@ -238,30 +241,9 @@ const photoPath = function (img) {
   return `/storage/images/profiles/${img || 'default.png'}`
 }
 
-const getLeaderBoard = async (force = false) => {
 
-  isLoading.value = true
 
-  try {
-    await axios.get('/sanctum/csrf-cookie')
-    const { data } = await axios.get('/api/dashboard/leaderboard')
-    const currentUserId = user.value?.id ?? null
-    leaderboard.value = data.data.map(u => ({
-      ...u,
-      isYou: u.user_id === currentUserId,
-      displayName: u.name,
-    }))
-  } catch (err) {
-    console.error(err)
-  } finally {
-    isLoading.value = false
-  }
-}
 
-onMounted(async () => {
-  await fetchUser()
-  await getLeaderBoard()
-})
 </script>
 
 <style scoped>
@@ -274,19 +256,43 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-/* ── ROOT ── */
+/* ── ROOT / FROSTED NOIR PALETTE ── */
 .leaderboard {
+  --noir-white: #FFFFFF;
+  --noir-black: #000000;
+  --noir-dark-gray: #696969;
+  --noir-mid-gray: #A9A9A9;
+  --noir-light-gray: #D3D3D3;
+  --noir-surface: #FAFAFA;
+  --noir-surface-alt: #F2F2F2;
+
   width: 100%;
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 24px;
+  background: var(--noir-white);
+  border-radius: 24px;
+  padding: 28px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 10px 30px rgba(0, 0, 0, 0.06);
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 16px 40px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--noir-surface-alt);
   font-family: 'DM Sans', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+  color: var(--noir-black);
+}
+
+/* ── GREETING ── */
+.greet {
+  font-size: 18px;
+  font-family: BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--noir-black);
+  font-weight: 800;
+}
+
+.greet-sub {
+  font-size: 12.5px;
+  color: var(--noir-dark-gray);
+  margin-top: 2px;
 }
 
 /* ── HEADER ── */
@@ -298,68 +304,61 @@ onMounted(async () => {
   gap: 12px;
 }
 
-.greet {
-  font-size: 18px;
-  font-family: BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1e293b;
-  font-weight: 800;
-}
-
-.greet-sub {
-  font-size: 12px;
-  color: #64748b;
-}
-
 .lb-title-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .lb-icon {
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(160deg, #1a1a1a, var(--noir-black));
+  border-radius: 12px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.35);
 }
 
 .leaderboard-icon {
-  color: #6366f1;
-  font-size: 1.2rem;
+  color: var(--noir-white);
+  font-size: 1.15rem;
 }
 
 .lb-title {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--noir-black);
   margin: 0;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .lb-sub {
   font-size: 0.8rem;
-  color: #94a3b8;
-  margin: 2px 0 0;
+  color: var(--noir-mid-gray);
+  margin: 3px 0 0;
 }
 
-/* YOU PILL */
-.you-pill {
+/* RANK PILL */
+.rank-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #f1f0ff;
-  color: #4f46e5;
-  padding: 6px 14px;
+  gap: 7px;
+  background: var(--noir-black);
+  color: var(--noir-white);
+  padding: 8px 16px;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 700;
-  border: 1px solid #e0e7ff;
+  letter-spacing: 0.01em;
 }
 
-.you-dot {
-  width: 7px;
-  height: 7px;
-  background: #6366f1;
+.rank-pill-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--noir-white);
   border-radius: 50%;
   animation: pulse-dot 1.8s ease infinite;
 }
@@ -373,84 +372,101 @@ onMounted(async () => {
   }
 
   50% {
-    opacity: 0.5;
-    transform: scale(0.75);
+    opacity: 0.45;
+    transform: scale(0.7);
   }
 }
 
-/* ── SEARCH ── */
-.lb-search {
-  position: relative;
+/* ── TOOLBAR ── */
+.toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  gap: 10px;
+  background: var(--noir-surface);
+  border: 1px solid var(--noir-surface-alt);
+  border-radius: 14px;
+  padding: 6px;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: grey;
+  width: 14px;
+  height: 14px;
+  color: var(--noir-mid-gray);
   pointer-events: none;
 }
 
 .search-input {
-  width: 250px;
+  width: 100%;
   padding: 10px 14px 10px 38px;
-  border: 1px solid #e2e8f0;
+  border: none;
   border-radius: 10px;
-  font-size: 0.875rem;
-  transition: border-color 0.2s, background 0.2s;
+  font-size: 0.86rem;
+  background: transparent;
+  color: var(--noir-black);
   outline: none;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: var(--noir-mid-gray);
 }
 
 .search-input:focus {
-  border-color: #6366f1;
-  background: #fff;
+  background: var(--noir-white);
+  box-shadow: inset 0 0 0 1px var(--noir-light-gray);
 }
 
-/* ── NEW FILTERS ROW (SPACE-BETWEEN) ── */
-.lb-filters-row {
+.filter-box {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #f8fafc;
-  padding: 4px 14px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--noir-light-gray);
+  padding-left: 10px;
 }
 
-.filter-label {
-  font-size: 0.8rem;
-  color: #64748b;
+.filter-box-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--noir-dark-gray);
+  text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .select-wrapper {
   position: relative;
-  min-width: 180px;
+  min-width: 150px;
 }
 
 .quiz-select {
   width: 100%;
-  padding: 6px 32px 6px 12px;
+  padding: 8px 30px 8px 12px;
   font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   border: none;
   outline: none;
+  background: var(--noir-white);
+  color: var(--noir-black);
   appearance: none;
-  /* Removes native browser styles */
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: box-shadow 0.15s;
 }
 
 .quiz-select:focus {
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 2px var(--noir-black);
 }
 
 .select-arrow {
@@ -462,7 +478,7 @@ onMounted(async () => {
   height: 0;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
-  border-top: 5px solid #64748b;
+  border-top: 5px solid var(--noir-dark-gray);
   pointer-events: none;
 }
 
@@ -471,13 +487,13 @@ onMounted(async () => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 8px;
-  padding: 16px 8px 0;
+  gap: 10px;
+  padding: 20px 8px 0;
 }
 
 .podium-card {
   flex: 1;
-  max-width: 110px;
+  max-width: 112px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -504,25 +520,27 @@ onMounted(async () => {
 .podium-avatar {
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #e2e8f0;
+  border: 3px solid var(--noir-light-gray);
+  background: var(--noir-surface);
 }
 
 .podium-1 .podium-avatar {
-  width: 56px;
-  height: 56px;
-  border-color: #fbbf24;
+  width: 60px;
+  height: 60px;
+  border-color: var(--noir-black);
+  box-shadow: 0 0 0 4px var(--noir-surface-alt), 0 8px 20px -6px rgba(0, 0, 0, 0.4);
 }
 
 .podium-2 .podium-avatar {
-  width: 46px;
-  height: 46px;
-  border-color: #94a3b8;
+  width: 48px;
+  height: 48px;
+  border-color: var(--noir-dark-gray);
 }
 
 .podium-3 .podium-avatar {
-  width: 42px;
-  height: 42px;
-  border-color: #c97f4a;
+  width: 44px;
+  height: 44px;
+  border-color: var(--noir-mid-gray);
 }
 
 .podium-medal {
@@ -531,12 +549,13 @@ onMounted(async () => {
   right: -4px;
   font-size: 1rem;
   line-height: 1;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
 }
 
 .podium-name {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--noir-black);
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -553,7 +572,7 @@ onMounted(async () => {
 .podium-score {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--noir-dark-gray);
   font-family: 'DM Mono', monospace;
 }
 
@@ -565,24 +584,24 @@ onMounted(async () => {
 
 .podium-bar {
   width: 100%;
-  border-radius: 6px 6px 0 0;
+  border-radius: 8px 8px 0 0;
   transition: height 0.6s ease;
 }
 
 .podium-1 .podium-bar {
-  background: #f59e0b;
+  background: linear-gradient(180deg, #1a1a1a, var(--noir-black));
 }
 
 .podium-2 .podium-bar {
-  background: #94a3b8;
+  background: var(--noir-dark-gray);
 }
 
 .podium-3 .podium-bar {
-  background: #c97f4a;
+  background: var(--noir-mid-gray);
 }
 
 .podium-card.is-you .podium-bar {
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.3);
 }
 
 /* ── LIST ── */
@@ -604,7 +623,7 @@ onMounted(async () => {
 }
 
 .lb-list::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--noir-light-gray);
   border-radius: 99px;
 }
 
@@ -614,30 +633,47 @@ onMounted(async () => {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #f1f5f9;
-  background: #fff;
-  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: var(--noir-white);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   animation: fadeUp 0.4s ease both;
   cursor: default;
 }
 
 .lb-item:hover {
-  background: #f8fafc;
+  background: var(--noir-surface);
+  border-color: var(--noir-surface-alt);
   transform: translateX(2px);
+  box-shadow: 0 4px 14px -8px rgba(0, 0, 0, 0.2);
 }
 
 .lb-item.is-top {
-  background: #fafbff;
+  background: var(--noir-surface);
 }
 
 .lb-item.is-you {
-  background: #f1f0ff;
-  border-color: #c7d2fe;
+  background: var(--noir-black);
+  border-color: var(--noir-black);
 }
 
 .lb-item.is-you:hover {
-  background: #eef2ff;
+  background: #1a1a1a;
+}
+
+.lb-item.is-you .item-name,
+.lb-item.is-you .rank-num {
+  color: var(--noir-white);
+}
+
+.lb-item.is-you .item-quiz,
+.lb-item.is-you .item-date {
+  color: var(--noir-mid-gray);
+}
+
+.lb-item.is-you .you-tag {
+  background: var(--noir-white);
+  color: var(--noir-black);
 }
 
 /* RANK */
@@ -650,7 +686,7 @@ onMounted(async () => {
 .rank-num {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--noir-mid-gray);
   font-family: 'DM Mono', monospace;
 }
 
@@ -666,11 +702,11 @@ onMounted(async () => {
 }
 
 .item-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--noir-light-gray);
   display: block;
 }
 
@@ -678,6 +714,7 @@ onMounted(async () => {
   position: absolute;
   inset: -3px;
   border-radius: 50%;
+  border: 2px solid var(--noir-white);
 }
 
 /* INFO */
@@ -689,7 +726,7 @@ onMounted(async () => {
 .item-name {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--noir-black);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -700,7 +737,7 @@ onMounted(async () => {
 
 .item-quiz {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: var(--noir-mid-gray);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -709,8 +746,8 @@ onMounted(async () => {
 
 /* YOU TAG */
 .you-tag {
-  background: #6366f1;
-  color: #fff;
+  background: var(--noir-black);
+  color: var(--noir-white);
   font-size: 0.6rem;
   padding: 1px 6px;
   border-radius: 999px;
@@ -745,7 +782,7 @@ onMounted(async () => {
 
 .item-date {
   font-size: 0.65rem;
-  color: #cbd5e1;
+  color: var(--noir-mid-gray);
   font-family: 'DM Mono', monospace;
   white-space: nowrap;
 }
@@ -760,8 +797,8 @@ onMounted(async () => {
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid #f1f5f9;
-  border-top-color: #6366f1;
+  border: 3px solid var(--noir-light-gray);
+  border-top-color: var(--noir-black);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -776,7 +813,7 @@ onMounted(async () => {
 .lb-empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: #94a3b8;
+  color: var(--noir-mid-gray);
 }
 
 .empty-icon {
@@ -786,7 +823,7 @@ onMounted(async () => {
 
 .lb-empty p {
   font-weight: 600;
-  color: #64748b;
+  color: var(--noir-dark-gray);
   margin: 0 0 4px;
 }
 
@@ -810,19 +847,34 @@ onMounted(async () => {
 /* ── RESPONSIVE ── */
 @media (max-width: 640px) {
   .leaderboard {
-    padding: 16px;
-    gap: 16px;
-    border-radius: 16px;
+    padding: 18px;
+    gap: 18px;
+    border-radius: 18px;
   }
 
-  .lb-filters-row {
+  .lb-header {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .toolbar {
     flex-direction: column;
     align-items: stretch;
+    padding: 8px;
     gap: 8px;
   }
 
+  .filter-box {
+    border-left: none;
+    border-top: 1px solid var(--noir-light-gray);
+    padding-left: 0;
+    padding-top: 8px;
+    justify-content: space-between;
+  }
+
   .select-wrapper {
-    min-width: 100%;
+    min-width: 60%;
   }
 
   .podium {

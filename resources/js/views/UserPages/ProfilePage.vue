@@ -1,436 +1,1083 @@
 <template>
   <div class="main-content">
+
     <div class="profile-card" v-if="user">
+
+      <!-- =====================================
+           PROFILE HEADER
+      ====================================== -->
       <div class="profile-header">
+
         <div class="avatar-wrap">
-          <div :class="['avatar', { 'uploading': loading }]">
-            <img :src="preview || profileImageUrl" draggable="false" />
-            <div v-if="loading" class="avatar-loader"></div>
+
+          <div :class="['avatar', { uploading: loading }]">
+            <img :src="preview || userAvatar" alt="Profile picture" draggable="false" />
+
+            <div v-if="loading" class="avatar-loader">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
           </div>
-          <label class="avatar-camera-badge">
+
+          <label class="avatar-camera-badge" title="Change profile picture">
             <i class="fas fa-camera"></i>
-            <input type="file" @change="onFileChange" accept="image/*" style="display:none" />
+
+            <input type="file" @change="uploadPhoto" accept="image/*" />
           </label>
+
         </div>
 
-        <h2>{{ user.first_name }}</h2>
-        <small>{{ user.email }}</small>
+
+        <div class="profile-heading">
+
+          <h2>
+            {{ user.first_name }}
+          </h2>
+
+          <small>
+            {{ user.email }}
+          </small>
+
+        </div>
+
       </div>
 
+
+      <!-- =====================================
+           PROFILE DETAILS
+      ====================================== -->
       <div class="profile-details">
 
         <div class="detail-row">
-          <span class="label">Date Joined</span>
-          <span class="value">{{ formattedDate }}</span>
+
+          <div class="detail-label">
+            <i class="fas fa-calendar-alt"></i>
+
+            <span>
+              Date Joined
+            </span>
+          </div>
+
+          <span class="detail-value">
+            {{ formattedDate }}
+          </span>
+
         </div>
+
 
         <div class="detail-row">
-          <span class="label">Quizzes Taken</span>
-          <span class="value">{{ quizzesCount || 'N/A' }}</span>
+
+          <div class="detail-label">
+            <i class="fas fa-clipboard-list"></i>
+
+            <span>
+              Quizzes Taken
+            </span>
+          </div>
+
+          <span class="detail-value">
+            {{ quizzesCount || 'N/A' }}
+          </span>
+
         </div>
+
       </div>
 
+
+      <!-- =====================================
+           ACTIONS
+      ====================================== -->
       <div class="profile-buttons">
+
         <button id="edit-profile" @click="showEditModal = true">
-          <i class="fas fa-edit"></i>
-          Edit Profile
+          <i class="fas fa-pen"></i>
+
+          <span>
+            Edit Profile
+          </span>
         </button>
+
+
         <button id="delete" class="danger" @click="showDeleteModal = true">
           <i class="fas fa-trash"></i>
-          Delete Account
+
+          <span>
+            Delete Account
+          </span>
         </button>
+
       </div>
+
     </div>
-  </div>
+
+  </div>  
+
+
+  <!-- =====================================
+       NOTIFICATIONS / MODALS
+  ====================================== -->
 
   <ToastNotification :message="notification.message" :type="notification.type" @clear="notification.message = ''" />
+
   <EditProfileModal :show="showEditModal" :loading="loading" :user="user" @notify="handleNotify" @save="updateProfile"
     @close="showEditModal = false" />
+
   <DeleteAccountModal :show="showDeleteModal" @close="showDeleteModal = false" @deleted="handleDeleted" />
+
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from "vue"
-import axios from "axios"
-import { useRouter } from "vue-router"
-import DeleteAccountModal from "@/components/ProfileModals/DeleteModal.vue"
-import EditProfileModal from "@/components/ProfileModals/EditModal.vue"
-import ToastNotification from "@/components/ToastNotification.vue"
 
-import { useUser } from "@/composables/useUser"
+<script setup>
+
+import {
+  ref,
+  computed,
+  onMounted
+} from "vue"
+
+import axios from "axios"
+
+import { useRouter } from "vue-router"
+
+import DeleteAccountModal
+  from "@/components/ProfileModals/DeleteModal.vue"
+
+import EditProfileModal
+  from "@/components/ProfileModals/EditModal.vue"
+
+import ToastNotification
+  from "@/components/ToastNotification.vue"
+
+import { useUser }
+  from "@/composables/useUser"
+
+
+/* =========================================
+   USER
+========================================= */
 
 const router = useRouter()
 
-const { userFullName, fetchUser, userAvatar, user } = useUser()
+const {
+  fetchUser,
+  userAvatar,
+  user
+} = useUser()
+
+
+/* =========================================
+   STATE
+========================================= */
+
 const notification = ref({
-  message: '',
-  type: 'success'
+  message: "",
+  type: "success"
 })
 
-const handleNotify = (payload) => {
-  showToast(payload.message, payload.type)
-}
-
 const showEditModal = ref(false)
+
 const showDeleteModal = ref(false)
 
 const preview = ref(null)
+
 const selectedFile = ref(null)
+
 const loading = ref(false)
 
-/*
-|--------------------------------------------------------------------------
-| Handle after deletion
-|--------------------------------------------------------------------------
-*/
-const handleDeleted = () => {
-  showDeleteModal.value = false
-  router.push("/")
-}
-/*
-|--------------------------------------------------------------------------
-| Profile Computed
-|--------------------------------------------------------------------------
-*/
-const profileImageUrl = computed(() => userAvatar.value)
 
-const quizzesCount = computed(() => {
-  return user.value?.quizzes_taken || 0
-})
+/* =========================================
+   NOTIFICATION
+========================================= */
 
-const showToast = (msg, type = 'success') => {
+const showToast = (
+  msg,
+  type = "success"
+) => {
+
   notification.value.message = msg
+
   notification.value.type = type
 
-  // Auto hide after 4 seconds
   setTimeout(() => {
-    notification.value.message = ''
+
+    notification.value.message = ""
+
   }, 2000)
+
 }
 
-const formattedDate = computed(() => {
-  if (!user.value?.created_at) return ""
 
-  return new Date(user.value.created_at).toLocaleDateString()
+const handleNotify = (payload) => {
+
+  showToast(
+    payload.message,
+    payload.type
+  )
+
+}
+
+
+/* =========================================
+   DELETE ACCOUNT
+========================================= */
+
+const handleDeleted = () => {
+
+  showDeleteModal.value = false
+
+  router.push("/")
+
+}
+
+
+/* =========================================
+   COMPUTED
+========================================= */
+
+const quizzesCount = computed(() => {
+
+  return user.value?.quizzes_taken || 0
+
 })
 
-/*
-|--------------------------------------------------------------------------
-| Update Profile
-|--------------------------------------------------------------------------
-*/
-const updateProfile = async (formData) => {
-  try {
-    loading.value = true
 
-    const { data } = await axios.put('/api/profile/update', formData)
+const formattedDate = computed(() => {
 
-    if (data.data && user.value) {
-      Object.assign(user.value, {
-        first_name: data.data.first_name,
-        last_name: data.data.last_name,
-        email: data.data.email,
-      })
-    }
-
-    showEditModal.value = false
-    showToast(data.message ?? 'Profile updated successfully!', 'success')
-
-  } catch (err) {
-    showToast(err.response?.data?.message ?? 'Update failed.', 'error')
-  } finally {
-    loading.value = false
+  if (!user.value?.created_at) {
+    return ""
   }
-}
-/*
-|--------------------------------------------------------------------------
-| Upload Photo Logic
-|--------------------------------------------------------------------------
-*/
-const onFileChange = async (e) => {
+
+  return new Date(
+    user.value.created_at
+  ).toLocaleDateString()
+
+})
+
+
+/* =========================================
+   PROFILE PHOTO
+========================================= */
+
+const uploadPhoto = async (e) => {
+
   const file = e.target.files[0]
-  if (!file) return
 
-  console.log("Selected file:", file)
-
-  // Validate file type
-  if (!file.type.startsWith("image/")) {
-    showToast("Please select a valid image file.", "error")
+  if (!file) {
     return
   }
 
-  selectedFile.value = file
-  preview.value = URL.createObjectURL(file)
-  loading.value = true
 
-  try {
-    const formData = new FormData()
+  /* Validate image */
 
-    // keep filename for better compatibility
-    formData.append("photo", file, file.name)
+  if (!file.type.startsWith("image/")) {
 
-    const { data } = await axios.post("/api/profile/photo", formData)
-
-    console.log("Upload response:", data)
-
-    // Update state safely
-    if (data?.new_photo && user.value) {
-      user.value.profile_photo = data.new_photo
-    }
-
-    preview.value = null
-    showToast("Profile picture updated!", "success")
-
-  } catch (error) {
-    console.log("Upload error:", error.response?.data || error)
-
-    preview.value = null
     showToast(
-      error.response?.data?.message || "Failed to upload photo.",
+      "Please select a valid image file.",
       "error"
     )
-  } finally {
-    loading.value = false
+
+    return
   }
+
+
+  selectedFile.value = file
+
+  preview.value =
+    URL.createObjectURL(file)
+
+  loading.value = true
+
+
+  try {
+
+    const formData = new FormData()
+
+    formData.append(
+      "photo",
+      file,
+      file.name
+    )
+
+
+    const { data } =
+      await axios.post(
+        "/api/profile/photo",
+        formData
+      )
+
+
+    if (
+      data?.new_photo &&
+      user.value
+    ) {
+
+      user.value.profile_photo =
+        data.new_photo
+
+    }
+
+
+    preview.value = null
+
+    showToast(
+      "Profile picture updated!",
+      "success"
+    )
+
+  } catch (error) {
+
+    console.log(
+      "Upload error:",
+      error.response?.data || error
+    )
+
+
+    preview.value = null
+
+    showToast(
+      error.response?.data?.message ||
+      "Failed to upload photo.",
+      "error"
+    )
+
+  } finally {
+
+    loading.value = false
+
+  }
+
 }
 
-/*
-|--------------------------------------------------------------------------
-| Lifecycle
-|--------------------------------------------------------------------------
-*/
-// after updating user
+
+/* =========================================
+   INITIAL LOAD
+========================================= */
+
 onMounted(async () => {
+
   await fetchUser(true)
+
 })
 
 </script>
 
+
 <style scoped>
+/* =========================================================
+   DASHQUIZ PROFILE
+   FROSTED NOIR — RESPONSIVE
+========================================================= */
+
 .main-content {
+  --white: #ffffff;
+  --black: #000000;
+
+  --gray-light: #d3d3d3;
+  --gray: #a9a9a9;
+  --gray-dark: #696969;
+
+  --surface: #ffffff;
+  --surface-soft: #f7f7f7;
+
+  --border: #d3d3d3;
+
+  --danger: #dc2626;
+  --danger-soft: #fff5f5;
+
+  width: 100%;
+  min-width: 0;
+
+  min-height: 100%;
+
+  padding: clamp(16px, 3vw, 32px);
+
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 80vh;
+  align-items: flex-start;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
 }
 
-/* Card */
+
+/* =========================================================
+   PROFILE CARD
+========================================================= */
+
 .profile-card {
-  width: 100%;
-  max-width: 420px;
-  background: #fff;
-  border-radius: 24px;
-  border: 0.5px solid rgba(0, 0, 0, 0.08);
-  padding: 32px 28px 28px;
+  width: min(100%, 440px);
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  padding: clamp(20px, 4vw, 32px);
+
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
-  animation: fadeIn 0.4s ease-out both;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.05);
+
+  animation: profileFadeIn 0.35s ease-out both;
 }
 
-/* Header */
+
+/* =========================================================
+   PROFILE HEADER
+========================================================= */
+
 .profile-header {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
+
   text-align: center;
+
   padding-bottom: 24px;
-  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
-  margin-bottom: 0;
+
+  border-bottom: 1px solid var(--border);
+
+  box-sizing: border-box;
 }
 
-/* Avatar */
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
 .avatar-wrap {
   position: relative;
+
+  width: 96px;
+  height: 96px;
+
   margin-bottom: 14px;
-  width: 100px;
-  height: 100px;
+
+  flex-shrink: 0;
 }
 
 .avatar {
   width: 90px;
   height: 90px;
-  border: 3px solid #6366f1;
+
   border-radius: 50%;
+
+  overflow: hidden;
+
+  background: var(--surface-soft);
+
+  border: 2px solid var(--black);
+
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
 }
 
 .avatar img {
-  width: 95%;
-  height: 95%;
-  border-radius: 50%;
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
   object-fit: cover;
+
+  border-radius: 50%;
 }
+
+.avatar.uploading {
+  opacity: 0.7;
+}
+
+
+/* =========================================================
+   AVATAR LOADER
+========================================================= */
 
 .avatar-loader {
   position: absolute;
-  inset: 0;
+
+  top: 0;
+  left: 0;
+
+  width: 90px;
+  height: 90px;
+
   border-radius: 50%;
-  background: rgba(75, 50, 168, 0.15);
+
+  background: rgba(0, 0, 0, 0.55);
+
+  color: var(--white);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  font-size: 16px;
 }
+
+
+/* =========================================================
+   CAMERA BUTTON
+========================================================= */
 
 .avatar-camera-badge {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 26px;
-  height: 26px;
+
+  right: 1px;
+  bottom: 1px;
+
+  width: 28px;
+  height: 28px;
+
   border-radius: 50%;
-  background: #4b32a8;
-  border: 2px solid #fff;
+
+  background: var(--black);
+
+  border: 2px solid var(--white);
+
+  color: var(--white);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 11px;
+
   cursor: pointer;
+
+  font-size: 11px;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .avatar-camera-badge:hover {
-  background: #3e2983;
+  background: var(--gray-dark);
+
+  transform: scale(1.06);
 }
 
-.profile-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.02em;
+.avatar-camera-badge:active {
+  transform: scale(0.96);
 }
 
-.profile-header small {
-  color: #6b7280;
-  font-size: 0.8rem;
-  margin-top: 3px;
-}
-
-/* Change photo button */
-.file-label {
-  margin-top: 14px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #4b32a8;
-  cursor: pointer;
-  padding: 7px 16px;
-  border: 1.5px solid #4b32a8;
-  border-radius: 50px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.18s, color 0.18s;
-}
-
-.file-label:hover {
-  background: #4b32a8;
-  color: #fff;
-}
-
-.file-label input {
+.avatar-camera-badge input {
   display: none;
 }
 
-/* Details */
+
+/* =========================================================
+   PROFILE NAME / EMAIL
+========================================================= */
+
+.profile-heading {
+  width: 100%;
+
+  min-width: 0;
+}
+
+.profile-heading h2 {
+  margin: 0;
+
+  color: var(--black);
+
+  font-size: clamp(1.15rem, 3vw, 1.35rem);
+
+  font-weight: 700;
+
+  line-height: 1.3;
+
+  overflow-wrap: anywhere;
+}
+
+.profile-heading small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--gray-dark);
+
+  font-size: clamp(0.72rem, 2vw, 0.8rem);
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
 .profile-details {
+  width: 100%;
+
+  padding: 22px 0;
+
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 24px 0;
+
+  gap: 9px;
+
+  box-sizing: border-box;
 }
 
 .detail-row {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 13px 14px;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 13px 16px;
-  background: #f9faff;
-  border-radius: 12px;
-  border: 1px solid #f0edff;
-}
+  justify-content: space-between;
 
-.detail-row .label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #8e8eb2;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+  gap: 12px;
 
-.detail-row .value {
-  font-weight: 700;
-  color: #1a1a1a;
-  font-size: 0.9rem;
-}
+  background: var(--surface-soft);
 
-/* Buttons */
-.profile-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+  border: 1px solid var(--border);
 
-button {
-  padding: 12px 10px;
   border-radius: 10px;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.detail-row:hover {
+  background: #eeeeee;
+
+  border-color: var(--gray);
+}
+
+
+/* =========================================================
+   DETAIL LABEL
+========================================================= */
+
+.detail-label {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--gray-dark);
+
+  font-size: 0.68rem;
+
   font-weight: 700;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+
+  line-height: 1.3;
+}
+
+.detail-label i {
+  width: 16px;
+
+  flex-shrink: 0;
+
+  text-align: center;
+
+  color: var(--gray-dark);
+
+  font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   DETAIL VALUE
+========================================================= */
+
+.detail-value {
+  min-width: 0;
+
+  color: var(--black);
+
   font-size: 0.85rem;
-  cursor: pointer;
-  border: none;
-  transition: transform 0.12s, background 0.18s;
+
+  font-weight: 700;
+
+  text-align: right;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BUTTON CONTAINER
+========================================================= */
+
+.profile-buttons {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BUTTON BASE
+========================================================= */
+
+.profile-buttons button {
+  width: 100%;
+  min-width: 0;
+
+  min-height: 44px;
+
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 7px;
-  letter-spacing: 0.01em;
+
+  font-family: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
 }
 
-button:active {
+.profile-buttons button:active {
   transform: scale(0.97);
 }
 
+
+/* =========================================================
+   EDIT PROFILE
+========================================================= */
+
 #edit-profile {
-  background: #6366f1;
-  color: #fff;
+  background: var(--black);
+
+  color: var(--white);
+
+  border: 1px solid var(--black);
 }
 
 #edit-profile:hover {
-  background: #3a2480;
+  background: var(--gray-dark);
+
+  border-color: var(--gray-dark);
 }
 
+
+/* =========================================================
+   DELETE ACCOUNT
+========================================================= */
+
 #delete {
-  background: #fff;
-  color: #e53935;
-  border: 1px solid #fee2e2;
+  background: var(--white);
+
+  color: var(--danger);
+
+  border: 1px solid #fecaca;
 }
 
 #delete:hover {
-  background: #fff5f5;
+  background: var(--danger-soft);
+
+  border-color: #fca5a5;
 }
 
-/* Animation */
-@keyframes fadeIn {
+
+/* =========================================================
+   LARGE TABLET
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  .main-content {
+    padding: 24px;
+  }
+
+  .profile-card {
+    max-width: 430px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  .profile-card {
+    width: 100%;
+
+    max-width: 440px;
+
+    border-radius: 14px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .main-content {
+    padding: 16px 12px;
+  }
+
+  .profile-card {
+    width: 100%;
+
+    padding: 22px 18px;
+
+    border-radius: 12px;
+  }
+
+  .profile-header {
+    padding-bottom: 20px;
+  }
+
+  .profile-details {
+    padding: 18px 0;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .main-content {
+    padding: 12px;
+  }
+
+  .profile-card {
+    padding: 20px 15px;
+  }
+
+  .avatar-wrap {
+    width: 86px;
+    height: 86px;
+
+    margin-bottom: 12px;
+  }
+
+  .avatar {
+    width: 82px;
+    height: 82px;
+  }
+
+  .avatar-loader {
+    width: 82px;
+    height: 82px;
+  }
+
+  .avatar-camera-badge {
+    width: 27px;
+    height: 27px;
+
+    right: 0;
+    bottom: 0;
+  }
+
+  .profile-heading h2 {
+    font-size: 1.15rem;
+  }
+
+  .profile-heading small {
+    font-size: 0.72rem;
+  }
+
+  .profile-details {
+    gap: 8px;
+
+    padding: 18px 0;
+  }
+
+  .detail-row {
+    padding: 12px;
+
+    gap: 8px;
+  }
+
+  .detail-label {
+    font-size: 0.62rem;
+
+    gap: 6px;
+  }
+
+  .detail-label i {
+    width: 14px;
+
+    font-size: 0.7rem;
+  }
+
+  .detail-value {
+    font-size: 0.78rem;
+  }
+
+  .profile-buttons {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+  }
+
+  .profile-buttons button {
+    min-height: 44px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .profile-card {
+    padding: 18px 12px;
+
+    border-radius: 10px;
+  }
+
+  .detail-row {
+    padding: 10px;
+  }
+
+  .detail-label {
+    font-size: 0.58rem;
+  }
+
+  .detail-value {
+    font-size: 0.72rem;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL — 320px
+========================================================= */
+
+@media (max-width: 330px) {
+
+  .main-content {
+    padding: 8px;
+  }
+
+  .profile-card {
+    padding: 16px 10px;
+  }
+
+  .profile-header {
+    padding-bottom: 18px;
+  }
+
+  .profile-details {
+    padding: 16px 0;
+  }
+
+  .detail-row {
+    padding: 9px;
+  }
+
+  .detail-label span {
+    max-width: 100px;
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .profile-card {
+    animation: none;
+  }
+
+  .avatar-camera-badge,
+  .detail-row,
+  .profile-buttons button {
+    transition: none;
+  }
+
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes profileFadeIn {
+
   from {
     opacity: 0;
-    transform: translateY(12px);
+
+    transform:
+      translateY(10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-/* Responsive */
-@media (max-width: 480px) {
-  .profile-buttons {
-    grid-template-columns: 1fr;
+    transform:
+      translateY(0);
   }
 
-  .profile-card {
-    padding: 24px 20px 20px;
-  }
 }
 </style>

@@ -21,7 +21,8 @@
                     <div class="coc-heading">
                         <span class="coc-tag">COC&nbsp;/&nbsp;{{ String(group.number).padStart(2, '0') }}</span>
                         <span class="coc-line" aria-hidden="true"></span>
-                        <span class="coc-count">{{ group.quizzes.length }} {{ group.quizzes.length === 1 ? 'module' : 'modules' }}</span>
+                        <span class="coc-count">{{ group.quizzes.length }} {{ group.quizzes.length === 1 ? 'module' :
+                            'modules' }}</span>
                     </div>
 
                     <div v-if="group.quizzes.length === 0" class="empty">
@@ -30,13 +31,8 @@
                     </div>
 
                     <div v-else class="quiz-grid">
-                        <router-link
-                            v-for="quiz in group.quizzes"
-                            :key="quiz.id"
-                            :title="quiz.description"
-                            :to="`quizzes/assessment/${quiz.id}`"
-                            class="quiz-card"
-                        >
+                        <router-link v-for="quiz in group.quizzes" :key="quiz.id" :title="quiz.description"
+                            :to="`quizzes/assessment/${quiz.id}`" class="quiz-card">
                             <div class="card-top">
                                 <div class="icon-wrapper">
                                     <i :class="quiz.icons"></i>
@@ -129,16 +125,17 @@ onMounted(async () => {
 
 <style scoped>
 .dash-quiz {
-    --surface: #fafaf9;
-    --card: #ffffff;
-    --border: #e7e5e4;
-    --ink: #1c1917;
-    --ink-muted: #78716c;
-    --accent: #0d9488;
-    --accent-soft: #f0fdfa;
-    --easy: #16a34a;
-    --medium: #d97706;
-    --hard: #dc2626;
+    /* ── FROSTED NOIR PALETTE ── */
+    --surface: #FFFFFF;
+    --card: #FFFFFF;
+    --border: #D3D3D3;
+    --ink: #000000;
+    --ink-muted: #696969;
+    --accent: #000000;
+    --accent-soft: #F2F2F2;
+    --easy: #A9A9A9;
+    --medium: #696969;
+    --hard: #000000;
 
     width: 100%;
     height: auto;
@@ -168,9 +165,9 @@ onMounted(async () => {
     font-size: 0.7rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--ink);
     background: var(--accent-soft);
-    border: 1px solid #ccfbf1;
+    border: 1px solid var(--border);
     padding: 5px 10px;
     border-radius: 999px;
     margin-bottom: 14px;
@@ -218,7 +215,9 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* COC BLOCK */
@@ -313,9 +312,9 @@ onMounted(async () => {
 }
 
 .quiz-card:hover {
-    border-color: #cbd5c9;
+    border-color: var(--ink-muted);
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px -12px rgba(28, 25, 23, 0.16);
+    box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.16);
 }
 
 .quiz-card:hover::before {
@@ -337,7 +336,7 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--accent);
+    color: var(--ink);
     font-size: 0.9rem;
     flex-shrink: 0;
 }
@@ -360,9 +359,17 @@ onMounted(async () => {
     background: currentColor;
 }
 
-.difficulty.easy { color: var(--easy); }
-.difficulty.medium { color: var(--medium); }
-.difficulty.hard { color: var(--hard); }
+.difficulty.easy {
+    color: var(--easy);
+}
+
+.difficulty.medium {
+    color: var(--medium);
+}
+
+.difficulty.hard {
+    color: var(--hard);
+}
 
 .quiz-card h3 {
     font-size: 0.92rem;
@@ -399,7 +406,7 @@ onMounted(async () => {
 
 .card-foot i {
     font-size: 0.7rem;
-    color: var(--accent);
+    color: var(--ink);
     transition: transform 0.18s ease;
 }
 
